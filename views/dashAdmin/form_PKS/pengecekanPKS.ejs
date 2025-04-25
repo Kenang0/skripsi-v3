@@ -1,0 +1,164 @@
+<link rel="stylesheet" href="/css/dashAdmin/progressbar.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<script src="/scriptJS/from_pks/progressbar3.js" defer></script>
+<style>
+  .file-preview-box {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+    margin: 20px auto;
+    max-width: 600px;
+  }
+
+  .file-preview-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .small-btn {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .small-btn:hover {
+    background-color: #5a6268;
+    cursor: pointer;
+  }
+</style>
+<div class="progress-wrapper">
+  <div class="progress-container">
+    <div class="progress" id="progress"></div>
+
+    <div class="progress-step">
+      <div class="progress-icon">
+        <i class="fa-solid fas fa-pen-to-square active"></i>
+      </div>
+      <p class="progress-text">Pembuatan PKS</p>
+    </div>
+
+    <div class="progress-step">
+      <div class="progress-icon">
+        <i class="fa-solid fas fa-upload"></i>
+      </div>
+      <p class="progress-text">Upload PKS</p>
+    </div>
+
+    <div class="progress-step">
+      <div class="progress-icon">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+      <p class="progress-text">Pengecekan PKS</p>
+    </div>
+
+    <div class="progress-step">
+      <div class="progress-icon">
+        <i class="fa-solid fa-user-plus"></i>
+      </div>
+      <p class="progress-text">Pembuatan Akun</p>
+    </div>
+
+    <div class="progress-step">
+      <div class="progress-icon">
+        <i class="fa-solid fa-thumbs-up"></i>
+      </div>
+      <p class="progress-text">Selesai</p>
+    </div>
+  </div>
+
+  <div class="form-container">
+    <form id="multiStepForm" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="pks_id" value="<%= data.pks_id %>">
+
+      <div class="form-step">
+        <p>palce holder</p>
+      </div>
+
+      <div class="form-step">
+        <p class="text-center"> 1</p>
+      </div>
+
+      <div class="form-step step-upload">
+        <p class="text-center">
+          Dokumen PKS untuk  <strong><%= data.pt_mitra %> </strong>dengan nomor <strong>
+            <%= data.nomor_pks %>, </strong>ditangani oleh  <strong><%= data.full_name %></strong>
+           sedang dalam proses pengecekan mohon ditunggu.
+        </p>
+
+        <div class="file-preview-box">
+          <div class="file-preview-row">
+            <span>Nama File: <strong>
+                <%= data.nama_dari_pdf %>
+              </strong></span>
+            <button type="button" id="previewButton" class="btn btn-secondary small-btn">
+              <i class="fa fa-eye"></i> Preview
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <div class="form-step">
+        <p class="text-center"> 2</p>
+        <input type="text" id="">
+      </div>
+
+
+      <!--Buttons kemablai-->
+  
+      <div class="btn-container">
+        <button id="kembali-ke-upload" type="button" class="btn" data-pks-id="<%= data.pks_id %>">
+          &larr; Kembali ke Upload
+        </button>
+      </div>
+    </form>
+  </div>
+  <div id="previewModal" class="modal" style="display: none;">
+    <div class="modal-content"
+      style="position: absolute; top: 10%; left: 10%; width: 80%; height: 80%; background: white; padding: 10px;">
+      <span class="close" id="closeModal">&times;</span>
+      <iframe id="pdfPreview" style="width: 100%; height: 90%;" frameborder="0"></iframe>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // preview modal
+  document.getElementById("previewButton").addEventListener("click", function () {
+    const pdfPath = "/pks_permanen/<%= data.nama_dari_pdf %>";
+    document.getElementById("pdfPreview").src = pdfPath;
+    document.getElementById("previewModal").style.display = "block";
+  });
+
+  // tutup modal
+  document.getElementById("closeModal").addEventListener("click", function () {
+    document.getElementById("previewModal").style.display = "none";
+    document.getElementById("pdfPreview").src = ""; // Kosongkan supaya gak nge-lag
+  });
+
+
+  window.addEventListener("click", function (event) {
+    const modal = document.getElementById("previewModal");
+    if (event.target === modal) {
+      modal.style.display = "none";
+      document.getElementById("pdfPreview").src = "";
+    }
+  });
+
+  document.getElementById("kembali-ke-upload").addEventListener("click", function () {
+    const pksId = this.getAttribute("data-pks-id");
+    window.location.href = `/admin/dashboardAdmin/upload-pks/${pksId}`;
+  });
+</script>

@@ -1,0 +1,83 @@
+<link rel="stylesheet" href="/css/dashAdmin/progressbar.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="/scriptJS/from_pks/progressbar5.js" defer></script>
+
+<div class="progress-wrapper">
+    <div class="progress-container">
+        <div class="progress" id="progress"></div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fas fa-pen-to-square active"></i>
+            </div>
+            <p class="progress-text">Pembuatan PKS</p>
+        </div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fas fa-upload"></i>
+            </div>
+            <p class="progress-text">Upload PKS</p>
+        </div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <p class="progress-text">Pengecekan PKS</p>
+        </div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <p class="progress-text">Pembuatan Akun</p>
+        </div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fa-thumbs-up"></i>
+            </div>
+            <p class="progress-text">Selesai</p>
+        </div>
+    </div>
+    <form id="multiStepForm" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="pks_id" value="<%= data.pks_id %>">
+
+        <div class="form-step">
+            <p>palce holder</p>
+        </div>
+
+        <div class="form-step">
+            <p class="text-center"> 1</p>
+        </div>
+
+        <div class="form-step step-upload">
+            1.5
+        </div>
+        <div class="form-step">
+       
+        </div>
+        <div class="form-step">
+            <div class="form-container">
+
+                <h2 class="text-center">Proses PKS Selesai 🎉</h2>
+
+                <p>PKS ID: <strong>
+                        <%= data.pks_id %>
+                    </strong></p>
+                <p>Nama Mitra: <strong>
+                        <%= data.pt_mitra %>
+                    </strong></p>
+
+                <p>✅ Proses PKS telah selesai dan akun vendor telah berhasil dibuat.</p>
+                <div class="text-center">
+                    <a href="/admin/dashboardAdmin" class="btn btn-primary">Kembali ke Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+
+
+</div>

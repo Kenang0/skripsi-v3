@@ -1,0 +1,349 @@
+<link rel="stylesheet" href="/css/dashAdmin/progressbar.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<!-- <link rel="stylesheet" href="/css/progressbar.css" /> -->
+<style>
+    .checkbox-kategori label {
+        font-size: 12px;
+        /* atau coba 12px jika kamu mau fix size */
+    }
+
+    .checkbox-kategori input[type="checkbox"] {
+        transform: scale(0.9);
+        /* biar kotak ceklist-nya juga ikut kecil */
+        margin-right: 5px;
+    }
+</style>
+
+<div class="progress-wrapper">
+    <div class="progress-container">
+        <div class="progress" id="progress"></div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fas fa-pen-to-square active"></i>
+            </div>
+            <p class="progress-text">Pembuatan PKS</p>
+        </div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fas fa-upload"></i>
+            </div>
+            <p class="progress-text">Upload PKS</p>
+        </div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <p class="progress-text">Pengecekan PKS</p>
+        </div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <p class="progress-text">Pembuatan Akun</p>
+        </div>
+
+        <div class="progress-step">
+            <div class="progress-icon">
+                <i class="fa-solid fa-thumbs-up"></i>
+            </div>
+            <p class="progress-text">Selesai</p>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form id="multiStepForm" action="#" method="POST" enctype="application/x-www-form-urlencoded">
+
+            <div class="form-step active">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nomor_pks">Nomor PKS:</label>
+                        <input type="text" id="nomor_pks" name="nomor_pks" placeholder="Masukkan Nomor PKS"
+                            class="small-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="hari">Hari:</label>
+                        <select id="hari" name="hari">
+                            <option value="">Pilih Hari</option>
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                            <option value="Sabtu">Sabtu</option>
+                            <option value="Minggu">Minggu</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tanggal">Tanggal:</label>
+                        <input type="date" id="tanggal" name="tanggal">
+                    </div>
+                    <div class="form-group">
+                        <label for="pt_mitra">PT Mitra:</label>
+                        <input type="text" id="pt_mitra" name="pt_mitra" placeholder="Masukkan Nama PT Mitra"
+                            class="large-input">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="kota">Kota:</label>
+                        <input type="text" id="kota" name="kota" placeholder="Masukkan Kota PT Mitra"
+                            class="small-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="nik">NIK:</label>
+                        <input type="text" id="nik" name="nik" placeholder="Masukkan NIK Perwakilan"
+                            class="small-input">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pihak_mitra">Perwakilan dari Mitra:</label>
+                        <input type="text" id="pihak_mitra" name="pihak_mitra" placeholder="Masukkan Nama Perwakilan"
+                            class="large-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="jabatan">Jabatan:</label>
+                        <input type="text" id="jabatan" name="jabatan" placeholder="Masukkan Jabatan Mitra"
+                            class="small-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="margin-top: -10px;">
+                        <label>Kategori Kerja Sama</label><span id="kategori-error"
+                            style="color: red; font-size: 12px; display: none;">
+                            *Minimal memilih 1
+                        </span>
+
+                        <div class="form-row checkbox-kategori">
+                            <div>
+                                <label><input type="checkbox" name="kategori[]" value="Event"> Event</label>
+                                <label><input type="checkbox" name="kategori[]" value="Digital-Production">Digital
+                                    Production</label>
+                            </div>
+                            <div>
+                                <label><input type="checkbox" name="kategori[]" value="Pasar"> Pasar</label>
+                                <label><input type="checkbox" name="kategori[]" value="Digital-Marketing"> Digital
+                                    Marketing</label>
+                            </div>
+                            <div>
+                                <label><input type="checkbox" name="kategori[]" value="Influencer"> Influencer</label>
+                                <label><input type="checkbox" name="kategori[]" value="Messaging"> Messaging</label>
+                            </div>
+                            <div>
+                                <label><input type="checkbox" name="kategori[]" value="Radio"> Radio</label>
+                                <label><input type="checkbox" name="kategori[]&DOOH" value="OOH&DOOH"> OOH&DOOH</label>
+                            </div>
+                            <div>
+                                <label><input type="checkbox" name="kategori[]" value="Influencer"> Influencer</label>
+                                <label><input type="checkbox" name="kategori[]" value="Messaging"> Messaging</label>
+                            </div>
+
+                            <label><input type="checkbox" name="kategori[]" value="TV"> TV</label>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: -40px;">
+                    <label for="alamat_pks">Alamat:</label>
+                    <input type="text" id="alamat_pks" name="alamat_pks" placeholder="Masukkan Alamat Kantor Mitra"
+                        class="large-input">
+                </div>
+
+                <div class="btn-container">
+                    <!-- Tombol untuk preview & download -->
+                    <button id="previewButton" formaction="/admin/dashboardAdmin/preview-pks" class="btn">Lihat
+                        Preview</button>
+                    <button id="downloadButton" disabled class="btn btn-primary">Download PDF</button>
+                    <button id="nextButton" type="button" disabled class="btn">Berikutnya</button>
+
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal untuk preview PDF -->
+<div id="previewModal" class="modal">
+    <div class="modal-content"
+        style="position:absolute; top:10%; left:10%; width:80%; height:80%; background:white; padding:10px;">
+        <span class="close">&times;</span>
+        <iframe id="pdfPreview" style="width:100%; height:90%;"></iframe>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let pks_id = null;
+    let pdfFilename = null;
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("multiStepForm");
+
+        if (form) {
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                console.log("⛔ Form submit dicegah.");
+            });
+        } else {
+            console.warn("multiStepForm tidak ditemukan!");
+        }
+    });
+
+    // pengecekan field 
+    document.getElementById("previewButton").addEventListener("click", async function (event) {
+        event.preventDefault();
+
+        const form = document.getElementById("multiStepForm");
+        const requiredFields = [
+            { id: "nomor_pks", label: "Nomor PKS" },
+            { id: "hari", label: "Hari" },
+            { id: "tanggal", label: "Tanggal" },
+            { id: "pt_mitra", label: "PT Mitra" },
+            { id: "kota", label: "Kota" },
+            { id: "pihak_mitra", label: "Perwakilan dari Mitra" },
+            { id: "jabatan", label: "Jabatan" },
+            { id: "alamat_pks", label: "Alamat" }
+        ];
+
+        let isValid = true;
+
+        // Reset semua error
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            input.style.borderColor = ""; // reset border
+            const errorEl = document.getElementById(`${field.id}-error`);
+            if (errorEl) errorEl.remove();
+        });
+
+        // Validasi per input
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (!input.value || input.value === "") {
+                isValid = false;
+                input.style.borderColor = "red";
+
+                // penambahan pesan error kalau kosong
+                const errorText = document.createElement("span");
+                errorText.id = `${field.id}-error`;
+                errorText.style.color = "red";
+                errorText.style.fontSize = "0.8em";
+                errorText.textContent = "*Wajib diisi";
+                input.parentNode.appendChild(errorText);
+            }
+        });
+
+        const kategoriCheckboxes = form.querySelectorAll('input[name="kategori[]"]');
+        const isKategoriChecked = Array.from(kategoriCheckboxes).some(checkbox => checkbox.checked);
+
+        const kategoriError = document.getElementById("kategori-error");
+        if (!isKategoriChecked) {
+            isValid = false;
+            kategoriError.style.display = "inline";
+        } else {
+            kategoriError.style.display = "none";
+        }
+
+        if (!isValid) {
+            return; // Stop kalau tidak valid
+        }
+
+        // Jika valid semua, lanjut ke fetch preview PDF
+        const formData = new FormData(form);
+        const response = await fetch("/admin/dashboardAdmin/preview-pks", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(formData)
+        });
+
+        const data = await response.json();
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        if (data.pdfPath) {
+            document.getElementById("pdfPreview").src = data.pdfPath;
+            document.getElementById("previewModal").style.display = "block";
+            document.getElementById("downloadButton").disabled = false;
+
+            pks_id = data.pks_id || null;
+            pdfFilename = data.pdfFilename || null;  // Simpan nama file PDF untuk tombol Download
+
+            console.log("✅ pks_id tersimpan:", pks_id);
+        } else {
+            alert("Gagal membuat preview PDF");
+        }
+    });
+
+    // download button 
+    document.getElementById("downloadButton").addEventListener("click", async function () {
+        if (!pdfFilename) {
+            alert("PDF belum tersedia. Silakan preview ulang.");
+            return;
+        }
+
+        // Ambil data form yang sebelumnya dikirim dari generatePDF
+        const formData = new FormData(document.getElementById("multiStepForm"));
+        formData.append("pdfFilename", pdfFilename);
+
+        const response = await fetch("/admin/dashboardAdmin/download-pks", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(formData)
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: 'PKS tersimpan ke database',
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                background: '#1e293b',
+                color: '#ffffff'
+            });
+
+            document.getElementById("nextButton").disabled = false;
+
+            // ✅ Simpan pks_id dari respons server
+            pks_id = data.pks_id || null;
+            console.log("✅ pks_id setelah download:", pks_id);
+
+            const downloadLink = document.createElement("a");
+            downloadLink.href = `/pks_permanen/${pdfFilename}`;
+            downloadLink.download = pdfFilename;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink); // Hapus setelah download
+        } else {
+            alert("Gagal menyimpan PKS: " + data.error);
+        }
+    });
+
+    document.getElementById("nextButton").addEventListener("click", function (event) {
+        event.preventDefault();
+
+        // ke halaman upload
+        window.location.href = `/admin/dashboard/upload-pks/${pks_id}`;
+    });
+
+    // Tutup modal jika mengklik tombol "X"
+    document.querySelector(".close").addEventListener("click", function () {
+        document.getElementById("previewModal").style.display = "none";
+    });
+
+</script>

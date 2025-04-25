@@ -1,0 +1,38 @@
+<link rel= "stylesheet" href= "https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" >
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/dashAdmin/dashNav.css">
+<script src="/scriptJS/navToggleDash.js" defer></script>
+<nav class="navbar">
+    <div class="navbar-brand">
+        <img src="/foto/logo_ngiklanmurah.png" alt="Logo" class="logo"> <span class="brand-text"><strong class="br-hitam">Ngiklan</strong> <span class="br-merah"><strong>Murah</strong></span> </span>
+       
+        <button class="navbar-toggle" id="toggleNavbar">
+            <span class="las la-bars"></span>
+        </button>
+    </div>
+    <ul class="navbar-menu" id="navbarMenu">
+        <li><a href="/vendor/dashboardVendor"><span class="las la-home"></span> Home</a></li>
+        <li><a href="#"><span class="las la-chart-pie"></span> Analytics</a></li>
+     
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle">
+                <span class="lab la-dropbox"></span> Produk <span class="dropdown-arrow"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#">Lihat Pordok</a></li>
+                <li><a href="/vendor/dashboardVendor/tambahproduk">Tambah Produk</a></li>
+            
+
+                <li><a href="#"><span class="las la-user-tie"></span> Vendor</a></li>
+            </ul>
+        </li>
+
+        <li><a href="#"><span class="las la-balance-scale"></span> Permintaan Pembayaran</a></li>
+      
+        
+        <li><a href="#"><span class="las la-user"></span> Klien</a></li>
+
+
+        <li><a href="/vendor/logout">Logout</a></li>
+    </ul>
+</nav>

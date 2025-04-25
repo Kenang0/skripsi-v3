@@ -1,0 +1,97 @@
+<link rel="stylesheet" href="/css/dashadmin/adminHomeContent.css">
+
+
+<div class="cards-container">
+  <div class="cards">
+    <div class="card-single">
+      <div class="card-flex">
+        <div class="card-info">
+          <div class="card-head">
+            <span>Jumlah Mitra/Vendor</span>
+          </div>
+          <small>Total vendor terdapat .. pada bulan .. dan total vendor terdapat .... pada bulan </small>
+          <h3>Pada bulan ini terdapat penambahan vendor berjumlah ..</h3>
+
+        </div>
+        <div class="card-icons">
+          <span class="las la-hands-helping"></span>
+        </div>
+      </div>
+    </div>
+    <div class="card-single">
+      <div class="card-flex">
+        <div class="card-info">
+          <div class="card-head">
+            <span>User</span>
+          </div>
+          <small>Total user terdapat .. pada bulan ... dan total user terdapat .... pada bulan</small>
+          <h3>Bulan ini terdapat penambahan vendor berjumlah ..</h3>
+
+        </div>
+        <div class="card-icons">
+          <span class="las la-hands-helping"></span>
+        </div>
+      </div>
+    </div>
+    <div class="card-single">
+      <div class="card-flex">
+        <div class="card-info">
+          <div class="card-head">
+            <span>Transaksi</span>
+          </div>
+          <small>Pada bulan .. transaksi yang paling terjadi pada kategori .. berjumlah .... transaksi</small>
+          <h3>Bulan ini transaksi paling banyak pada kategori .. dengan jumlah transaksi ..</h3>
+
+        </div>
+        <div class="card-icons">
+          <span class="las la-money-bill"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- tabel data tim internal -->
+        <!-- tabel order -->
+        <div class="table-container-tim-internal">
+          <h2>Tim Internal</h2>
+          <table class="data-tim-internal">
+            <thead>
+              <tr>
+                <!-- isinya nanti photo dengan nama disamping -->
+                <th>Nama</th>
+                 <!--admin / partnershp / projek_lead / finance  -->
+                <th>Role</th>
+                <th>Email</th>
+                <th>Nomor Tlp</th>
+                <th>Alamat</th>
+              </tr>
+            </thead>
+           
+            
+              <tbody>
+                <% if (data.length === 0) { %>
+                  <tr>
+                    <td colspan="5" style="text-align:center;">Belum ada data tim internal.</td>
+                  </tr>
+                <% } else { %>
+                  <% data.forEach(item => { %>
+                    <tr>
+                      <td>
+                        <div style="display: flex; align-items: center;">
+                          <img src="/foto/<%= item.photo_user %>" alt="foto<%= item.full_name %>" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
+                          <%= item.full_name %>
+                        </div>
+                      </td>
+                      <td><%= item.role %></td>
+                      <td><%= item.email %></td>
+                      <td><%= item.nomor_tlp %></td>
+                      <td><%= item.alamat %></td>
+                    </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+              
+          
+          </table>
+        </div>

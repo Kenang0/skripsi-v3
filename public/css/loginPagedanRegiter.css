@@ -1,0 +1,369 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+:root{
+    --main-color: #4a3adc;
+    --dark-color: #11152a;
+    --light-color: #d0d4ed;
+}
+*{
+    padding: 0;
+    margin: 0;
+}
+
+*,::before, ::after{
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.8;
+    color: var(--dark-color);
+    background-color: #efefef;
+}
+
+h2{
+    font-size: 3em;
+    font-weight: 400;
+    line-height: 1.2;
+    color: white;
+    margin-bottom: 20px;
+}
+
+ul{
+    list-style: none;
+}
+.container{
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.wrapper>div{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width:800px;
+    min-height: 500px;
+    margin: 5em auto;
+    background: linear-gradient(to right,  #3f3ded, #E63946);
+    overflow: hidden;
+    box-shadow: rgb(0, 0, 0,0.45) 0 25px 20px -20px;
+}
+:is(.login,.signup)>div{
+    position: relative;
+    flex: 1 0 50%;
+    padding: 60px;
+
+}
+
+a{
+    text-decoration: none;
+}
+
+.content-heading .y-style{
+    display: flex;
+    flex-direction: column;
+}
+.logo a{
+    display: inline-block;
+    margin-bottom: 60px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark-color);
+}
+
+.logo span{
+    color: #210cd6;
+}
+.content-heading p{
+    color: var(--light-color);
+}
+
+.content-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+}
+
+.logo-container img {
+    width: 40px; 
+    height: auto; 
+}
+
+.brand-text {
+    font-size: 20px; 
+    font-weight: bold;
+}
+
+
+
+.hitam{
+    color: black; 
+}
+
+.merah {
+    color: #E63946; 
+    font-weight: bold; 
+}
+
+
+.welcome{
+    text-align: center;
+}
+
+
+
+/* signup disembunyikan */
+/* .login{
+    display: none !important;
+} */
+
+form input:not(#terms, #remember){
+    font-family: inherit;
+    width: 100%;
+    outline: none;
+    margin: 0 0 20px;
+    padding: 10px 15px;
+    border-radius: 7px;
+    border: 1px solid var(--light-color);
+}
+
+form input::placeholder{
+    color: var(--light-color);
+}
+
+form button{
+    background-color: white;
+    color: #E63946;
+    width: 100%;
+    margin: 30px 0;
+    border: 2px solid #E63946;
+    line-height: 42px;
+    border-radius: 7px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .3s ease-out;
+    -webkit-transition: all .3s ease-out;
+
+}
+
+button:hover{
+    background: linear-gradient(to right, #E63946, #C62828);
+    color: white;
+    border: 2px solid #C62828;
+}
+
+.afterform{
+    text-align: center;
+    margin-top: 20px;
+}
+
+.form .check{
+    position: relative;
+    padding: 20px;
+    font-size: 12px;
+    float: left;
+}
+
+.form .check input{
+    position: absolute;
+    left: 0;
+    top: 4px;
+}
+.read-terms, .forgot {
+    text-align: right; /* Rata kanan */
+    font-size: 12px;
+    margin-bottom: 5px; /* Memberikan jarak antara Read the Terms dan Forgot Password */
+    display: block; /* Supaya mereka tampil vertikal */
+}
+
+.read-terms a, .forgot a {
+    color: var(--main-color);
+    text-decoration: none;
+}
+
+.read-terms a:hover, .forgot a:hover {
+    border-bottom: 1px dotted;
+}
+
+label{
+    color: black;
+    font-weight: 500;
+}
+
+
+
+/* 
+form .forgot {
+    float: right;
+    font-size: 12px;
+} */
+
+form label a, .afterform a{
+    color: var(--light-color);
+}
+
+form:is(p,label) a:hover .afterform a:hover{
+    border-bottom: 1px dotted;
+}
+
+.content-form::before{
+    content: '';
+    position: absolute;
+    width: 1500px;
+    height: 1000px;
+    background-color: #fff;
+    border-radius: 90%;
+    transform: translate3d(-27%, 30% 0);
+    -webkit-transform: translate3d(-27%, 30% 0);
+    animation: fade-in 0.7s cubic-bezier(0.39, 0.575, 0.565,1) both;
+    -webkit-animation: fade-in 0.7s cubic-bezier(0.39, 0.575, 0.565,1) both;
+}
+
+.y-style{
+    position: relative;
+    transform: translate3d(0 20% 0);
+    -webkit-transform: translate3d(0 20% 0);
+    animation: fade-in 0.7s cubic-bezier(0.39, 0.575, 0.565,1) both;
+    -webkit-animation: fade-in 0.7s cubic-bezier(0.39, 0.575, 0.565,1) both;
+}
+@keyframes fade-in{
+    form{
+        opacity: 0;
+        transform: translate3d(0 20% 0);
+    }
+    to{
+        opacity: 1;
+    }
+}
+
+:is(.login-show .signup-show) .y-style{
+    transform: translate3d(0,0,0);
+}
+
+.social :is(ul, p){
+    display: flex;
+    justify-content: center;
+    position: relative;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.social p::before{
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: 90px;
+    background-color: var(--light-color);
+    top: 0;
+    margin-left: 1px;
+}
+
+.social p span{
+    background-color: #fff;
+    z-index: 1;
+    padding: 0 20px;
+    color: var(--light-color);
+    font-size: 11px;
+}
+
+.social a{
+    display: flex;
+    font-size: 20px;
+    transform: translateY(0);
+    -webkit-transform: translateY(0);
+    transition: trasform .3s;
+}
+
+.social a:hover{
+    transform: translateY(-5px);
+    -webkit-transform: translateY(-5px);
+}
+
+.social .google{
+    color: #eb3b52;
+}
+.social .facebook{
+    color: #4a3adc;
+}
+.social .twiter{
+    color: #eb3b52;
+}
+
+/* .login-show .signup .signup-show .login{
+    display: none;
+} */
+
+
+/* .signup-show .signup .signup-show .login{
+    display: flex;
+} */
+
+.btn-close {
+    filter: invert(26%) sepia(96%) saturate(5702%) hue-rotate(350deg) brightness(92%) contrast(108%);
+    z-index: 1060 !important;
+}
+
+body.modal-open {
+    filter: none !important;
+}
+
+.modal-content {
+    filter: none !important;
+    opacity: 1 !important;
+    z-index: 1055 !important;
+    position: relative;
+}
+
+.modal-backdrop {
+    opacity: 0.5 !important; /* Sesuaikan sesuai keinginan */
+    z-index: 1040 !important;
+}
+
+
+
+
+
+@media screen and (min-width : 760px) {
+    .wrapper>div{
+        flex-direction: row;
+        max-width: 800px;
+    }
+    c.signup .content-heading .y-style{
+        height: 100%;
+        justify-content: space-between;
+    }
+    .content-form::before{
+        transform: translate3d(-18%, -10% 0);
+    -webkit-transform: translate3d(-18%, -10% 0);
+    }
+    .welcome{
+        text-align: left;
+        margin: 5em 0 auto;
+    }
+    .modal-content {
+        width: 90%; /* Modal lebih kecil di HP */
+        max-width: 400px;
+        margin: 20% auto;
+        padding: 15px;
+    }
+
+    .modal-content h2 {
+        font-size: 20px; /* Ukuran teks lebih kecil */
+    }
+
+    .modal-content p {
+        font-size: 14px;
+    }
+
+    .close {
+        font-size: 24px;
+    }
+
+}

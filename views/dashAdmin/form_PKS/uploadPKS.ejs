@@ -1,0 +1,155 @@
+<link rel="stylesheet" href="/css/dashAdmin/progressbar.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="/scriptJS/from_pks/progressbar2.js" defer></script>
+
+<div class="progress-wrapper">
+  <div class="progress-container">
+    <div class="progress" id="progress"></div>
+
+    <div class="progress-step">
+        <div class="progress-icon">
+            <i class="fa-solid fas fa-pen-to-square active"></i>
+        </div>
+        <p class="progress-text">Pembuatan PKS</p>
+    </div>
+
+    <div class="progress-step">
+        <div class="progress-icon">
+            <i class="fa-solid fas fa-upload"></i>
+        </div>
+        <p class="progress-text">Upload PKS</p>
+    </div>
+
+    <div class="progress-step">
+        <div class="progress-icon">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <p class="progress-text">Pengecekan PKS</p>
+    </div>
+
+    <div class="progress-step">
+        <div class="progress-icon">
+            <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <p class="progress-text">Pembuatan Akun</p>
+    </div>
+
+    <div class="progress-step">
+        <div class="progress-icon">
+            <i class="fa-solid fa-thumbs-up"></i>
+        </div>
+        <p class="progress-text">Selesai</p>
+    </div>
+</div>
+    <div class="form-container">
+        <form id="multiStepForm"  method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="pks_id" value="<%= data.pks_id %>">
+            
+                <div class="form-step">
+                    <p>palce holder</p>
+                </div>
+
+                <div class="form-step step-upload">
+                    <p class="text-center">Nomor PKS: <strong>
+                            <%= data.nomor_pks %>
+                        </strong></p>
+                    <p>Silakan unggah dokumen PKS dalam format PDF.</p>
+                    <div class="upload-group">
+                        <input type="file" id="pks_pdf" name="pks_pdf" accept="application/pdf" required>
+                    </div>
+                </div>
+
+
+                <div class="form-step">
+                    <p class="text-center"></p>
+                </div>
+
+                <div class="form-step">
+                    
+                    <input type="text" id="">
+                </div>
+
+
+                <!-- Navigation Buttons -->
+                <div class="btn-container">
+                    <button id="upload-pks-baru" type="button" class="btn">Upload</button>
+                    <button id="nextButton" type="button" disabled class="btn">Berikutnya</button>
+                </div>
+            </form>
+    </div>
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+      let pks_id = null;
+      let pdfFilename = null;
+// tombol upload
+  document.getElementById("upload-pks-baru").addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    const form = document.getElementById("multiStepForm");
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch("/admin/dashboardAdmin/upload-pks-tandatangan", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.text();
+
+      if (response.ok) {
+        Swal.fire({
+          toast: true,
+          position: 'top',
+          icon: 'success',
+          title: 'PKS berhasil diupload dan diganti!',
+          showConfirmButton: false,
+          timer: 2500,
+          timerProgressBar: true,
+          background: '#1e293b',
+          color: '#ffffff'
+        });
+
+        document.getElementById("nextButton").disabled = false;
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Upload Gagal',
+          text: result
+        });
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Terjadi Error',
+        text: 'Gagal terhubung ke server.'
+      });
+      console.error(err);
+    }
+  });
+
+  document.getElementById("nextButton").addEventListener("click", function (event) {
+  event.preventDefault();
+
+  const hiddenInput = document.querySelector('input[name="pks_id"]');
+  const currentPKSId = hiddenInput ? hiddenInput.value : null;
+
+  if (!currentPKSId) {
+    alert("PKS ID tidak ditemukan. Pastikan file sudah diupload.");
+    return;
+  }
+
+  console.log("➡️ Menuju pengecekan dengan PKS ID:", currentPKSId);
+  window.location.href = `/admin/dashboard/pengecekan-pks/${currentPKSId}`;
+});
+
+
+</script>
+
+  

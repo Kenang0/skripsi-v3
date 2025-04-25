@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surat Perjanjian Kemitraan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            margin: 50px;
+        }
+
+        h2 {
+            font-size: 16px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        h3 {
+            font-size: 14px;
+        }
+
+        h4 {
+            font-size: 14px;
+        }
+
+        p {
+            font-size: 12px;
+        }
+
+        .text-center{
+            text-align: center;
+        }
+
+        li {
+            font-size: 12px;
+          
+        }
+
+        .content {
+            margin: 20px;
+        }
+
+        .info-table {
+            font-size: 12px;
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .info-table td {
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        p {
+            text-align: justify;
+            margin-top: 1px;
+            margin-bottom: 15px;
+        }
+
+        .pepet-paragraf{
+            margin-top: 1px;
+            margin-bottom: 11px;
+        }
+
+        .signature {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature div {
+            text-align: center;
+        }
+
+        .three-column-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            /* Jarak antar kolom */
+            list-style: none;
+            counter-reset: list-counter;
+            /* Reset penomoran */
+        }
+
+        .three-column-list li {
+            width: calc(33.33% - 10px);
+            /* 3 kolom */
+            counter-increment: list-counter;
+            /* Tambahkan angka */
+        }
+
+        .three-column-list li::before {
+            content: counter(list-counter) ". ";
+            /* Tambahkan angka */
+            font-weight: bold;
+        }
+
+        .category-section {
+            margin-top: 10px;
+        }
+
+        /* Merapikan jarak antar judul kategori */
+        .category-section h4 {
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        /* Merapikan paragraf agar tidak terlalu berjauhan */
+        .category-section p {
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+            /* Lebih rapat */
+        }
+
+        /* Merapikan daftar */
+        .category-section ul {
+            list-style: none;
+            counter-reset: list-counter;
+            padding-left: 15px;
+           
+            margin: 0;
+        }
+
+        /* Memberikan penomoran a), b), c) pada daftar */
+        .category-section ul li {
+            counter-increment: list-counter;
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 1px;
+            /* Jarak antar item lebih rapat */
+        }
+
+        .category-section ul li::before {
+            content: counter(list-counter, lower-alpha) ") ";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        
+        /* Merapikan daftar */
+        .List-abc ul {
+            list-style: none;
+            counter-reset: list-counter;
+            padding-left: 15px;
+            /* Mengurangi indentasi */
+            margin: 0;
+        }
+
+        /* Memberikan penomoran a), b), c) pada daftar */
+        .List-abc ul li {
+            counter-increment: list-counter;
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 1px;
+            /* Jarak antar item lebih rapat */
+        }
+
+        .List-abc ul li::before {
+            content: counter(list-counter, lower-alpha) ") ";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+
+            /* Menampilkan nomor halaman di kanan bawah */
+            .page-footer {
+                position: fixed;
+                bottom: 10px;
+                left: 0;
+                right: 0;
+                text-align: center;
+                font-size: 12px;
+                color: gray;
+            }
+        }
+
+
+        body {
+            counter-reset: page;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>SURAT PERJANJIAN KEMITRAAN NGIKLANMURAH.COM</h2>
+
+    <div class="content">
+        <p class="text-center"><strong>Nomor:</strong> {nomor_pks}</p>
+
+        <p>Surat ini merupakan Perjanjian resmi yang mengatur kerja sama kemitraan Ngiklanmurah.com, dibuat dan
+            ditandatangani pada hari <strong>{hari}</strong>, tanggal <strong>{tanggal}</strong>, Bulan
+            <strong>{bulan}</strong>, Tahun <strong>{tahun}</strong>, oleh dan antara:
+        </p>
+
+        <p>1. <strong>PT. Pandawa Sakti Digital</strong>, suatu perseroan terbatas yang didirikan menurut hukum negara
+            Republik
+            Indonesia, berkedudukan di Graha Bima Juara, Jl. Utan Kayu Raya No. 40, Utan Kayu Utara, Matraman, Jakarta
+            Timur 13120 dalam hal ini diwakili secara sah oleh <strong>Wahyu Prasetyo</strong>, dalam jabatannya selaku
+            <strong>Direktur</strong>
+            (Ngiklanmurah.com)
+        </p>
+
+        <p>dan</p>
+
+        <p><strong>{pt_mitra}</strong>, suatu badan hukum yang berkedudukan di <strong>{kota}</strong>, beralamat di
+            <strong>{alamat}</strong>, diwakili oleh <strong>{pihak_mitra}</strong> selaku <strong>{jabatan}</strong>,
+            dengan Nomor Induk Kependudukan (NIK): <strong>{nik}</strong>.
+        </p>
+
+        <h3>I. Ketentuan Khusus</h3>
+        <p>Kategori Produk:</p>
+        {kategori_produk}
+        <p>Jumlah dan detail produk dijelaskan secara rinci dalam Lampiran yang merupakan bagian tidak terpisahkan dari
+            Surat Perjanjian Kemitraan ini. Seluruh lampiran menjadi satu kesatuan dengan Surat Perjanjian Kemitraan dan
+            berlaku sebagaimana yang tercantum secara langsung di dalam teks Surat Perjanjian Kemitraan ini.</p>
+
+        <h3>II. Ketentuan Umum</h3>
+        <p>Para Pihak sepakat untuk tunduk dan patuh pada syarat-syarat dalam Ketentuan Umum Surat Perjanjian Kemitraan
+            yang telah tercantum pada halaman sebelah Perjanjian, yang merupakan satu kesatuan dari dan tidak
+            terpisahkan dengan Perjanjian ini.</p>
+
+        <h3>III. Korespondensi</h3>
+        <table class="info-table">
+            <tr>
+                <td><strong>PIHAK PERTAMA</strong></td>
+                <td><strong>PIHAK KEDUA</strong></td>
+            </tr>
+            <tr>
+                <td>PT. Pandawa Sakti Digital</td>
+                <td>{pt_mitra}</td>
+            </tr>
+            <tr>
+                <td>Graha Bima Juara, Jl. Utan Kayu Raya No.40, Jakarta Timur</td>
+                <td>{alamat_pks}</td>
+            </tr>
+            <tr>
+                <td>Telp/Fax: ....................</td>
+                <td>Telp/Fax: ....................</td>
+            </tr>
+            <tr>
+                <td>Email: ....................</td>
+                <td>Email: ....................</td>
+            </tr>
+        </table>
+
+        <div class="page-break"></div>
+        <p>Ngiklanmurah.com menyediakan berbagai layanan iklan berbasis digital dengan kategori dan detail produk
+            sebagai berikut:</p>
+        <div class="category-section">
+            <h4>1. Kategori TV</h4>
+            <p>Produk yang dapat ditawarkan dalam kategori TV adalah penempatan iklan pada program-program yang
+                disediakan oleh stasiun TV milik Mitra dengan durasi iklan serta syarat dan ketentuan yang ditetapkan
+                oleh Mitra.</p>
+
+            <h4>2. Kategori Digital Production</h4>
+            <p>Produk yang dapat ditawarkan dalam kategori Audio Production yaitu:</p>
+            <ul>
+                <li>Mixing dan Mastering</li>
+                <li>Postpro Podcast</li>
+                <li>Pembuatan Jingle</li>
+                <li>Voice Over</li>
+                <li>Pembuatan Video Profesional (Documentation, Campaign, Product, Promotion & Company Profile)</li>
+                <li>Pembuatan Video Animasi</li>
+                <li>Penyewaan Studio Recording Musik, dengan detail hasil output dari produksi serta syarat dan
+                    ketentuan yang ditetapkan oleh Mitra.</li>
+            </ul>
+
+            <h4>3. Kategori Pasar</h4>
+            <p>Mitra dapat menawarkan pemasangan iklan pada media yang tersedia di lokasi-lokasi pasar milik Mitra
+                dengan spesifikasi serta syarat dan ketentuan pemasangan iklan yang ditetapkan oleh Mitra.</p>
+
+            <h4>4. Kategori Event</h4>
+            <p>Mitra dapat memasarkan berbagai jenis Event pada platform Mediabuying.id dengan tawaran paket iklan serta
+                syarat dan ketentuan yang ditetapkan oleh Mitra.</p>
+
+            <h4>5. Kategori Influencer</h4>
+            <p>Mitra dapat memasarkan influencer pada platform Mediabuying.id dengan paket sebagai berikut:</p>
+            <ul>
+                <li>Nano Influencer</li>
+                <li>Mikro Influencer</li>
+                <li>Makro Influencer</li>
+                <li>Mega Influencer</li>
+            </ul>
+            <p>dengan detail list talent serta syarat dan ketentuan yang ditetapkan oleh Mitra.</p>
+
+            <h4>6. Kategori Messaging</h4>
+            <p>Mitra dapat menawarkan produk Messaging seperti SMS, SMS Push Domestic, WhatsApp, dan sejenisnya pada
+                platform Mediabuying.id dengan paket serta syarat dan ketentuan yang ditetapkan oleh Mitra.</p>
+
+            <h4>7. Kategori Radio</h4>
+            <p>Mitra dapat menawarkan produk Radio seperti Talkshow, Spot, Insert, dan Adlibs pada platform
+                Mediabuying.id dengan syarat dan ketentuan yang ditetapkan oleh Mitra.</p>
+
+            <h4>8. Kategori OOH & DOOH</h4>
+            <p>Mitra dapat memasarkan produk OOH dan DOOH seperti:</p>
+            <ul>
+                <li>OOH Bandara</li>
+                <li>OOH Gedung Pemerintah</li>
+                <li>OOH Indoor</li>
+                <li>LED Videotron</li>
+                <li>Billboard</li>
+                <li>OOH Rumah Sakit</li>
+                <li>OOH Stasiun</li>
+                <li>Dan lain sebagainya, dengan spesifikasi serta syarat dan ketentuan yang ditetapkan oleh Mitra.</li>
+            </ul>
+
+            <h4>9. Digital Marketing</h4>
+            <p>Mitra dapat menawarkan produk pemasaran dalam kategori seperti Website, Sosial Media dan sejenisnya pada
+                platform Mediabuying.id dengan syarat dan ketentuan yang ditetapkan oleh Mitra.</p>
+        </div>
+
+        <h3>VIII. Tanda Tangan</h3>
+        <div class="signature">
+            <div>
+                <p>PIHAK PERTAMA</p>
+                <p>PT. Pandawa Sakti Digital</p>
+                <br><br><br>
+                <p>_______________________</p>
+                <p>(Wahyu Prasetyo)</p>
+            </div>
+
+            <div>
+                <p>PIHAK KEDUA</p>
+                <p>{pt_mitra}</p>
+                <br><br><br>
+                <p>_______________________</p>
+                <p>({pihak_mitra})</p>
+            </div>
+        </div>
+        <div class="page-break"></div>
+        <div class="ketentuan-umum">
+            <h2>KETENTUAN UMUM</h2>
+            <h3>1. DEFINISI</h3>
+            <ul>
+                <li>Biaya Administratif</li>
+                <p class="pepet-paragraf">adalah biaya yang ditetapkan dan dapat dikenakan kepada Mitra apabila Mitra tidak mematuhi ketentuan
+                    ini,
+                    kebijakan, dan hukum yang berlaku atau karena suatu alasan yang wajar.</p>
+                <li>Konsumen</li>
+                <p class="pepet-paragraf">adalah Pihak Ketiga, yang membeli Produk melalui Platform Ngiklanmurah.com.</p>
+
+                <li>Harga Yang Tercantum</li>
+                <p class="pepet-paragraf">adalah harga yang ditawarkan untuk suatu barang atau jasa yang dijual kepada Para Konsumen oleh
+                    Ngiklanmurah.com sebagaimana ditampilkan di Platform Ngiklanmurah.com pada waktu Pesanan dibuat.
+                    Untuk menghindari keraguan, Harga Yang Tercantum termasuk setiap pajak yang berlaku berdasarkan
+                    hukum yang berlaku dan tidak termasuk kupon atau potongan harga lainnya yang diberi oleh
+                    Ngiklanmurah.com kepada Konsumen.</p>
+                <li>Pajak</li>
+                <p class="pepet-paragraf">Setiap pajak yang berlaku, termasuk tapi tidak terbatas pada Pajak Barang dan Jasa, Pajak Pertambahan
+                    Nilai, Pajak Penjualan, dan Pajak Layanan, atau pajak yang setara dan yang diubah dari waktu ke
+                    waktu.</p>
+                <li>Masa Kerja Sama</li>
+                <p class="pepet-paragraf">adalah jangka waktu kerja sama antara platform Ngiklanmurah.com dengan Mitra sejak ditandatanganinya
+                    Perjanjian Kemitraan ini sampai dengan jangka waktu yang disepakati bersama dan diperpanjang secara
+                    otomatis.</p>
+                <li>Hak Kekayaan Intelektual</li>
+                <p class="pepet-paragraf">semua hak paten dan hak cipta, hak moral, merek dagang, hak desain, hak atas atau sehubungan dengan
+                    basis data, dan/atau informasi rahasia, hak sehubungan dengan nama domain, dan hak kekayaan
+                    intelektual lainnya di seluruh dunia.</p>
+                <li>Pesanan</li>
+                <p class="pepet-paragraf">permintaan yang diajukan oleh Konsumen di Platform Ngiklanmurah.com untuk pembelian barang atau jasa
+                    tertentu.</p>
+                <li>Pembayaran</li>
+                <p class="pepet-paragraf">pembayaran hasil penjualan bersih yang dilakukan atau akan dilakukan oleh Platform Ngiklanmurah.com
+                    kepada Mitra.</p>
+                <li>Kategori Produk</li>
+                <p class="pepet-paragraf">adalah semua jenis layanan yang disediakan oleh platform Ngiklanmurah.com.</p>
+            </ul>
+            <div class="List-abc">
+            <h3>2. LAYANAN</h3>
+            <p>Layanan yang diberikan oleh Ngiklanmurah.com kepada Mitra adalah:</p>
+            <ul>
+                <li>Menampilkan dan mempublikasikan produk-produk yang Mitra tawarkan untuk dijual melalui platform
+                    Ngiklanmurah.com.</li>
+                <li>Penyediaan Platform Ngiklanmurah.com bagi Mitra untuk menawarkan produk untuk dijual.</li>
+                <li>Layanan pengaduan konsumen yang terbatas, termasuk koordinasi dan pemberian tanggapan atas
+                    pertanyaan Konsumen.</li>
+                <li>Pengumpulan, rekonsiliasi dan pengembalian seluruh Hasil Penjualan.</li>
+                <li>Layanan lainnya yang menunjang Layanan.</li>
+            </ul>
+
+            <h3>3. PEMBAYARAN</h3>
+            <ul>
+                <li>Mitra mengizinkan Ngiklanmurah.com (atau para penyedia layanan yang ditunjuk Ngiklanmurah.com) untuk
+                    menghitung dan memproses pembayaran kepada Konsumen, pengembalian dan penyesuaian.</li>
+                <li>Ngiklanmurah.com (atau para penyedia layanan yang ditunjuk oleh Ngiklanmurah.com) akan mengirimkan
+                    uang
+                    dari hasil penjualan kepada Mitra secara berkala setelah mengurangi biaya yang harus dibayar kepada
+                    Ngiklanmurah.com atas layanan yang ditawarkan kepada Mitra.</li>
+                <li>Ngiklanmurah.com dapat menunda, menangguhkan atau membatalkan pembayaran jika Mitra melanggar
+                    ketentuan
+                    perjanjian ini.</li>
+            </ul>
+
+            <h3>4. BIAYA</h3>
+            <ul>
+                <li>Dengan mempertimbangkan penyediaan Layanan, Ngiklanmurah.com berhak untuk memperoleh biaya layanan
+                    per transaksi atas produk Mitra yang terjadi di platform Ngiklanmurah.com.</li>
+                <li>Ngiklanmurah.com dapat memberikan biaya administratif apabila Mitra terbukti melanggar
+                    ketentuan-ketentuan di dalam perjanjian ini.</li>
+
+            </ul>
+
+            <h3>5. HAK-HAK NGIKLANMURAH.COM</h3>
+            <ul>
+                <li>Memperoleh potongan harga (Agency Discount) sebesar 10% (sepuluh persen) dari Mitra untuk setiap
+                    produk yang dipasarkan melalui platform Ngiklanmurah.com.</li>
+                <li>Membatalkan atau mengakhiri perjanjian ini secara sepihak apabila berdasarkan bukti-bukti yang dapat
+                    dipertanggungjawabkan dan sah menurut hukum, PIHAK KEDUA terbukti melakukan pelanggaran atas
+                    keseluruhan isi Perjanjian ini.</li>
+            </ul>
+
+            <h3>6. KEWAJIBAN NGIKLANMURAH.COM</h3>
+            <ul>
+                <li>Mengrimkan uang dari hasil penjualan kepada mitra secara berkala setelah mengurangi biaya yang harus
+                    dibayar kepada Ngiklanmurah.com atas layanan yang ditawarkan kepada Mitra</li>
+            </ul>
+
+            <h3>7. HAK-HAK MITRA</h3>
+            <ul>
+                <li>Menerima uang dari hasil penjualan dari Ngiklanmurah.com secara berkala dikurangi biaya yang harus
+                    dibayar kepada Ngiklanmurah.com</li>
+            </ul>
+
+            <h3>8. KEWAJIBAN MITRA</h3>
+            <ul>
+                <li>Melaksanakan seluruh kewajiban dalam perjanjian ini</li>
+                <li>Melakukan pengurusan dokumen legalitas yang diperlukan dengan pemenuhan perizinan serta kewajiban
+                    perpajakan yang berlaku terkait pelaksanaan dan pembayaran</li>
+                <li>Memberikan potongan harga {agency Dicount } sebesar sebesar 10% (sepuluh persen) kepada
+                    ngiklanmurah.com untuk produk yang dipasarkan melalui platform ngikanmurah.com</li>
+                <li>Memastikan bahwa produk apapun yang ditawarkan kepada konsumen diluar platform Ngiklanmurah.com
+                    tidak akan lebih rendah dari harga yang tercantum pada platform ngiklanmurah.com</li>
+            </ul>
+
+            <h3>9. JAMINAN PARA PIHAK</h3>
+            <ul>
+                <li>Mitra denga nini menyatakan dan menjamin kepada Ngiklanmurah.com bahwa produk-produk yang dipasarkan
+                    melalui ngiklanmurah.com telah memperoleh izin yang sah dan memiliki Hak Kekayaan Intelektula yang
+                    terkait namun tidak terbatas pada hak cipta, merek dagang, paten, desain industry, rahasia dagang,
+                    dan hak kekayaan intelektual lainnya.</li>
+                <li>Mitra menjamin bahwa produk-produk yang dipasarkan melalui Ngiklanmurah.com tidak melanggar atau
+                    mengabaikan hak kekayaan intelektula pihak ketiga manapun. Mitra bertanggung jawab secara penuh atas
+                    keabsahan dan keaslian produk-produk tersebut</li>
+            </ul>
+
+            <h3>10. LARANGAN</h3>
+            <p>Mitra dilarang menghubungi secara langsung konsumen Ngiklanmurah.com untuk melakukan perjanjian dan
+                transaksi langsung dengan konsumen diluar platform Ngiklanmurah.com.</p>
+
+            <h3>11. MASA KERJA SAMA</h3>
+            <ul>
+                <li>Masa Kerja Sama Perjanjian ini adalah 3 (tiga) tahun dan berlaku sejak ditandatanganinya Perjanjian
+                    Kemitraan ini.</li>
+                <li>Perjanjian Kemitraan ini secara otomatis akan diperpanjang untuk setiap 3 (tiga) tahun berikutnya,
+                    kecuali salah satu pihak tidak menghendaki diperpanjang dengan pemberitahuan tertulis kepada pihak
+                    lainnya selambat-lambatnya 30 (tiga puluh) hari sebelum berakhirnya Perjanjian Kemitraan ini.</li>
+            </ul>
+            
+            <!-- cek kata-kata di PKS yang ada -->
+            <h3>12. BERAKHIRNYA MASA KERJA SAMA</h3> 
+            <ol>
+                <li>Ngiklanmurah.com berhak mengakhiri Perjanjian Kemitraan ini secara sepihak dan secara langsung serta melarang penggunaan oleh Mitra atas Layanan Ngiklanmurah.com pada saat terjadinya salah satu dari hal-hal berikut ini:
+                    <ul>
+                        <li>Mitra melanggar suatu ketentuan dalam Perjanjian Kemitraan ini dan gagal memulihkannya dalam waktu 14 (empat belas) hari sejak diberitahukan;</li>
+                        <li>Mitra melanggar hukum yang berlaku atau Kebijakan;</li>
+                        <li>Mitra berdasarkan suatu putusan Badan Peradilan yang telah mempunyai kekuatan pasti dinyatakan pailit, dibubarkan atau karena suatu sebab berada dalam likuidasi atau memperoleh izin untuk menunda suatu pembayaran (surséance van betaling).</li>
+                    </ul>
+                </li>
+                <li>Salah satu pihak dapat mengakhiri Perjanjian Kemitraan ini secara sepihak, tanpa sebab apapun dengan mengajukan pemberitahuan tertulis 30 (tiga puluh) hari sebelum kepada Pihak Lain.</li>
+            </ol>
+
+            <h3>13. KEADAAN MEMAKSA</h3>
+            <ul>
+                <li>Keadaan memaksa (Force Majeure) adalah kejadian atau keadaan di luar kekuasaan dan kemampuan yang
+                    wajar dari Para Pihak sehingga tidak dapat memenuhi kewajibannya dalam Perjanjian, seperti bencana
+                    alam, perang, sabotase, huru-hara, kerusuhan massal, pembekotan, larangan bekerja, pemogokan atau
+                    gangguan industri lainnya, epidemi, kecelakaan, kebakaran yang menyeluruh, ledakan, tindakan
+                    pemerintah atau pengambil-alihan pemerintah.</li>
+                <li>Para Pihak dalam waktu 7 (tujuh) Hari Kerja wajib mengambil segala tindakan untuk melaksanakan
+                    kewajiban yang tertunda yang dikatakan Force Majeure.</li>
+            </ul>
+
+            <h3>14. TANGGUNG JAWAB KERUGIAN</h3>
+            <ul>
+                <li>Segala sesuatu yang terjadi akibat kelalaian atau kesalahan salah satu pihak menjadi tanggung
+                    jawabnya sendiri, dan pihak lainnya dibebaskan dari setiap kerugian, tanggung-jawab, tuntutan,
+                    tagihan, gugatan, atau setangke pengadilan (termasuk semua ongkos dan biaya-biaya) yang ada
+                    hubungannya dengan Perjanjian dan pelaksanaannya.</li>
+                <li>Mitra membebaskan Ngiklanmurah.com dari segala tuntutan hukum yang diakibatkan termasuk tapi tidak
+                    terbatas pada produk Mitra yang bertentangan dengan hukum atau perundang-undangan yang berlaku.</li>
+            </ul>
+
+            <h3>15. HUKUM YANG BERLAKU</h3>
+            <ul>
+                <li>Perjanjian Kemitraan ini dibuat menurut hukum yang berlaku di Negara Republik Indonesia.</li>
+                <li>Setiap perselisihan yang timbul sehubungan dengan Perjanjian ini dapat diselesaikan secara
+                    musyawarah untuk mufakat dalam waktu 30 (tiga puluh) hari, akan diselesaikan melalui Pengadilan
+                    Negeri Jakarta Timur di DKI Jakarta.</li>
+            </ul>
+
+            <h3>16. PENGALIHAN PERJANJIAN</h3>
+            <ul>
+                <li> Mitra tidak berhak mengalihkan sebagian atau seluruh Perjanjian Kemitraan ini kepada pihak ketiga
+                    tanpa persetujuan tertulis dari Ngiklanmurah.com.</li>
+            </ul>
+
+            <h3>17. PERJANJIAN SECARA KESELURUHAN</h3>
+            <ul>
+                <li>Setiap penambahan dan/atau perubahan terhadap ketentuan-ketentuan dalam Perjanjian Kemitraan ini,
+                    harus berdasarkan kesepakatan secara tertulis antara Para Pihak.</li>
+                <li>Setiap pembatalan lisan, janji atau pernyataan lisan selain yang secara tegas dituliskan dalam
+                    Perjanjian ini atau perubahan-nya secara tertulis, dinyatakan tidak berlaku.</li>
+                <li>Lembar-lampiran dan dokumen pelengkap merupakan kesatuan dan bagian yang tidak terpisahkan dari
+                    Perjanjian ini.</li>
+            </ul>
+        </div>
+
+        </div>
+    </div>
+
+
+</body>
+
+</html>

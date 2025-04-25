@@ -1,0 +1,121 @@
+<style>
+    input:invalid {
+        border-color: red;
+    }
+</style>
+<h1>Register Akun Internal</h1>
+
+<form id="formRegister" action="/admin/testing_register" method="POST">
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" name="email">
+    </div>
+
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" name="password">
+    </div>
+
+    <div>
+        <label for="full_name">Nama Lengkap:</label>
+        <input type="text" name="full_name">
+    </div>
+
+    <div>
+        <label for="nomor_tlp">Nomor Telepon:</label>
+        <input type="text" name="nomor_tlp">
+    </div>
+
+    <div>
+        <label for="alamat">Alamat:</label>
+        <textarea name="alamat" rows="2"></textarea>
+    </div>
+
+    <div>
+        <label for="role">Role:</label>
+        <select name="role">
+            <option value="">-- Pilih Role --</option>
+            <option value="admin">Admin</option>
+            <option value="project-lead">Project Lead</option>
+            <option value="finance">Finance</option>
+            <option value="partnership">Partnership</option>
+        </select>
+    </div>
+
+    <button type="submit">Register</button>
+</form>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("formRegister");
+  
+      if (!form) return;
+  
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+  
+        // Reset semua border dan pesan error
+        document.querySelectorAll(".error-text").forEach(el => el.remove());
+        document.querySelectorAll("input, select, textarea").forEach(el => el.style.border = "");
+  
+        let isValid = true;
+        const emailInput = document.querySelector('[name="email"]');
+        const email = emailInput.value.trim();
+  
+        // 🔍 Cek email ke server dulu
+        try {
+          const response = await fetch("/admin/cek-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+          });
+  
+          const result = await response.json();
+          console.log("Cek email:", result);
+  
+          if (result.terdapatEmail) {
+            isValid = false;
+            emailInput.style.border = "1px solid red";
+  
+            const errMsg = document.createElement("div");
+            errMsg.className = "error-text";
+            errMsg.style.color = "red";
+            errMsg.style.fontSize = "0.8rem";
+            errMsg.innerText = "Email sudah digunakan.";
+            emailInput.insertAdjacentElement("afterend", errMsg);
+          }
+        } catch (err) {
+          console.error("❌ Gagal fetch cek email:", err);
+          return;
+        }
+  
+        if (!isValid) return;
+  
+        // ✅ Kalau email aman, lanjut cek field lainnya
+        const fields = ["password", "full_name", "nomor_tlp", "alamat", "role"];
+        fields.forEach((name) => {
+          const input = document.querySelector(`[name="${name}"]`);
+          const value = input.value.trim();
+  
+          if (!value) {
+            isValid = false;
+            input.style.border = "1px solid red";
+  
+            const errMsg = document.createElement("div");
+            errMsg.className = "error-text";
+            errMsg.style.color = "red";
+            errMsg.style.fontSize = "0.8rem";
+            errMsg.innerText = `Kolom ${name.replace("_", " ")} wajib diisi`;
+            input.insertAdjacentElement("afterend", errMsg);
+          }
+        });
+  
+        if (!isValid) return;
+  
+        // 🚀 Kirim form kalau semua lolos
+        e.target.submit();
+      });
+    });
+  </script>
+  

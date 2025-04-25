@@ -1,0 +1,179 @@
+-- Tabel user internal dan klien ✔️
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR (255) NOT NULL,
+    password VARCHAR (255) NOT NULL,
+    role VARCHAR (255) ,
+    full_name VARCHAR (255),
+    nomor_tlp VARCHAR (255),
+    alamat_user text,
+    status_users TEXT DEFAULT 'aktif',
+    Dibuat_tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    photo_user VARCHAR (255),
+    vertifikasi_user VARCHAR (255)
+);
+
+-- Tabel vendor resmi, hanya dibuat setelah PKS selesai ✔️
+CREATE TABLE users_vendor (
+    id_vendor SERIAL PRIMARY KEY,
+    pks_id INTEGER REFERENCES pks(pks_id),
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    nama_toko_vendor TEXT,
+    no_telepon_vendor TEXT,
+    photo_vendor VARCHAR (255),
+    status TEXT DEFAULT 'aktif',
+    vendor_dibuat_tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    vertifikasi_vendor VARCHAR (255)
+);
+
+-- PKS: Perjanjian kerja sama dengan vendor ✔️
+CREATE TABLE pks (
+    pks_id SERIAL PRIMARY KEY,
+    nomor_pks VARCHAR(255),
+    user_id INTEGER REFERENCES users(id),
+    pt_mitra TEXT NOT NULL,
+    kota VARCHAR(255),
+    alamat_pks text,
+    nik VARCHAR (255),
+    nama_perwakilan VARCHAR (255),
+    perwakilan_jabatan VARCHAR (255),
+    nama_dari_pdf VARCHAR (255),
+    status TEXT DEFAULT 'menunggu tanda tangan',
+    pembuatan_pks TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    keterangan VARCHAR (255),
+);
+
+-- Kategori produk (radio, sms, tv, dll) ✔️
+CREATE TABLE kategori (
+    id_kategori SERIAL PRIMARY KEY,
+    nama_kategori VARCHAR(255) NOT NULL
+);
+
+-- Produk iklan buatan vendor
+CREATE TABLE produk_iklan (
+    id_produk_iklan SERIAL PRIMARY KEY,
+    vendor_id INTEGER REFERENCES users_vendor(id_vendor),
+    kategori_id INTEGER REFERENCES kategori(id_kategori),
+    nama_produk TEXT NOT NULL,
+    deskripsi_produk TEXT,
+    harga INTEGER,
+    produk_iklan_dibuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- buat pengendalian kemunculan nanti di front-end
+    status_produk TEXT
+);
+
+-- Jadwal tayang mingguan untuk radio // masih belom fix dan bingung
+CREATE TABLE jadwal_produk_radio (
+    id_jadwal_produk_radio SERIAL PRIMARY KEY,
+    produk_id INTEGER REFERENCES produk_iklan(id_penayangan_radio),
+    hari TEXT CHECK (hari IN ('Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')),
+    jam_mulai TIME,
+    jam_selesai TIME
+);
+
+-- Penayangan radio aktual (per tanggal) // masih belom fix dan bingung
+CREATE TABLE penayangan_radio (
+    id_penayangan_radio SERIAL PRIMARY KEY,
+    produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan),
+    jadwal_id INTEGER REFERENCES jadwal_produk_radio(id_jadwal_produk_radio),
+    tanggal DATE,
+    -- gak pake ini deh kayanya
+    status TEXT DEFAULT 'menunggu'
+);
+
+-- Pemesanan iklan radio oleh klien
+CREATE TABLE pemesanan_radio (
+    id_pemesanan_radio SERIAL PRIMARY KEY,
+    produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan),
+    client_id INTEGER REFERENCES users(id),
+    jadwal_id INTEGER REFERENCES jadwal_produk_radio(id_jadwal_produk_radio),
+    tanggal_mulai DATE,
+    tanggal_selesai DATE,
+    file_script_radio TEXT,
+    -- nanti hardcode aje dah
+    status TEXT CHECK (status IN (
+        'menunggu validasi vendor',
+        'disetujui vendor',
+        'ditolak vendor',
+        'menunggu pembayaran',
+        'dibayar',
+        'selesai'
+    )) DEFAULT 'menunggu validasi vendor',
+    alasan_penolakan TEXT,
+    pemesanan_radio_dibuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Pemesanan iklan SMS oleh klien
+CREATE TABLE pemesanan_sms (
+    id SERIAL PRIMARY KEY,
+    produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan),
+    client_id INTEGER REFERENCES users(id),
+    tanggal_mulai DATE,
+    tanggal_selesai DATE,
+    jumlah_pengiriman INTEGER,
+    teks_iklan TEXT,
+    lokasi_target TEXT,
+    file_nomor TEXT,
+    -- hardcode aje dah
+    status TEXT CHECK (status IN (
+        'menunggu validasi vendor',
+        'disetujui vendor',
+        'ditolak vendor',
+        'menunggu pembayaran',
+        'dibayar',
+        'selesai'
+    )) DEFAULT 'menunggu validasi vendor',
+    alasan_penolakan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabel bukti tayang (untuk radio dan sms)
+CREATE TABLE bukti_tayang (
+    id SERIAL PRIMARY KEY,
+    kategori TEXT CHECK (kategori IN ('radio', 'sms')),
+    pemesanan_id INTEGER NOT NULL,
+    file_dokumen TEXT,
+    file_audio TEXT,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabel invoice (buat internal setelah pemesanan disetujui)
+CREATE TABLE invoices (
+    id SERIAL PRIMARY KEY,
+    client_id INTEGER REFERENCES users(id),
+    kategori TEXT CHECK (kategori IN ('radio', 'sms')),
+    pemesanan_id INTEGER NOT NULL,
+    no_invoice TEXT UNIQUE NOT NULL,
+    tanggal_invoice DATE DEFAULT CURRENT_DATE,
+    total_harga INTEGER NOT NULL,
+    status TEXT CHECK (status IN ('belum bayar', 'lunas', 'expired')) DEFAULT 'belum bayar',
+    dibuat_oleh INTEGER REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+-- buat liat produk radio urutan dari hari
+SELECT 
+  p.id_produk_iklan,
+  p.nama_produk,
+  p.deskripsi_produk,
+  p.harga,
+  j.hari,
+  j.jam_mulai,
+  j.jam_selesai
+FROM produk_iklan p
+JOIN jadwal_produk_radio j ON p.id_produk_iklan = j.produk_id
+WHERE p.kategori_id = 1
+ORDER BY
+  CASE 
+    WHEN j.hari = 'Senin' THEN 1
+    WHEN j.hari = 'Selasa' THEN 2
+    WHEN j.hari = 'Rabu' THEN 3
+    WHEN j.hari = 'Kamis' THEN 4
+    WHEN j.hari = 'Jumat' THEN 5
+    WHEN j.hari = 'Sabtu' THEN 6
+    WHEN j.hari = 'Minggu' THEN 7
+  END,
+  j.jam_mulai;

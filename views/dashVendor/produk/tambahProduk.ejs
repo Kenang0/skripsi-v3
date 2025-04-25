@@ -1,0 +1,103 @@
+<h2>Tambah Produk Iklan</h2>
+
+<form action="/vendor/dashboardVendor/tambah-produk" method="POST">
+  <div>
+    <label for="kategori_id">Pilih Kategori:</label>
+    <select name="kategori_id" id="kategori_id" required onchange="tampilkanFormKategori()">
+      <option value="">-- Pilih --</option>
+      <% data.forEach(kat => { %>
+        <option value="<%= kat.kategori_id %>"><%= kat.tipe_kategori %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <!-- Form Radio -->
+  <div id="form-radio" class="form-kategori" style="display: none;">
+    <h3>Form Produk Radio</h3>
+    <div>
+      <label>Nama Produk:</label>
+      <input type="text" name="nama_produk">
+    </div>
+
+    <div>
+      <label>Deskripsi:</label>
+      <textarea name="deskripsi_produk" rows="2"></textarea>
+    </div>
+
+    <div>
+      <label>Harga:</label>
+      <input type="number" name="harga">
+    </div>
+
+    <div>
+      <label>Hari Tayang:</label><br>
+      <% ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].forEach(hari => { %>
+        <label><input type="checkbox" name="hari_tayang" value="<%= hari %>"><%= hari %></label>
+      <% }) %>
+    </div>
+
+    <div>
+      <label>Jam Tayang:</label>
+      <input type="time" name="jam_mulai"> s/d 
+      <input type="time" name="jam_selesai">
+    </div>
+  </div>
+
+  <!-- Form SMS -->
+  <div id="form-sms" class="form-kategori" style="display: none;">
+    <h3>Form Produk SMS</h3>
+    <div>
+      <label>Nama Produk:</label>
+      <input type="text" name="nama_produk">
+    </div>
+
+    <div>
+      <label>Deskripsi:</label>
+      <textarea name="deskripsi_produk" rows="2"></textarea>
+    </div>
+
+    <div>
+      <label>Harga Produk:</label>
+      <input type="number" name="harga">
+    </div>
+
+    <div>
+      <label>Jenis Target:</label>
+      <select name="jenis_target">
+        <option value="SMS Blast">SMS Blast</option>
+        <option value="lokasi">Lokasi</option>
+      </select>
+    </div>
+  </div>
+
+  <button type="submit">Simpan Produk</button>
+</form>
+
+<script>
+
+  function tampilkanFormKategori() {
+    const value = document.getElementById("kategori_id").value;
+
+    // Sembunyikan dan disable semua form kategori
+    document.querySelectorAll(".form-kategori").forEach(div => {
+      div.style.display = "none";
+      div.querySelectorAll("input, select, textarea").forEach(el => el.disabled = true);
+    });
+
+    // Tampilkan dan aktifkan form sesuai kategori
+    if (value === "1") {
+      const formRadio = document.getElementById("form-radio");
+      formRadio.style.display = "block";
+      formRadio.querySelectorAll("input, select, textarea").forEach(el => el.disabled = false);
+    } else if (value === "2") {
+      const formSms = document.getElementById("form-sms");
+      formSms.style.display = "block";
+      formSms.querySelectorAll("input, select, textarea").forEach(el => el.disabled = false);
+    }
+  }
+
+  // Panggil saat halaman pertama kali dibuka
+  window.onload = tampilkanFormKategori;
+</script>
+
+

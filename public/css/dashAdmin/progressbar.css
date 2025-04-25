@@ -1,0 +1,421 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500&display=swap");
+
+:root {
+    --primary: #eeeeee;
+    --secondary: #2192ff;
+    --grey: #808080;
+    --white: #ffffff;
+    --black: #222222;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--primary);
+}
+
+.progress-wrapper {
+    width: 100%;
+    max-width: 700px;
+    padding-top: 15px;
+    margin: 0 auto;
+    /* Pusatkan secara horizontal */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+
+.progress-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 700px;
+    /* Batas maksimal progress bar */
+    margin: 0 auto;
+    /* Pusatkan */
+}
+
+.progress-container::after {
+    content: "";
+    position: absolute;
+    height: 3px;
+    width: 90%;
+    top: 33%;
+    left: 5%;
+    background-color: var(--grey);
+    z-index: 0;
+}
+
+
+.progress {
+    position: absolute;
+    left: 5%;
+    height: 3px;
+    top: 35%;
+    width: 0%;
+    transform: translateY(-50%);
+    background-color: var(--secondary);
+    z-index: 1;
+    transition: width 0.3s ease-in-out;
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    font-weight: 500;
+    width: 16%;
+    color: var(--black);
+    text-align: center;
+    z-index: 2;
+
+}
+
+/* Ikon tetap sejajar dan tidak dipengaruhi oleh panjang teks */
+.progress-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+.progress-step .progress-icon i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--grey);
+    border: 3px solid var(--grey);
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    background-color: var(--white);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Warna untuk ikon aktif */
+.progress-step .progress-icon i.active {
+    border: 3px solid var(--secondary);
+    color: var(--secondary);
+}
+
+/* Teks di bawah ikon tidak mempengaruhi ikon */
+.progress-text {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    /* Hindari teks menjadi dua baris */
+}
+
+
+.progress-step .fa-solid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--grey);
+    border: 3px solid var(--grey);
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+    font-size: 1rem;
+    background-color: var(--white);
+    margin-bottom: 5px;
+    transition: all 0.3s ease-in-out
+}
+
+
+.progress-step .fa-solid.active {
+    border: 3px solid var(--secondary);
+    color: var(--secondary);
+}
+
+
+
+.btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-container .btn {
+    padding: 0.5rem 1.5rem;
+    margin: 0 1rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: var(--secondary);
+    color: var(--white);
+    cursor: pointer;
+    border: 1px solid var(--secondary);
+}
+
+.btn.disabled {
+    border: 1px solid var(--grey);
+    background-color: var(--grey);
+    color: var(--white);
+    cursor: not-allowed;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+
+.form-step input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--grey);
+    border-radius: 5px;
+    font-size: .80rem;
+}
+
+
+.form-step {
+    display: none;
+}
+
+.form-step.active {
+    display: block;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid var(--grey);
+    border-radius: 5px;
+    font-size: .8rem;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+input[type="date"],
+input[type="month"],
+input[type="number"],
+select {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+.small-input {
+    width: 100% !important;
+}
+
+.large-input {
+    width: 100% !important;
+}
+
+.form-step p {
+    text-align: center;
+}
+
+/* Pusatkan elemen dalam step 2 */
+.step-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Pusatkan elemen secara horizontal */
+    text-align: center;
+}
+
+/* Styling khusus untuk input file hanya di step 2 */
+.upload-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* Buat input file lebih rapi */
+.upload-group input[type="file"] {
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+
+@media screen and (max-width: 768px) {
+    .form-container {
+        width: 90%;
+        padding: 15px;
+    }
+}
+
+/* Progress bar lebih responsif di layar kecil */
+@media screen and (max-width: 480px) {
+    .progress-container {
+        display: flex;
+        flex-wrap: nowrap;
+        /* Tetap dalam satu baris agar rapi */
+        justify-content: space-between;
+        /* Jarak ikon seimbang */
+        position: relative;
+        width: 85%;
+        /* Lebar lebih fleksibel untuk layar kecil */
+        padding: 0 5px;
+        /* Tambahkan padding agar tidak terlalu ke pinggir */
+    }
+
+    /* Garis progress tetap ada dan proporsional */
+    .progress-container::after {
+        width: 85%;
+        /* Pastikan garis tidak terlalu panjang */
+        left: 9%;
+        top: 25%;
+        /* Sesuaikan posisi garis */
+    }
+
+    .progress {
+        width: 0%;
+        height: 2px;
+        /* Lebar garis progress tetap proporsional */
+        left: 9%;
+        top: 26%;
+        transition: width 0.3s ease-in-out;
+    }
+
+    /* Ukuran progress step agar lebih kecil di layar mobile */
+    .progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: auto;
+        font-size: 0.7rem;
+        text-align: center;
+        gap: 5px;
+        /* Beri jarak antara ikon dan teks */
+    }
+
+    /* Ukuran ikon lebih kecil agar tetap muat di layar kecil */
+    .progress-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress-step .progress-icon i {
+        width: 30px;
+        height: 30px;
+        font-size: 0.7rem;
+    }
+
+    /* Pastikan teks tidak bertabrakan dan tetap dalam satu baris */
+    .progress-text {
+        font-size: 0.5rem;
+        white-space: nowrap;
+        margin-top: 3px;
+    }
+
+    .form-container {
+        width: 85%;
+        padding: 10px;
+    }
+
+    /* Perkecil input agar tidak terlalu besar */
+    .form-step input {
+        padding: 10px;
+        font-size: 0.7rem;
+    }
+
+    /* Tombol responsif */
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+    }
+
+    .btn {
+        font-size: 0.5rem;
+        padding: 6px 10px;
+    }
+}
+
+/* buat modal */
+#previewModal .close {
+    font-size: 26px;
+    font-weight: normal;
+    cursor: default;
+    /* ⛔ tidak berubah jadi pointer */
+    transition: all 0.2s ease;
+}
+
+#previewModal .close:hover {
+    font-weight: bold;
+    /* ✅ jadi lebih tebal */
+    color: #c00;
+    /* ✅ warna merah lebih gelap */
+   
+}
+
+
+/* Penyesuaian khusus agar input file dan label tampil vertikal & rapi */
+.step-upload .upload-group {
+    width: 100%;
+    align-items: flex-start; /* label dan input ke kiri */
+}
+
+.step-upload .upload-group label {
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.step-upload .upload-group input[type="file"] {
+    width: 100%;
+}

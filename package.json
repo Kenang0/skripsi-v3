@@ -1,0 +1,30 @@
+{
+  "name": "testing_login",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "watch": "webpack --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "datatables.net": "^2.2.1",
+    "datatables.net-bs5": "^2.2.1",
+    "datatables.net-responsive-bs5": "^3.0.3",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.10.1",
+    "pg": "^8.13.1",
+    "puppeteer": "^24.4.0"
+  }
+}

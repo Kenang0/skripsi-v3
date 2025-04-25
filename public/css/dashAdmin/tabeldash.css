@@ -1,0 +1,35 @@
+/* Membuat tabel berada di tengah dan tidak full layar */
+.container-table {
+    max-width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsif untuk tablet dan hp */
+@media (max-width: 1024px) {
+    .container-table {
+        max-width: 95%;
+    }
+
+    .table {
+        font-size: 14px;
+    }
+
+    .table th, .table td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 12px;
+    }
+
+    .btn {
+        font-size: 10px;
+        padding: 5px;
+    }
+}
