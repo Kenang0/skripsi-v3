@@ -871,10 +871,10 @@ export const vertifikasi = async (req, res) => {
 // testing sesuatu start
 // buat melihat front end aja seblum masuk data kalau masih fornt end aja 
 export const liatFrontEnd = async (req, res) => {
-  res.render("testing_register", {
-    // partial: 'view_PKS',
+  res.render('dashAdmin/Email_konfirmasi/konfirmasi_email_internal', {
     // data: [], 
     // error: "" 
+    token:""
   });
 }
 

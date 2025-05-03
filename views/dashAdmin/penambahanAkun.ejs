@@ -93,7 +93,7 @@
         if (!isValid) return;
   
         // ✅ Kalau email aman, lanjut cek field lainnya
-        const fields = ["password", "full_name", "nomor_tlp", "alamat", "role"];
+        const fields = ["email","password", "full_name", "nomor_tlp", "alamat", "role"];
         fields.forEach((name) => {
           const input = document.querySelector(`[name="${name}"]`);
           const value = input.value.trim();
@@ -110,11 +110,13 @@
             input.insertAdjacentElement("afterend", errMsg);
           }
         });
-        alert("Panambahan akun Berhasil")
+       
+    
         if (!isValid) return;
   
         // 🚀 Kirim form kalau semua lolos
         e.target.submit();
+        alert("Panambahan akun Berhasil");
       });
     });
   </script>

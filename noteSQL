@@ -55,12 +55,14 @@ CREATE TABLE produk_iklan (
     id_produk_iklan SERIAL PRIMARY KEY,
     vendor_id INTEGER REFERENCES users_vendor(id_vendor),
     kategori_id INTEGER REFERENCES kategori(id_kategori),
+    
     nama_produk TEXT NOT NULL,
     deskripsi_produk TEXT,
     harga INTEGER,
     produk_iklan_dibuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     -- buat pengendalian kemunculan nanti di front-end
-    status_produk TEXT
+    status_produk TEXT,
+    photo_produk TEXT
 );
 
 -- Jadwal tayang mingguan untuk radio // masih belom fix dan bingung

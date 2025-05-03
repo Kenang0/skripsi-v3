@@ -1,0 +1,28 @@
+# Jangan upload folder bawaan npm
+node_modules/
+
+# File environment (berisi kredensial API, DB, dll)
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Cache & sistem
+.DS_Store
+Thumbs.db
+
+# Folder produksi kalau ada
+dist/
+build/
+
+# File database lokal (kalau pakai SQLite atau semacamnya)
+*.sqlite
+
+# Folder upload (jika ada simpanan file upload sementara)
+uploads/
+temp/
+
+# VSCode settings (opsional)
+.vscode/

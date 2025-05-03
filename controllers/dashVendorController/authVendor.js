@@ -8,6 +8,23 @@ import multer from "multer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+//  multer upload produk 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const folderPath = "public/uploads/produk_img";
+    fs.mkdirSync(folderPath, { recursive: true }); 
+    cb(null, folderPath);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const cleanName = req.body.nama_produk?.replace(/\s+/g, "_").toLowerCase() || "produk";
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, "");
+    cb(null, `${cleanName}_${timestamp}${ext}`);
+  }
+});
+
+const upload = multer({ storage }).single("photo_produk");
+
 // ngambil login page vendor
 export const getLoginPageVendor = (req, res) => {
     res.render("loginVendor", { error: null });
@@ -75,17 +92,25 @@ export const getTambahProduk = async (req, res) => {
 
 // buat submit tombol di halaman tambah produk
 export const postTambahProduk = async (req, res) => {
+
+  upload(req, res, async function (err) {
+    if (err) {
+      console.error("❌ Upload error:", err);
+      return res.status(500).send("Gagal mengunggah foto produk.");
+    }
+
   const vendor_id = req.user.id;
   const { kategori_id, nama_produk, deskripsi_produk, harga } = req.body;
+  const photo_produk = req.file ? req.file.filename : null;
   console.log("🔥 req.user:", req.user);
   console.log("📦 req.body:", req.body);
   try {
     // 1. Simpan ke produk_iklan
     const result = await pool.query(
-      `INSERT INTO produk_iklan (vendor_id, kategori_id, nama_produk, deskripsi_produk, harga, status_produk)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO produk_iklan (vendor_id, kategori_id, nama_produk, deskripsi_produk, harga, status_produk, photo_produk)
+       VALUES ($1, $2, $3, $4, $5, $6,$7)
        RETURNING id_produk_iklan`,
-      [vendor_id, kategori_id, nama_produk, deskripsi_produk, harga, 'aktif']
+      [vendor_id, kategori_id, nama_produk, deskripsi_produk, harga, 'aktif', photo_produk]
     );
 
     const produkIdBaru = result.rows[0].id_produk_iklan;
@@ -106,10 +131,11 @@ export const postTambahProduk = async (req, res) => {
       }
     }
 
-    res.redirect("/vendor/dashboardVendor");
+    res.redirect("/vendor/dashboardVendor/tambahproduk");
   } catch (err) {
     console.error("Gagal simpan produk:", err);
     res.status(500).send("Terjadi kesalahan saat menyimpan produk.");
   }
+});
 };
 

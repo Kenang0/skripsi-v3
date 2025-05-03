@@ -1,6 +1,6 @@
 <h2>Tambah Produk Iklan</h2>
 
-<form action="/vendor/dashboardVendor/tambah-produk" method="POST">
+<form action="/vendor/dashboardVendor/tambah-produk" method="POST" enctype="multipart/form-data">
   <div>
     <label for="kategori_id">Pilih Kategori:</label>
     <select name="kategori_id" id="kategori_id" required onchange="tampilkanFormKategori()">
@@ -17,6 +17,11 @@
     <div>
       <label>Nama Produk:</label>
       <input type="text" name="nama_produk">
+    </div>
+
+    <div>
+      <label>Foto Produk:</label>
+      <input type="file" name="photo_produk" accept="image/*">
     </div>
 
     <div>
@@ -49,6 +54,11 @@
     <div>
       <label>Nama Produk:</label>
       <input type="text" name="nama_produk">
+    </div>
+
+    <div>
+      <label>Foto Produk:</label>
+      <input type="file" name="photo_produk" accept="image/*">
     </div>
 
     <div>
