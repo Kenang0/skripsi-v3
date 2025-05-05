@@ -5,7 +5,8 @@ import {  loginUser,getLoginPage, getDashHome,
           getDashAdminPKS,getDashAddPKS,preview_PDF_PKS,
           savedandownload_PKS,getUploadPKSPage, liatFrontEnd,uploadPKS,
           getPengecekanPKSPage,deletePKS, uploadPKSdariView,PKSdiSetujui,getPembuatanAkunVendor,
-          pembuatanakunUserInternal,simpanAkunVendor, getPKSSelesai,tolakPKS,cekEmailInternal,vertifikasi, getHalamanTambahAkunInternal,vertifikasiVendor} from "../../controllers/dashAdminController/authAdmin.js";
+          pembuatanakunUserInternal,simpanAkunVendor, getPKSSelesai,tolakPKS,cekEmailInternal,vertifikasi, 
+          getHalamanTambahAkunInternal,vertifikasiVendor,updatePasswordVendor} from "../../controllers/dashAdminController/authAdmin.js";
 
 
 const router = express.Router();
@@ -64,8 +65,9 @@ router.put('/dashboardAdmin/tolak-pks/:pksId', authenticateRoleDashAdmin(["admin
 // liat fornend dan testing sesuait
 router.get("/dashboardAdmin/cekFrontEnd",liatFrontEnd);
 
-// halaman untuk vertifikasi yang di liat user lewat emailnya
+// halaman untuk vertifikasi dan set password untuk vendor dan internal
 router.get("/verifikasi", vertifikasi);
 router.get("/verifikasivendor", vertifikasiVendor);
+router.post("/setpasswordvendor",updatePasswordVendor)
 
 export default router;

@@ -109,7 +109,7 @@
             </span>
           </div> -->
 
-                  <div class="invalid-feedback">Password wajib diisi.</div>
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
 
@@ -123,7 +123,7 @@
                   <!-- <i class="fa fa-eye toggle-password" data-target="reenter_password" style="cursor: pointer;"></i>
             </span>
           </div>           -->
-                  <div class="invalid-feedback">Password tidak cocok.</div>
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
 
@@ -172,14 +172,12 @@
     const pass = document.getElementById('password');
     const repass = document.getElementById('reenter_password');
 
-    if (pass.value !== repass.value || pass.value === '') {
+    if (pass.value !== repass.value) {
       pass.classList.add('is-invalid');
       repass.classList.add('is-invalid');
+      pass.nextElementSibling.innerText = 'Password tidak cocok.';
       repass.nextElementSibling.innerText = 'Password tidak cocok.';
       isValid = false;
-    } else {
-      pass.classList.remove('is-invalid');
-      repass.classList.remove('is-invalid');
     }
 
     if (isValid) {

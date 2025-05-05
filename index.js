@@ -3,7 +3,8 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import adminRoutes from "./routes/adminRoutes/adminRoutes.js";
-import vendorRoutes from "./routes/vendorRoutes/vendorRoutes.js"
+import vendorRoutes from "./routes/vendorRoutes/vendorRoutes.js";
+
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.set("view engine", "ejs");
 
 //admin 
 app.use("/admin", adminRoutes);
-
+// vendor
 app.use("/vendor", vendorRoutes);
 
 const PORT = 3000;

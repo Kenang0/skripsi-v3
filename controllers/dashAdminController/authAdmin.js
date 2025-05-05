@@ -442,25 +442,30 @@ export const getPengecekanPKSPage = async (req, res) => {
   }
 };
 
-// kirim email vertifikasi untuk Vendor
+// kirim email vertifikasi dan pembuatan password untuk vendor
 export const kirimEmailVerifikasiVendor = async (user) => {
   const token = jwt.sign(
     { id: user.id, email: user.email_vendor },
     process.env.JWT_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "7d" }
   );
 
-  const verifikasiURL = `http://localhost:3000/admin/verifikasivendor?token=${token}`;
+  const verifikasiURL = `http://localhost:3000/admin/verifikasivendor?token=${token}`; // ubah ke domain saat hosting
 
   const mailOptions = {
     from: process.env.EMAIL_FROM,
     to: user.email_vendor,
-    subject: "Verifikasi Akun Anda",
+    subject: "Akun Anda Telah Dibuat",
     html: `
-      <h3>Halo, ${user.nama_toko_vendor}</h3>
-      <p>Silakan klik tombol di bawah ini untuk verifikasi akun vendor anda:</p>
-      <a href="${verifikasiURL}" style="padding: 10px 20px; background: #4CAF50; color: white; text-decoration: none;">Verifikasi Email</a>
-      <p>Link ini akan kadaluarsa dalam 24 jam.</p>
+      <p>Yth. Bapak/Ibu<br><strong>${user.nama_pt_mitra}</strong></p>
+      <p>Dengan hormat,</p>
+      <p>Kami dari <strong>PT Pandawa Sakti Digital</strong> menginformasikan bahwa akun Anda dengan nama toko <strong>${user.nama_toko_vendor}</strong> telah berhasil dibuat.</p>
+      <p>Silakan klik tautan berikut untuk mengatur kata sandi Anda dan mengaktifkan akun:</p>
+      <p><a href="${verifikasiURL}">${verifikasiURL}</a></p><br>
+      <p><small>Link ini berlaku selama 7 hari.</small></p>
+      <p>Terima kasih atas kerja sama yang telah terjalin.</p>
+      <br>
+      <p>Hormat kami,<br><strong>PT Pandawa Sakti Digital</strong></p>
     `
   };
 
@@ -475,20 +480,28 @@ export const simpanAkunVendor = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await pool.query(
+    const result_vendor = await pool.query(
       `INSERT INTO users_vendor
       (pks_id, nama_toko_vendor, email_vendor, password_vendor, no_telepon_vendor,photo_vendor, vertifikasi_vendor)
       VALUES ($1, $2, $3, $4, $5,$6, 'belom terbertifikasi') RETURNING *`,
       [pks_id, nama_toko_vendor, email, hashedPassword, no_telepon, "img_placeholder.jpg"]
     );
 
-    const vendorBaru = result.rows[0];
+    const vendorBaru = result_vendor.rows[0];
 
-    // Kirim email verifikasi
+    const hasilPT = await pool.query(
+      `SELECT pt_mitra FROM pks WHERE pks_id = $1`,
+      [pks_id]
+    );
+    
+    const nama_pt_mitra = hasilPT.rows[0]?.nama_pt_mitra;
+
+    // Kirim email verifikasi dan beberapa data
     await kirimEmailVerifikasiVendor({
       id: vendorBaru.id_vendor,
       email_vendor: vendorBaru.email_vendor,
-      nama_toko_vendor: vendorBaru.nama_toko_vendor
+      nama_toko_vendor: vendorBaru.nama_toko_vendor,
+      nama_pt_mitra: nama_pt_mitra
     });
 
     await pool.query(
@@ -504,20 +517,51 @@ export const simpanAkunVendor = async (req, res) => {
   }
 };
 
+// email mengset password vendor dan melakukan vertifikasi
 export const vertifikasiVendor = async (req, res) => {
   const { token } = req.query;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { id, email } = decoded;
-    console.log(id, email);
 
-    // Update user jadi terverifikasi
-    await pool.query("UPDATE users_vendor SET vertifikasi_vendor = 'sudah tervertifikasi' WHERE id_vendor = $1", [id]); // ganti ini nanti
-    res.send("✅ Email berhasil diverifikasi!");
+    // ✅ tandai akun sebagai "sudah terverifikasi"
+    await pool.query("UPDATE users_vendor SET vertifikasi_vendor = 'sudah tervertifikasi' WHERE id_vendor = $1", [id]);
+
+    // ✅ render halaman untuk atur password, kirim token ke form
+    res.render('Email/setPassword_dan_Konfirmasi_email', {
+      token: token // kirim token ke hidden input di form
+    });
   } catch (err) {
-    res.status(400).send("❌ Link tidak valid atau sudah kadaluarsa.");
+    console.error("❌ Token tidak valid atau kedaluwarsa:", err.message);
+    res.status(400).send("Link verifikasi tidak valid atau sudah kedaluwarsa.");
   }
 };
+
+// untuk handle update password dari email
+export const updatePasswordVendor = async (req, res) => {
+  const { token, newPassword, confirmPassword } = req.body;
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).send("Password dan konfirmasi tidak cocok.");
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await pool.query(
+      "UPDATE users_vendor SET password_vendor = $1 WHERE id_vendor = $2",
+      [hashed, decoded.id]
+    );
+
+    res.status(200).send("ok");
+  } catch (err) {
+    console.error("❌ Gagal update password:", err.message);
+    res.status(400).send("Token tidak valid atau telah kedaluwarsa.");
+  }
+};
+
+
 
 export const getPKSSelesai = async (req, res) => {
   const { pks_id } = req.params;
@@ -871,7 +915,7 @@ export const vertifikasi = async (req, res) => {
 // testing sesuatu start
 // buat melihat front end aja seblum masuk data kalau masih fornt end aja 
 export const liatFrontEnd = async (req, res) => {
-  res.render('dashAdmin/Email_konfirmasi/konfirmasi_email_internal', {
+  res.render('Email/setPassword_dan_Konfirmasi_email', {
     // data: [], 
     // error: "" 
     token:""

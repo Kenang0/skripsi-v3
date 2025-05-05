@@ -1,14 +1,155 @@
-<h2>Tambah Produk Iklan</h2>
+<style>
+  form {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  form h2, form h3 {
+    text-align: center;
+    color: #333;
+  }
+
+  form div {
+    margin-bottom: 15px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="file"],
+  input[type="time"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input[type="checkbox"] {
+    margin-right: 5px;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background: #7e3ff2;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  button[type="submit"]:hover {
+    background: #5a2cc4;
+  }
+
+  .checkbox-group-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: normal;
+}
+
+.jam-tayang-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.jam-tayang-wrapper input[type="time"] {
+  flex: 1;
+}
+
+.sd-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.header-form-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.header-form-wrapper h2 {
+  font-size: 20px;
+  margin: 0;
+  color: #1f2937;
+}
+
+.kategori-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kategori-wrapper label {
+  white-space: nowrap;
+  margin-bottom: 0;
+}
+
+.kategori-wrapper select {
+  width: 200px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+}
+
+
+
+  /* Responsive tweak */
+  @media (max-width: 600px) {
+    form {
+      padding: 15px;
+    }
+
+    label, input, select, textarea {
+      font-size: 14px;
+    }
+  }
+</style>
+
 
 <form action="/vendor/dashboardVendor/tambah-produk" method="POST" enctype="multipart/form-data">
-  <div>
-    <label for="kategori_id">Pilih Kategori:</label>
-    <select name="kategori_id" id="kategori_id" required onchange="tampilkanFormKategori()">
-      <option value="">-- Pilih --</option>
-      <% data.forEach(kat => { %>
-        <option value="<%= kat.kategori_id %>"><%= kat.tipe_kategori %></option>
-      <% }) %>
-    </select>
+  <div class="header-form-wrapper">
+    <h2>Tambah Produk Iklan</h2>
+    <div class="kategori-wrapper">
+      <label for="kategori_id">Pilih Kategori:</label>
+      <select name="kategori_id" id="kategori_id" required onchange="tampilkanFormKategori()">
+        <option value="">-- Pilih --</option>
+        <% data.forEach(kat => { %>
+          <option value="<%= kat.kategori_id %>"><%= kat.tipe_kategori %></option>
+        <% }) %>
+      </select>
+    </div>
   </div>
 
   <!-- Form Radio -->
@@ -34,20 +175,27 @@
       <input type="number" name="harga">
     </div>
 
+    
     <div>
-      <label>Hari Tayang:</label><br>
-      <% ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].forEach(hari => { %>
-        <label><input type="checkbox" name="hari_tayang" value="<%= hari %>"><%= hari %></label>
-      <% }) %>
+      <label>Hari Tayang:</label>
+      <div class="checkbox-group-inline">
+        <% ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].forEach(hari => { %>
+          <label class="checkbox-inline"><input type="checkbox" name="hari_tayang" value="<%= hari %>"><%= hari %></label>
+        <% }) %>
+      </div>
     </div>
 
     <div>
       <label>Jam Tayang:</label>
-      <input type="time" name="jam_mulai"> s/d 
-      <input type="time" name="jam_selesai">
+      <div class="jam-tayang-wrapper">
+        <input type="time" name="jam_mulai">
+        <span class="sd-label">s/d</span>
+        <input type="time" name="jam_selesai">
+      </div>
     </div>
-  </div>
 
+  </div>
+  
   <!-- Form SMS -->
   <div id="form-sms" class="form-kategori" style="display: none;">
     <h3>Form Produk SMS</h3>
