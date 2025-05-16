@@ -3,10 +3,11 @@ import express from "express";
 import {  authenticateRoleDashAdmin } from "../../middleware/authMiddleware.js";
 import {  loginUser,getLoginPage, getDashHome, 
           getDashAdminPKS,getDashAddPKS,preview_PDF_PKS,
-          savedandownload_PKS,getUploadPKSPage, liatFrontEnd,uploadPKS,
+          savedandownload_PKS,getUploadPKSPage,uploadPKS,
           getPengecekanPKSPage,deletePKS, uploadPKSdariView,PKSdiSetujui,getPembuatanAkunVendor,
           pembuatanakunUserInternal,simpanAkunVendor, getPKSSelesai,tolakPKS,cekEmailInternal,vertifikasi, 
-          getHalamanTambahAkunInternal,vertifikasiVendor,updatePasswordVendor} from "../../controllers/dashAdminController/authAdmin.js";
+          getHalamanTambahAkunInternal,vertifikasiVendor,updatePasswordVendor,updatePasswordInternal,getHalamanPengaturan,
+          updateProfil,updatePassword,updateFoto} from "../../controllers/dashAdminController/authAdmin.js";
 
 
 const router = express.Router();
@@ -15,14 +16,16 @@ const router = express.Router();
 router.get("/login", getLoginPage);
 router.post("/login", loginUser);
 
-// ambil halaaman home
-router.get("/dashboardAdmin", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), getDashHome);
 
 // log-out dash admin
 router.get("/logout", (req, res) => {
     res.clearCookie("token"); // Hapus token dari cookie
     res.redirect("/admin/login"); // Arahkan kembali ke halaman login
   });
+
+// ambil halaaman home
+router.get("/dashboardAdmin", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), getDashHome);
+
 
 //ambil halama add pks
 router.get ("/dasboardAdmin/addPKS",authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),getDashAddPKS );
@@ -61,13 +64,18 @@ router.put('/dashboardAdmin/approve-pks/:pks_id', authenticateRoleDashAdmin(['ad
 router.get("/dashboardAdmin/pembuatan-akun-vendor/:pks_id", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),  getPembuatanAkunVendor);
 router.put('/dashboardAdmin/tolak-pks/:pksId', authenticateRoleDashAdmin(["admin", "project lead"]),tolakPKS);
 
+// pengaturan akun
+router.get("/dashboardAdmin/pengaturan-akun", authenticateRoleDashAdmin(["admin", "project lead"]), getHalamanPengaturan);
+router.post("/internal/update-password",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance","klien"]),updatePassword);
+router.post("/internal/update-profil",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance", "klien"]),updateProfil);
 
-// liat fornend dan testing sesuait
-router.get("/dashboardAdmin/cekFrontEnd",liatFrontEnd);
+
+
 
 // halaman untuk vertifikasi dan set password untuk vendor dan internal
 router.get("/verifikasi", vertifikasi);
+router.post("/setpasswordinternal",updatePasswordInternal);
 router.get("/verifikasivendor", vertifikasiVendor);
-router.post("/setpasswordvendor",updatePasswordVendor)
+router.post("/setpasswordvendor",updatePasswordVendor);
 
 export default router;

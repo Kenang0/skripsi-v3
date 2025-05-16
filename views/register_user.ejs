@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ngiklan Murah</title>
+</head>
+
+<body>
+    <h1>Register</h1>
+
+    <form id="formRegister" action="#" method="POST">
+
+        <!-- 🔹 Bagian Login -->
+        <div class="form-section">
+            <h5>Informasi Akun Login</h5>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" name="email" placeholder="contoh@domain.com">
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" name="password">
+            </div>
+            <div>
+                <label for="re-password">Ulangi-Password:</label>
+                <input type="password" name="ulangi-password">
+            </div>
+        </div>
+
+        <!-- 🔹 Bagian Informasi Pribadi -->
+        <div class="form-section">
+            <h5>Informasi Pribadi</h5>
+            <div>
+                <label for="full_name">Nama Lengkap:</label>
+                <input type="text" name="full_name">
+            </div>
+            <div>
+                <label for="nomor_tlp">Nomor Telepon:</label>
+                <input type="text" name="nomor_tlp" placeholder="08121232xxxx">
+            </div>
+            <div>
+                <label for="alamat">Alamat:</label>
+                <textarea name="alamat" rows="2" v placeholder="Jl.xxxxxxx"></textarea>
+            </div>
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+</body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("formRegister");
+
+
+    
+
+        if (!form) return;
+
+        form.addEventListener("submit", async function (e) {
+            console.log("🔥 FORM SUBMIT TERPICU");
+            e.preventDefault();
+
+            // Reset semua border dan pesan error
+            document.querySelectorAll(".error-text").forEach(el => el.remove());
+            document.querySelectorAll("input, select, textarea").forEach(el => el.style.border = "");
+
+            let isValid = true;
+            const emailInput = document.querySelector('[name="email"]');
+            const email = emailInput.value.trim();
+
+            // 🔍 Cek email ke server dulu
+            try {
+                const response = await fetch("/admin/cek-email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email })
+                });
+
+                const result = await response.json();
+                console.log("Cek email:", result);
+
+                if (result.terdapatEmail) {
+                    isValid = false;
+                    emailInput.style.border = "1px solid red";
+
+                    const errMsg = document.createElement("div");
+                    errMsg.className = "error-text";
+                    errMsg.style.color = "red";
+                    errMsg.style.fontSize = "0.8rem";
+                    errMsg.innerText = "Email sudah digunakan.";
+                    emailInput.insertAdjacentElement("afterend", errMsg);
+                }
+            } catch (err) {
+                console.error("❌ Gagal fetch cek email:", err);
+                return;
+            }
+
+            if (!isValid) return;
+
+            // ✅ Kalau email aman, lanjut cek field lainnya
+            const fields = ["email", "password", "ulangi-password", "full_name", "nomor_tlp", "alamat"];
+            const password = document.querySelector('[name="password"]').value.trim();
+            const rePassword = document.querySelector('[name="ulangi-password"]').value.trim();
+
+            if (password !== rePassword) {
+                isValid = false;
+                const rePassInput = document.querySelector('[name="ulangi-password"]');
+                rePassInput.style.border = "1px solid red";
+
+                const errMsg = document.createElement("div");
+                errMsg.className = "error-text";
+                errMsg.style.color = "red";
+                errMsg.style.fontSize = "0.8rem";
+                errMsg.innerText = "Password tidak cocok.";
+                rePassInput.insertAdjacentElement("afterend", errMsg);
+            }
+
+            fields.forEach((name) => {
+                const input = document.querySelector(`[name="${name}"]`);
+                const value = input.value.trim();
+
+                if (!value) {
+                    isValid = false;
+                    input.style.border = "1px solid red";
+
+                    const errMsg = document.createElement("div");
+                    errMsg.className = "error-text";
+                    errMsg.style.color = "red";
+                    errMsg.style.fontSize = "0.8rem";
+                    errMsg.innerText = `Kolom ${name.replace("_", " ")} wajib diisi`;
+                    input.insertAdjacentElement("afterend", errMsg);
+                }
+            });
+
+
+            if (!isValid) return;
+
+            // 🚀 Kirim form kalau semua lolos
+            e.target.submit();
+            alert("Panambahan akun Berhasil");
+        });
+    });
+</script>
+
+</html>

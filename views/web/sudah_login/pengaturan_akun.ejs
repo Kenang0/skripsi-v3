@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ngiklan Murah</title>
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            padding-top: 80px;
+        }
+
+        .navbar {
+            transition: background-color 0.3s;
+        }
+
+        .navbar.scrolled {
+            background-color: rgb(255, 255, 255);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .navbar a {
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        /* Hover untuk nav menu dan ikon */
+        .navbar a:hover {
+            color: #0d6efd !important;
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+
+        .navbar i {
+            transition: transform 0.3s ease;
+        }
+
+        .navbar i:hover {
+            transform: scale(1.2);
+        }
+
+        /* Hover untuk tombol */
+        .navbar .btn:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1050;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .edit-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-box h5 {
+            margin-bottom: 1rem;
+        }
+
+        .edit-box .form-control {
+            margin-bottom: 0.75rem;
+        }
+
+        .d-none {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <section>
+        <!-- navbar -->
+        <nav class="navbar navbar-expand-lg fixed-top">
+            <div class="container-fluid px-4">
+                <!-- Logo -->
+                <img src="/foto/logo_ngiklanmurah.png" alt="Logo" style="height: 20px; padding-right: 5px;">
+                <a href="/home-page" class="navbar-brand fs-5">NGIKLAN MURAH</a>
+
+                <!-- Toggler -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                    <!-- Tampilkan profil user di samping burger icon -->
+                    <% if (user) { %>
+                        <div class="d-block d-lg-none ms-2">
+                            <img src="/uploads/profile_pic/<%= user.photo_user %>" alt="User" class="rounded-circle"
+                                style="width: 32px; height: 32px; object-fit: cover;">
+                            <span>
+                                <%= user.full_name %> haha
+                            </span>
+                        </div>
+                        <% } %>
+                </button>
+
+                <!-- Isi Navbar -->
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <!-- Menu Tengah -->
+                    <ul class="navbar-nav mx-auto mb-3 mb-lg-0 text-center">
+                        <li class="nav-item"><a class="nav-link text-dark" href="/home-page">Home</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark" href="#">Kategori</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark" href="#">Tentang Kami</a></li>
+                    </ul>
+
+                    <!-- Ikon dan Button -->
+                    <div class="d-flex flex-column flex-lg-row align-items-center gap-3 text-center">
+                        <!-- ICON -->
+                        <div class="d-flex flex-row flex-wrap justify-content-center gap-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <a href="#" class="text-dark fs-6"><i class="bi bi-cart3"></i></a>
+                                <small>Keranjang</small>
+                            </div>
+                            <div class="d-flex flex-column align-items-center">
+                                <a href="#" class="text-dark fs-6"><i class="bi bi-opencollective"></i></a>
+                                <small>Riwayat</small>
+                            </div>
+                            <div class="d-flex flex-column align-items-center">
+                                <a href="#" class="text-dark fs-6"><i class="bi bi-clipboard-check-fill"></i></a>
+                                <small>Progress</small>
+                            </div>
+                        </div>
+
+                        <!-- Button -->
+                        <!-- Jika user sudah login -->
+                        <div class="user-profile d-none d-lg-block ms-3">
+                            <img src="/uploads/profile_pic/<%= user.photo_user %>" alt="User" class="rounded-circle"
+                                style="width: 32px; height: 32px; object-fit: cover;">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </section>
+
+    <section>
+        <div class="container mt-4">
+            <div class="card shadow p-4 rounded-4 bg-light">
+                <div class="row">
+                    <!-- Bagian Foto -->
+                    <div class="col-md-4 text-center">
+                        <img src="/uploads/profile_pic/<%= user.photo_user %>" class="rounded-circle" width="150"
+                            height="150" />
+                        <button class="btn btn-sm btn-outline-primary mt-2" id="editFotoBtn">Edit Foto</button>
+                        <form id="formEditFoto" class="mt-3 d-none" enctype="multipart/form-data">
+                            <input type="file" name="foto_user" class="form-control mb-2" />
+                            <button type="submit" class="btn btn-sm btn-success">Simpan</button>
+                            <button type="button" class="btn btn-sm btn-secondary" id="batalFotoBtn">Batal</button>
+                        </form>
+                    </div>
+
+                    <!-- Bagian Info -->
+                    <div class="col-md-8">
+                        <!-- Info Akun -->
+                        <h5>Informasi Akun</h5>
+                        <div class="mb-3">
+                            <label>Email</label>
+                            <input type="email" class="form-control" value="<%= user.email %>" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label>Password</label>
+                            <input type="password" class="form-control" value="********" readonly />
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary" id="editAkunBtn">Ganti Password</button>
+                        <form id="formEditAkun" class="mt-3 d-none">
+                            <input type="password" name="old_password" placeholder="Password Lama"
+                                class="form-control mb-2" />
+                            <input type="password" name="new_password" placeholder="Password Baru"
+                                class="form-control mb-2" />
+                            <input type="password" name="confirm_password" placeholder="Ulangi Password Baru"
+                                class="form-control mb-2" />
+                            <button type="submit" class="btn btn-sm btn-success">Simpan</button>
+                            <button type="button" class="btn btn-sm btn-secondary" id="batalAkunBtn">Batal</button>
+                        </form>
+
+                        <hr />
+
+                        <!-- Info Pribadi -->
+                        <h5>Informasi Pribadi</h5>
+                        <div class="mb-3">
+                            <label>Nama Lengkap</label>
+                            <input type="text" class="form-control" name="full_name" value="<%= user.full_name %>"
+                                readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label>Nomor Telepon</label>
+                            <input type="text" class="form-control" name="nomor_tlp" value="<%= user.nomor_tlp %>"
+                                readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label>Alamat</label>
+                            <textarea class="form-control" name="alamat" rows="2" readonly><%= user.alamat %></textarea>
+                        </div>
+                        <button type="button" id="editProfilBtn" class="btn btn-sm btn-primary">Edit Profil</button>
+                        <form id="formEditProfil" class="mt-3 d-none">
+                            <input type="text" name="full_name" placeholder="Nama Lengkap" class="form-control mb-2"
+                                value="<%= user.full_name %>" />
+                            <input type="text" name="nomor_tlp" placeholder="Nomor Telepon" class="form-control mb-2"
+                                value="<%= user.nomor_tlp %>" />
+                            <textarea name="alamat" placeholder="Alamat"
+                                class="form-control mb-2"><%= user.alamat_user %></textarea>
+                            <button type="submit" class="btn btn-sm btn-success">Simpan</button>
+                            <button type="button" class="btn btn-sm btn-secondary" id="batalProfilBtn">Batal</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="overlayContainer" class="edit-overlay d-none">
+            <div class="edit-box" id="overlayContent">
+                <!-- Konten form akan disisipkan lewat JS -->
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="bg-dark text-white mt-8 pt-4 pb-3 fixed-bottom">
+        <div class="container">
+            <div class="row text-center text-md-start">
+                <!-- Brand dan Deskripsi -->
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold">NGIKLAN MURAH</h5>
+                    <p class="small">Solusi mudah dan terjangkau untuk semua kebutuhan iklan Anda. Billboard, Radio, SMS
+                        dan
+                        lainnya.</p>
+                </div>
+
+                <!-- Navigasi -->
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold">Navigasi</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white text-decoration-none small">Home</a></li>
+                        <li><a href="#" class="text-white text-decoration-none small">Fitur</a></li>
+                        <li><a href="#" class="text-white text-decoration-none small">Harga</a></li>
+                    </ul>
+                </div>
+
+                <!-- Kontak -->
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold">Kontak</h6>
+                    <p class="small mb-1"><i class="bi bi-envelope me-2"></i>support@ngiklanmurah.com</p>
+                    <p class="small"><i class="bi bi-telephone me-2"></i>+62 812-3456-7890</p>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="text-center border-top pt-3 small">
+                © 2025 NgiklanMurah. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+
+    <script>   //    efek scroll navbar
+        window.addEventListener('scroll', function () {
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const overlay = document.getElementById("overlayContainer");
+            const contentBox = document.getElementById("overlayContent");
+
+            const showOverlay = (formHTML) => {
+                contentBox.innerHTML = formHTML;
+                overlay.classList.remove("d-none");
+
+                // Tombol batal di dalam overlay
+                const batalBtn = contentBox.querySelector(".btn-cancel");
+                if (batalBtn) {
+                    batalBtn.addEventListener("click", () => {
+                        overlay.classList.add("d-none");
+                        contentBox.innerHTML = "";
+                    });
+                }
+            };
+
+            // --- Foto
+            document.getElementById("editFotoBtn").addEventListener("click", () => {
+                const formHTML = `
+      <h5>Edit Foto</h5>
+      <form id="formEditFotoOverlay" enctype="multipart/form-data">
+        <input type="file" name="foto_user" class="form-control" />
+        <div class="mt-2 d-flex justify-content-end gap-2">
+          <button type="submit" class="btn btn-success btn-sm">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-sm btn-cancel">Batal</button>
+        </div>
+      </form>`;
+                showOverlay(formHTML);
+
+                const form = document.getElementById("formEditFotoOverlay");
+                form.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    try {
+                        const res = await fetch("/internal/update-foto", {
+                            method: "POST",
+                            body: formData
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            alert("Foto berhasil diperbarui");
+                            location.reload();
+                        } else {
+                            alert(result.message || "Gagal upload foto");
+                        }
+                    } catch (err) {
+                        alert("Error saat upload.");
+                    }
+                });
+            });
+
+            // --- Akun
+            document.getElementById("editAkunBtn").addEventListener("click", () => {
+                const formHTML = `
+      <h5>Ubah Password</h5>
+      <form id="formEditAkunOverlay">
+        <input type="password" name="old_password" placeholder="Password Lama" class="form-control" />
+        <input type="password" name="new_password" placeholder="Password Baru" class="form-control" />
+        <input type="password" name="confirm_password" placeholder="Ulangi Password Baru" class="form-control" />
+        <div class="mt-2 d-flex justify-content-end gap-2">
+          <button type="submit" class="btn btn-success btn-sm">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-sm btn-cancel">Batal</button>
+        </div>
+      </form>`;
+                showOverlay(formHTML);
+
+                const form = document.getElementById("formEditAkunOverlay");
+                form.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    const data = Object.fromEntries(new FormData(form));
+                    if (data.new_password !== data.confirm_password) return alert("Password tidak cocok");
+                    try {
+                        const res = await fetch("/admin/internal/update-password", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(data)
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            alert("Password diperbarui");
+                            overlay.classList.add("d-none");
+                            contentBox.innerHTML = "";
+                        } else {
+                            alert(result.message || "Gagal update");
+                        }
+                    } catch (err) {
+                        alert("Error saat update.");
+                    }
+                });
+            });
+
+            // --- Profil
+            document.getElementById("editProfilBtn").addEventListener("click", () => {
+                const formHTML = `
+      <h5>Edit Profil</h5>
+      <form id="formEditProfilOverlay">
+        <input type="text" name="full_name" placeholder="Nama Lengkap" class="form-control" value="<%= user.full_name %>" />
+        <input type="text" name="nomor_tlp" placeholder="Nomor Telepon" class="form-control" value="<%= user.nomor_tlp %>" />
+        <textarea name="alamat" placeholder="Alamat" class="form-control"><%= user.alamat %></textarea>
+        <div class="mt-2 d-flex justify-content-end gap-2">
+          <button type="submit" class="btn btn-success btn-sm">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-sm btn-cancel">Batal</button>
+        </div>
+      </form>`;
+                showOverlay(formHTML);
+
+                const form = document.getElementById("formEditProfilOverlay");
+                form.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    const data = Object.fromEntries(new FormData(form));
+                    try {
+                        const res = await fetch("/admin/internal/update-profil", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(data)
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            alert("Profil diperbarui");
+                            location.reload();
+                        } else {
+                            alert(result.message || "Gagal update profil");
+                        }
+                    } catch (err) {
+                        alert("Error saat update profil.");
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

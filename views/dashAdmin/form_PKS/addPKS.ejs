@@ -1,6 +1,12 @@
 <link rel="stylesheet" href="/css/dashAdmin/progressbar.css">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
+
 <!-- <link rel="stylesheet" href="/css/progressbar.css" /> -->
 <style>
     .checkbox-kategori label {
@@ -13,6 +19,58 @@
         /* biar kotak ceklist-nya juga ikut kecil */
         margin-right: 5px;
     }
+
+ /* Samakan tampilan Select2 dengan Bootstrap 5 input */
+  .select2-container--default .select2-selection--single {
+    height: calc(2.25rem + 2px); /* sama seperti input.form-control */
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    margin-top: 10px; 
+  }
+
+  .select2-selection__rendered {
+    line-height: 1.5 !important;
+  }
+
+  .select2-selection__arrow {
+    height: calc(2.25rem + 2px);
+    top: 0px;
+    right: 10px;
+  }
+
+  .select2-container--default .select2-selection--single:focus,
+  .select2-container--default .select2-selection--single:focus-visible {
+    border-color: #86b7fe;
+    outline: 0;
+  }
+
+  .select2-selection__arrow b {
+  display: none; /* sembunyikan panah default */
+}
+
+.select2-selection--single::after {
+  content: '\f078'; /* kode panah FontAwesome (fa-chevron-down) */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+   font-size: 0.75rem;
+  position: absolute;
+  right: 10px;
+  top: 58%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+
+    .select2-container {
+    width: 100% !important;
+  }
 </style>
 
 <div class="progress-wrapper">
@@ -95,8 +153,9 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="kota">Kota:</label>
-                        <input type="text" id="kota" name="kota" placeholder="Masukkan Kota PT Mitra"
-                            class="small-input">
+                        <select id="kota" name="kota" class="small-input">
+                            <option value="">Pilih Kota</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="nik">NIK:</label>
@@ -182,21 +241,63 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+  async function loadKota() {
+    try {
+      const response = await fetch('/data_kota/kota.json');
+      const data = await response.json();
+
+      const select = document.getElementById('kota');
+
+      data.forEach(prov => {
+        const group = document.createElement('optgroup');
+        group.label = prov.provinsi;
+
+        prov.kota.forEach(kota => {
+          const option = document.createElement('option');
+          option.value = kota;
+          option.textContent = kota;
+          group.appendChild(option);
+        });
+
+        select.appendChild(group);
+      });
+
+      // Aktifkan select2 setelah semua option dimuat
+      $('#kota').select2({
+        placeholder: 'Pilih Kota',
+        width: '100%'
+      });
+
+    } catch (error) {
+      console.error('❌ Gagal memuat data kota:', error);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadKota);
+</script>
+
+
 <script>
     let pks_id = null;
     let pdfFilename = null;
 
     document.addEventListener("DOMContentLoaded", function () {
-    const tanggalInput = document.getElementById("tanggal");
-    if (tanggalInput) {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${year}-${month}-${day}`;
-        tanggalInput.setAttribute("min", todayStr); // ⛔ Batasi hanya bisa pilih dari hari ini ke atas
-    }
-});
+        const tanggalInput = document.getElementById("tanggal");
+        if (tanggalInput) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+            tanggalInput.setAttribute("min", todayStr); // ⛔ Batasi hanya bisa pilih dari hari ini ke atas
+        }
+    });
 
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("multiStepForm");

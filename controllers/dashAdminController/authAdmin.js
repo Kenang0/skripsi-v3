@@ -9,7 +9,7 @@ import multer from "multer";
 import cron from "node-cron";
 import { transporter } from "../../nodemailer.js";
 import dotenv from "dotenv";
-import { Console } from "console";
+import { Console, error } from "console";
 
 dotenv.config();
 
@@ -33,17 +33,18 @@ export const uploadPKSFile = multer({ storage: storagePKS });
 
 
 // untuk foto profile
-const storageProfile = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, './uploads/profile_pic');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/uploads/profile_pic");
   },
-  filename: (req, file, cb) => {
-    const filename = `profile-${Date.now()}-${file.originalname}`;
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const filename = `user_${Date.now()}${ext}`;
     cb(null, filename);
-  }
+  },
 });
 
-export const uploadProfilePic = multer({ storage: storageProfile });
+const upload = multer({ storage }).single("foto_user");
 
 //untuk foto produk
 const storageProduk = multer.diskStorage({
@@ -484,7 +485,7 @@ export const simpanAkunVendor = async (req, res) => {
       `INSERT INTO users_vendor
       (pks_id, nama_toko_vendor, email_vendor, password_vendor, no_telepon_vendor,photo_vendor, vertifikasi_vendor)
       VALUES ($1, $2, $3, $4, $5,$6, 'belom terbertifikasi') RETURNING *`,
-      [pks_id, nama_toko_vendor, email, hashedPassword, no_telepon, "img_placeholder.jpg"]
+      [pks_id, nama_toko_vendor, email, hashedPassword, no_telepon, "userPlaceholder.png"]
     );
 
     const vendorBaru = result_vendor.rows[0];
@@ -640,12 +641,6 @@ export const getDashAdminPKS = async (req, res) => {
 
   } catch (err) {
     console.error('Database error:', err.message);
-    res.render('dashAdmin/dashboardAdmin', {
-      role: req.user.role,
-      partial: 'view_PKS',
-      error: 'Gagal mengambil halaman PKS',
-      data: {},
-    });
   }
 };
 
@@ -874,10 +869,10 @@ export const kirimEmailVerifikasi = async (user) => {
   const token = jwt.sign(
     { id: user.id, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "7d" }
   );
 
-  const verifikasiURL = `http://localhost:3000/admin/verifikasi?token=${token}`;
+  const verifikasiURL = `http://localhost:3000/admin/verifikasi?token=${token}`; // ganti nanti pas udah di hosting
 
   const mailOptions = {
     from: process.env.EMAIL_FROM,
@@ -885,9 +880,12 @@ export const kirimEmailVerifikasi = async (user) => {
     subject: "Verifikasi Akun Anda",
     html: `
       <h3>Halo, ${user.full_name}</h3>
-      <p>Silakan klik tombol di bawah ini untuk verifikasi akun:</p>
-      <a href="${verifikasiURL}" style="padding: 10px 20px; background: #4CAF50; color: white; text-decoration: none;">Verifikasi Email</a>
-      <p>Link ini akan kadaluarsa dalam 24 jam.</p>
+      <p>Kami dari <strong>PT Pandawa Sakti Digital</strong> menginformasikan bahwa akun Anda telah berhasil dibuat.</p>
+      <p>Silakan klik tautan berikut untuk mengatur kata sandi Anda dan mengaktifkan akun:</p>
+      <p><a href="${verifikasiURL}">${verifikasiURL}</a></p><br>
+      <p><small>Link ini berlaku selama 7 hari.</small></p>
+      <br>
+      <p>Hormat kami,<br><strong>PT Pandawa Sakti Digital</strong></p>
     `
   };
 
@@ -902,24 +900,136 @@ export const vertifikasi = async (req, res) => {
     console.log(id);
 
     // Update user jadi terverifikasi
-    await pool.query("UPDATE users SET vertifikasi_user = 'sudah tervertifikasi' WHERE id = $1", [id]); // ganti ini nanti
+    await pool.query("UPDATE users SET vertifikasi_user = 'sudah tervertifikasi' WHERE id = $1", [id]); // ganti ini nanti mungkin
 
-    res.send("✅ Email berhasil diverifikasi!");
+    res.render('Email/konfirmasi_email_internal', {
+      token: token // kirim token ke hidden input di form
+    });
   } catch (err) {
     res.status(400).send("❌ Link tidak valid atau sudah kadaluarsa.");
   }
 };
+
+// untuk handle update password dari email untuk internal
+export const updatePasswordInternal = async (req, res) => {
+  const { token, newPassword, confirmPassword } = req.body;
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).send("Password dan konfirmasi tidak cocok.");
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await pool.query(
+      "UPDATE users SET password = $1 WHERE id = $2",
+      [hashed, decoded.id]
+    );
+
+    res.status(200).send("ok");
+  } catch (err) {
+    console.error("❌ Gagal update password:", err.message);
+    res.status(400).send("Token tidak valid atau telah kedaluwarsa.");
+  }
+};
+
 // penambahan akun internal end
 
 
-// testing sesuatu start
-// buat melihat front end aja seblum masuk data kalau masih fornt end aja 
-export const liatFrontEnd = async (req, res) => {
-  res.render('Email/setPassword_dan_Konfirmasi_email', {
-    // data: [], 
-    // error: "" 
-    token:""
-  });
-}
+// pengatuaran Akun (settings)
+export const getHalamanPengaturan = async (req, res) => {
+  const userId = req.user.id;
 
-// testing sesuatu end
+  try {
+    const result = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
+    const user = result.rows[0];
+
+    res.render("dashAdmin/dashboardAdmin", { 
+      partial: 'pengaturan_akun',
+      role: req.user.role,
+      error:"",
+      data : "",
+      user
+    });
+  } catch (err) {
+    console.error("❌ Gagal ambil data user:", err);
+    res.status(500).send("Terjadi kesalahan.");
+  }
+};
+
+
+export const updateProfil = async (req, res) => {
+  const userId = req.user.id; 
+  const { full_name, nomor_tlp, alamat } = req.body;
+
+  try {
+    await pool.query(
+      `UPDATE users SET full_name = $1, nomor_tlp = $2, alamat = $3 WHERE id = $4`,
+      [full_name, nomor_tlp, alamat, userId]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ Gagal update profil:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export const updatePassword = async (req, res) => {
+  const userId = req.user.id;
+  const { old_password, new_password } = req.body;
+
+  try {
+    const user = await pool.query(`SELECT password FROM users WHERE id = $1`, [userId]);
+    if (user.rowCount === 0) return res.json({ success: false, message: "User tidak ditemukan" });
+
+    const isMatch = await bcrypt.compare(old_password, user.rows[0].password);
+    if (!isMatch) return res.json({ success: false, message: "Password lama salah" });
+
+    const hashed = await bcrypt.hash(new_password, 10);
+    await pool.query(`UPDATE users SET password = $1 WHERE id = $2`, [hashed, userId]);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ Gagal update password:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export const updateFoto = async (req, res) => {
+  upload(req, res, async function (err) {
+    if (err) {
+      console.error("❌ Multer error:", err);
+      return res.status(500).json({ success: false, message: "Upload gagal" });
+    }
+
+    const file = req.file;
+    const userId = req.user.id;
+
+    if (!file) {
+      return res.status(400).json({ success: false, message: "Tidak ada file dikirim" });
+    }
+
+    try {
+      const result = await pool.query(`SELECT photo_user FROM users WHERE id = $1`, [userId]);
+      const fotoLama = result.rows[0]?.photo_user;
+
+      const isDefault = ["img_placeholder.jpg", "userPlaceholder.png"].includes(fotoLama);
+
+      if (fotoLama && !isDefault) {
+        const pathFoto = path.join("public", "uploads", "profile_pic", fotoLama);
+        if (fs.existsSync(pathFoto)) fs.unlinkSync(pathFoto);
+      }
+
+      await pool.query(`UPDATE users SET photo_user = $1 WHERE id = $2`, [file.filename, userId]);
+      res.json({ success: true });
+    } catch (err) {
+      console.error("❌ Gagal update foto:", err);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  });
+};
+
+
+

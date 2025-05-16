@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/loginPagedanRegiter.css">
+    <title>Login</title>
+</head>
+
+<body>
+
+
+    <div id="page" class="site login-show">
+        <div class="container">
+            <div class="wrapper">
+                <!-- Login -->
+                <div class="login">
+                    <div class="content-heading">
+                        <div class="y-style">
+                            <div class="logo-container">
+                                <img src="/foto/logo_ngiklanmurah.png" alt="Logo Ngiklan Murah">
+                                <span class="brand-text">
+                                    <span class="hitam">Ngiklan</span>
+                                    <span class="merah">Murah</span>
+                                </span>
+                            </div>
+                            <div class="welcome">
+                                <h2>Selamat datang <br>Kembali</h2>
+                                <p>Di sini Anda dapat masuk</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-form">
+                        <div class="y-style">
+                            <% if (error) { %>
+                                <p style="color: red;">
+                                    <%= error %>
+                                </p>
+                                <% } %>
+                                    <form action="/login-user" method="post">
+                                        <p>
+                                            <label for="email">Email</label>
+                                            <input type="email" name="email" placeholder="Masukkan Email" required>
+                                        </p>
+                                        <p>
+                                            <label for="password">Password</label>
+                                            <input type="password" name="password" placeholder="Masukkan Password"
+                                                required>
+                                        </p>
+                                        <p class="check">
+                                            <input type="checkbox" id="remember">
+                                            <label for="remember">Remember me</label>
+                                        </p>
+                                        <p class="forgot"><a href="#">Forgot Password?</a></p>
+                                        <p><button type="submit">Login</button></p>
+                                    </form>
+                                    <div class="afterform">
+                                        <p>Belum Punya Akun?</p>
+                                        <a href="/register" class="t-signup">Daftar</a>
+                                    </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+
+    </div>
+
+</body>
+
+</html>

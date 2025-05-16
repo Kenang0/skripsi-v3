@@ -1,0 +1,241 @@
+<style>
+  .edit-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1050;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .edit-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .edit-box h5 {
+    margin-bottom: 1rem;
+  }
+
+  .edit-box .form-control {
+    margin-bottom: 0.75rem;
+  }
+
+  .d-none {
+    display: none !important;
+  }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Bagian Foto -->
+        <div class="col-md-4 text-center">
+            <img src="/uploads/profile_pic/<%= user.photo_user %>" class="rounded-circle" width="150" height="150" />
+            <button class="btn btn-sm btn-outline-primary mt-2" id="editFotoBtn">Edit Foto</button>
+            <form id="formEditFoto" class="mt-3 d-none" enctype="multipart/form-data">
+                <input type="file" name="foto_user" class="form-control mb-2" />
+                <button type="submit" class="btn btn-sm btn-success">Simpan</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="batalFotoBtn">Batal</button>
+            </form>
+        </div>
+
+        <!-- Bagian Info -->
+        <div class="col-md-8">
+            <!-- Info Akun -->
+            <h5>Informasi Akun</h5>
+            <div class="mb-3">
+                <label>Email</label>
+                <input type="email" class="form-control" value="<%= user.email %>" readonly />
+            </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" class="form-control" value="********" readonly />
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" id="editAkunBtn">Ganti Password</button>
+            <form id="formEditAkun" class="mt-3 d-none">
+                <input type="password" name="old_password" placeholder="Password Lama" class="form-control mb-2" />
+                <input type="password" name="new_password" placeholder="Password Baru" class="form-control mb-2" />
+                <input type="password" name="confirm_password" placeholder="Ulangi Password Baru"
+                    class="form-control mb-2" />
+                <button type="submit" class="btn btn-sm btn-success">Simpan</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="batalAkunBtn">Batal</button>
+            </form>
+
+            <hr />
+
+            <!-- Info Pribadi -->
+            <h5>Informasi Pribadi</h5>
+            <div class="mb-3">
+                <label>Nama Lengkap</label>
+                <input type="text" class="form-control" name="full_name" value="<%= user.full_name %>" readonly />
+            </div>
+            <div class="mb-3">
+                <label>Nomor Telepon</label>
+                <input type="text" class="form-control" name="nomor_tlp" value="<%= user.nomor_tlp %>" readonly />
+            </div>
+            <div class="mb-3">
+                <label>Alamat</label>
+                <textarea class="form-control" name="alamat" rows="2" readonly><%= user.alamat %></textarea>
+            </div>
+            <button type="button" id="editProfilBtn" class="btn btn-sm btn-primary">Edit Profil</button>
+            <form id="formEditProfil" class="mt-3 d-none">
+                <input type="text" name="full_name" placeholder="Nama Lengkap" class="form-control mb-2"
+                    value="<%= user.full_name %>" />
+                <input type="text" name="nomor_tlp" placeholder="Nomor Telepon" class="form-control mb-2"
+                    value="<%= user.nomor_tlp %>" />
+                <textarea name="alamat" placeholder="Alamat"
+                    class="form-control mb-2"><%= user.alamat_user %></textarea>
+                <button type="submit" class="btn btn-sm btn-success">Simpan</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="batalProfilBtn">Batal</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="overlayContainer" class="edit-overlay d-none">
+  <div class="edit-box" id="overlayContent">
+    <!-- Konten form akan disisipkan lewat JS -->
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const overlay = document.getElementById("overlayContainer");
+  const contentBox = document.getElementById("overlayContent");
+
+  const showOverlay = (formHTML) => {
+    contentBox.innerHTML = formHTML;
+    overlay.classList.remove("d-none");
+
+    // Tombol batal di dalam overlay
+    const batalBtn = contentBox.querySelector(".btn-cancel");
+    if (batalBtn) {
+      batalBtn.addEventListener("click", () => {
+        overlay.classList.add("d-none");
+        contentBox.innerHTML = "";
+      });
+    }
+  };
+
+  // --- Foto
+  document.getElementById("editFotoBtn").addEventListener("click", () => {
+    const formHTML = `
+      <h5>Edit Foto</h5>
+      <form id="formEditFotoOverlay" enctype="multipart/form-data">
+        <input type="file" name="foto_user" class="form-control" />
+        <div class="mt-2 d-flex justify-content-end gap-2">
+          <button type="submit" class="btn btn-success btn-sm">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-sm btn-cancel">Batal</button>
+        </div>
+      </form>`;
+    showOverlay(formHTML);
+
+    const form = document.getElementById("formEditFotoOverlay");
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      try {
+        const res = await fetch("/internal/update-foto", {
+          method: "POST",
+          body: formData
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("Foto berhasil diperbarui");
+          location.reload();
+        } else {
+          alert(result.message || "Gagal upload foto");
+        }
+      } catch (err) {
+        alert("Error saat upload.");
+      }
+    });
+  });
+
+  // --- Akun
+  document.getElementById("editAkunBtn").addEventListener("click", () => {
+    const formHTML = `
+      <h5>Ubah Password</h5>
+      <form id="formEditAkunOverlay">
+        <input type="password" name="old_password" placeholder="Password Lama" class="form-control" />
+        <input type="password" name="new_password" placeholder="Password Baru" class="form-control" />
+        <input type="password" name="confirm_password" placeholder="Ulangi Password Baru" class="form-control" />
+        <div class="mt-2 d-flex justify-content-end gap-2">
+          <button type="submit" class="btn btn-success btn-sm">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-sm btn-cancel">Batal</button>
+        </div>
+      </form>`;
+    showOverlay(formHTML);
+
+    const form = document.getElementById("formEditAkunOverlay");
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      if (data.new_password !== data.confirm_password) return alert("Password tidak cocok");
+      try {
+        const res = await fetch("/admin/internal/update-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("Password diperbarui");
+          overlay.classList.add("d-none");
+          contentBox.innerHTML = "";
+        } else {
+          alert(result.message || "Gagal update");
+        }
+      } catch (err) {
+        alert("Error saat update.");
+      }
+    });
+  });
+
+  // --- Profil
+  document.getElementById("editProfilBtn").addEventListener("click", () => {
+    const formHTML = `
+      <h5>Edit Profil</h5>
+      <form id="formEditProfilOverlay">
+        <input type="text" name="full_name" placeholder="Nama Lengkap" class="form-control" value="<%= user.full_name %>" />
+        <input type="text" name="nomor_tlp" placeholder="Nomor Telepon" class="form-control" value="<%= user.nomor_tlp %>" />
+        <textarea name="alamat" placeholder="Alamat" class="form-control"><%= user.alamat %></textarea>
+        <div class="mt-2 d-flex justify-content-end gap-2">
+          <button type="submit" class="btn btn-success btn-sm">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-sm btn-cancel">Batal</button>
+        </div>
+      </form>`;
+    showOverlay(formHTML);
+
+    const form = document.getElementById("formEditProfilOverlay");
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      try {
+        const res = await fetch("/admin/internal/update-profil", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("Profil diperbarui");
+          location.reload();
+        } else {
+          alert(result.message || "Gagal update profil");
+        }
+      } catch (err) {
+        alert("Error saat update profil.");
+      }
+    });
+  });
+});
+</script>

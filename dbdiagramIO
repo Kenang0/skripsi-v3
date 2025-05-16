@@ -1,0 +1,106 @@
+Table users {
+  id SERIAL [pk]
+  email VARCHAR(255)
+  password VARCHAR(255)
+  role VARCHAR(255)
+  full_name VARCHAR(255)
+  nomor_tlp VARCHAR(255)
+  alamat_user TEXT
+  status_users TEXT
+  Dibuat_tanggal TIMESTAMP
+  photo_user VARCHAR(255)
+  vertifikasi_user VARCHAR(255)
+}
+
+Table users_vendor {
+  id_vendor SERIAL [pk]
+  pks_id INT [ref: > pks.pks_id]
+  email TEXT [unique]
+  password TEXT
+  nama_toko_vendor TEXT
+  no_telepon_vendor TEXT
+  photo_vendor VARCHAR(255)
+  status TEXT
+  vendor_dibuat_tanggal TIMESTAMP
+  vertifikasi_vendor VARCHAR(255)
+}
+
+Table pks {
+  pks_id SERIAL [pk]
+  nomor_pks VARCHAR(255)
+  user_id INT [ref: > users.id]
+  pt_mitra TEXT
+  kota VARCHAR(255)
+  alamat_pks TEXT
+  nik VARCHAR(255)
+  nama_perwakilan VARCHAR(255)
+  perwakilan_jabatan VARCHAR(255)
+  nama_dari_pdf VARCHAR(255)
+  status TEXT
+  pembuatan_pks TIMESTAMP
+  keterangan VARCHAR(255)
+}
+
+Table kategori {
+  kategori_id SERIAL [pk]
+  tipe_kategori VARCHAR(255)
+}
+
+Table produk_iklan {
+  id_produk_iklan SERIAL [pk]
+  vendor_id INT [ref: > users_vendor.id_vendor]
+  kategori_id INT [ref: > kategori.kategori_id]
+  nama_produk TEXT
+  deskripsi_produk TEXT
+  harga INT
+  produk_iklan_dibuat TIMESTAMP
+  status_produk TEXT
+  photo_produk TEXT
+}
+
+Table jadwal_produk_radio {
+  id_jadwal_produk_radio SERIAL [pk]
+  produk_id INT [ref: > produk_iklan.id_produk_iklan]
+  hari TEXT
+  jam_mulai TIME
+  jam_selesai TIME
+}
+
+Table detail_produk_sms {
+  id_detail_sms SERIAL [pk]
+  produk_id INT [ref: > produk_iklan.id_produk_iklan]
+  provider_yang_di_layani TEXT
+  jenis_target VARCHAR(100)
+}
+
+Table pemesanan {
+  id_pemesanan SERIAL [pk]
+  user_id INT [ref: > users.id]
+  produk_id INT [ref: > produk_iklan.id_produk_iklan]
+  kategori_id INT [ref: > kategori.kategori_id]
+  jumlah_pemesanan INT
+  tanggal_pemesanan TIMESTAMP
+  status_pemesanan TEXT
+  note_pemesanan_user TEXT
+  note_pemesanan_vendor TEXT
+}
+
+Table detail_pemesanan_sms {
+  id_detail_sms SERIAL [pk]
+  produk_id INT [ref: > produk_iklan.id_produk_iklan]
+  teks_iklan_sms TEXT
+  sumber_nomor VARCHAR(50)
+  file_nomor_sms_pdf TEXT
+  alamat_target_sms TEXT
+  jenis_sms VARCHAR(50)
+}
+
+Table detail_pemesanan_radio {
+  id_detail_radio SERIAL [pk]
+  produk_id INT [ref: > produk_iklan.id_produk_iklan]
+  tanggal_tayang_pemesanan_radio DATE
+  jam_tayang_pemesanan_radio TIME
+  script_audio TEXT
+  file_script TEXT
+  foto_produk TEXT
+}

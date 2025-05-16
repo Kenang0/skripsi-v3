@@ -4,7 +4,8 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import adminRoutes from "./routes/adminRoutes/adminRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes/vendorRoutes.js";
-
+import webRoutes from "./routes/webRoutes/webRoutes.js"
+import tampilan from "./routes/cektampilanRoutes/cekTampilan.js"
 
 dotenv.config();
 
@@ -17,10 +18,16 @@ app.use(cookieParser());
 app.use(express.json());
 app.set("view engine", "ejs");
 
+// cek tampilan
+app.use("/tampilan",tampilan);
+
 //admin 
 app.use("/admin", adminRoutes);
 // vendor
 app.use("/vendor", vendorRoutes);
+
+// web
+app.use("/", webRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => {

@@ -46,8 +46,8 @@ CREATE TABLE pks (
 
 -- Kategori produk (radio, sms, tv, dll) ✔️
 CREATE TABLE kategori (
-    id_kategori SERIAL PRIMARY KEY,
-    nama_kategori VARCHAR(255) NOT NULL
+    kategori_id SERIAL PRIMARY KEY,
+    tipe_kategori VARCHAR(255) NOT NULL
 );
 
 -- Produk iklan buatan vendor
@@ -55,7 +55,6 @@ CREATE TABLE produk_iklan (
     id_produk_iklan SERIAL PRIMARY KEY,
     vendor_id INTEGER REFERENCES users_vendor(id_vendor),
     kategori_id INTEGER REFERENCES kategori(id_kategori),
-    
     nama_produk TEXT NOT NULL,
     deskripsi_produk TEXT,
     harga INTEGER,
@@ -69,113 +68,58 @@ CREATE TABLE produk_iklan (
 CREATE TABLE jadwal_produk_radio (
     id_jadwal_produk_radio SERIAL PRIMARY KEY,
     produk_id INTEGER REFERENCES produk_iklan(id_penayangan_radio),
-    hari TEXT CHECK (hari IN ('Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')),
+    hari TEXT 
     jam_mulai TIME,
     jam_selesai TIME
 );
 
--- Penayangan radio aktual (per tanggal) // masih belom fix dan bingung
-CREATE TABLE penayangan_radio (
-    id_penayangan_radio SERIAL PRIMARY KEY,
-    produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan),
-    jadwal_id INTEGER REFERENCES jadwal_produk_radio(id_jadwal_produk_radio),
-    tanggal DATE,
-    -- gak pake ini deh kayanya
-    status TEXT DEFAULT 'menunggu'
+CREATE TABLE detail_produk_sms (
+  id_detail_sms SERIAL PRIMARY KEY,
+  produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan) ON DELETE CASCADE,
+  provider_yang_di_layani TEXT,
+  jenis_target VARCHAR(100)
 );
 
--- Pemesanan iklan radio oleh klien
-CREATE TABLE pemesanan_radio (
-    id_pemesanan_radio SERIAL PRIMARY KEY,
+
+CREATE TABLE pemesanan (
+    id_pemesanan SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
     produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan),
-    client_id INTEGER REFERENCES users(id),
-    jadwal_id INTEGER REFERENCES jadwal_produk_radio(id_jadwal_produk_radio),
-    tanggal_mulai DATE,
-    tanggal_selesai DATE,
-    file_script_radio TEXT,
-    -- nanti hardcode aje dah
-    status TEXT CHECK (status IN (
-        'menunggu validasi vendor',
-        'disetujui vendor',
-        'ditolak vendor',
-        'menunggu pembayaran',
-        'dibayar',
-        'selesai'
-    )) DEFAULT 'menunggu validasi vendor',
-    alasan_penolakan TEXT,
-    pemesanan_radio_dibuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    kategori_id INTEGER REFERENCES kategori(kategori_id),
+    jumlah_pemesanan INTEGER,
+    tanggal_pemesanan TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status_pemesanan TEXT DEFAULT 'menunggu verifikasi', -- ditolak, menunggu revisi, menunggu pembayaran/pemesanan diterima,
+    note_pemesanan_user TEXT,    -- catatan dari sisi user
+    note_pemesanan_vendor TEXT   -- catatan dari sisi vendor (misalnya alasan tolak atau minta revisi)
 );
 
--- Pemesanan iklan SMS oleh klien
-CREATE TABLE pemesanan_sms (
-    id SERIAL PRIMARY KEY,
-    produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan),
-    client_id INTEGER REFERENCES users(id),
-    tanggal_mulai DATE,
-    tanggal_selesai DATE,
-    jumlah_pengiriman INTEGER,
-    teks_iklan TEXT,
-    lokasi_target TEXT,
-    file_nomor TEXT,
-    -- hardcode aje dah
-    status TEXT CHECK (status IN (
-        'menunggu validasi vendor',
-        'disetujui vendor',
-        'ditolak vendor',
-        'menunggu pembayaran',
-        'dibayar',
-        'selesai'
-    )) DEFAULT 'menunggu validasi vendor',
-    alasan_penolakan TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE detail_pemesanan_sms (
+    id_detail_sms SERIAL PRIMARY KEY,
+    pemesanan_id INTEGER REFERENCES pemesanan(id_pemesanan) ON DELETE CASCADE,
+    teks_iklan_sms TEXT NOT NULL,
+    sumber_nomor VARCHAR(50) CHECK (sumber_nomor IN ('vendor', 'user')),
+    file_nomor_sms_pdf TEXT, -- hanya wajib jika sumber_nomor = 'user'
+    alamat_target_sms TEXT, -- untuk SMS LBA
+    dps_latitude text,
+    dps_longitude text,
+    jenis_sms VARCHAR(50) CHECK (jenis_sms IN ('blast', 'LBA'))
 );
 
--- Tabel bukti tayang (untuk radio dan sms)
+CREATE TABLE detail_pemesanan_radio (
+    id_detail_radio SERIAL PRIMARY KEY,
+    pemesanan_id INTEGER REFERENCES pemesanan(id_pemesanan) ON DELETE CASCADE,
+    tanggal_tayang_pemesanan_radio DATE NOT NULL,
+    jam_tayang_pemesanan_radio TIME NOT NULL, -- harus disesuaikan dengan jam yang tersedia
+    script_audio TEXT, -- bisa berupa isi langsung atau nama file
+    file_script TEXT, -- bisa file teks / dokumen
+    foto_produk TEXT -- opsional
+);
+
+
 CREATE TABLE bukti_tayang (
-    id SERIAL PRIMARY KEY,
-    kategori TEXT CHECK (kategori IN ('radio', 'sms')),
-    pemesanan_id INTEGER NOT NULL,
-    file_dokumen TEXT,
-    file_audio TEXT,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id_bukti SERIAL PRIMARY KEY,
+    pemesanan_id INTEGER REFERENCES pemesanan(id_pemesanan) ON DELETE CASCADE,
+    tipe_file TEXT CHECK (tipe_file IN ('dokumen', 'audio')),
+    file_path TEXT NOT NULL,
+    keterangan_tayang TEXT
 );
-
--- Tabel invoice (buat internal setelah pemesanan disetujui)
-CREATE TABLE invoices (
-    id SERIAL PRIMARY KEY,
-    client_id INTEGER REFERENCES users(id),
-    kategori TEXT CHECK (kategori IN ('radio', 'sms')),
-    pemesanan_id INTEGER NOT NULL,
-    no_invoice TEXT UNIQUE NOT NULL,
-    tanggal_invoice DATE DEFAULT CURRENT_DATE,
-    total_harga INTEGER NOT NULL,
-    status TEXT CHECK (status IN ('belum bayar', 'lunas', 'expired')) DEFAULT 'belum bayar',
-    dibuat_oleh INTEGER REFERENCES users(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-
-
--- buat liat produk radio urutan dari hari
-SELECT 
-  p.id_produk_iklan,
-  p.nama_produk,
-  p.deskripsi_produk,
-  p.harga,
-  j.hari,
-  j.jam_mulai,
-  j.jam_selesai
-FROM produk_iklan p
-JOIN jadwal_produk_radio j ON p.id_produk_iklan = j.produk_id
-WHERE p.kategori_id = 1
-ORDER BY
-  CASE 
-    WHEN j.hari = 'Senin' THEN 1
-    WHEN j.hari = 'Selasa' THEN 2
-    WHEN j.hari = 'Rabu' THEN 3
-    WHEN j.hari = 'Kamis' THEN 4
-    WHEN j.hari = 'Jumat' THEN 5
-    WHEN j.hari = 'Sabtu' THEN 6
-    WHEN j.hari = 'Minggu' THEN 7
-  END,
-  j.jam_mulai;

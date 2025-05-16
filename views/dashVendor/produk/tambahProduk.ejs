@@ -8,7 +8,8 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
 
-  form h2, form h3 {
+  form h2,
+  form h3 {
     text-align: center;
     color: #333;
   }
@@ -62,66 +63,66 @@
   }
 
   .checkbox-group-inline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 5px;
-}
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+  }
 
-.checkbox-inline {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: normal;
-}
+  .checkbox-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: normal;
+  }
 
-.jam-tayang-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+  .jam-tayang-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-.jam-tayang-wrapper input[type="time"] {
-  flex: 1;
-}
+  .jam-tayang-wrapper input[type="time"] {
+    flex: 1;
+  }
 
-.sd-label {
-  font-weight: 500;
-  white-space: nowrap;
-}
+  .sd-label {
+    font-weight: 500;
+    white-space: nowrap;
+  }
 
-.header-form-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
-}
+  .header-form-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+  }
 
-.header-form-wrapper h2 {
-  font-size: 20px;
-  margin: 0;
-  color: #1f2937;
-}
+  .header-form-wrapper h2 {
+    font-size: 20px;
+    margin: 0;
+    color: #1f2937;
+  }
 
-.kategori-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+  .kategori-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-.kategori-wrapper label {
-  white-space: nowrap;
-  margin-bottom: 0;
-}
+  .kategori-wrapper label {
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
 
-.kategori-wrapper select {
-  width: 200px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-}
+  .kategori-wrapper select {
+    width: 200px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+  }
 
 
 
@@ -131,7 +132,10 @@
       padding: 15px;
     }
 
-    label, input, select, textarea {
+    label,
+    input,
+    select,
+    textarea {
       font-size: 14px;
     }
   }
@@ -145,9 +149,11 @@
       <label for="kategori_id">Pilih Kategori:</label>
       <select name="kategori_id" id="kategori_id" required onchange="tampilkanFormKategori()">
         <option value="">-- Pilih --</option>
-        <% data.forEach(kat => { %>
-          <option value="<%= kat.kategori_id %>"><%= kat.tipe_kategori %></option>
-        <% }) %>
+        <% data.forEach(kat=> { %>
+          <option value="<%= kat.kategori_id %>">
+            <%= kat.tipe_kategori %>
+          </option>
+          <% }) %>
       </select>
     </div>
   </div>
@@ -175,13 +181,15 @@
       <input type="number" name="harga">
     </div>
 
-    
+
     <div>
       <label>Hari Tayang:</label>
       <div class="checkbox-group-inline">
-        <% ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].forEach(hari => { %>
-          <label class="checkbox-inline"><input type="checkbox" name="hari_tayang" value="<%= hari %>"><%= hari %></label>
-        <% }) %>
+        <% ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].forEach(hari=> { %>
+          <label class="checkbox-inline"><input type="checkbox" name="hari_tayang[]" value="<%= hari %>">
+            <%= hari %>
+          </label>
+          <% }) %>
       </div>
     </div>
 
@@ -195,10 +203,10 @@
     </div>
 
   </div>
-  
+
   <!-- Form SMS -->
   <div id="form-sms" class="form-kategori" style="display: none;">
-    <h3>Form Produk SMS</h3>
+    <h3>Form Produk Messaging</h3>
     <div>
       <label>Nama Produk:</label>
       <input type="text" name="nama_produk">
@@ -220,10 +228,23 @@
     </div>
 
     <div>
+      <label>Provider yang di layani:</label>
+      <div class="checkbox-group-inline">
+        <% ['Telkomsel','Simpati','XL','Axis','Indosat','Tri','Smartfrend'].forEach(provider=> { %>
+          <label class="checkbox-inline"><input type="checkbox" name="provider[]" value="<%= provider %>">
+            <%= provider %>
+          </label>
+          <% }) %>
+      </div>
+    </div>
+
+    <div>
       <label>Jenis Target:</label>
       <select name="jenis_target">
-        <option value="SMS Blast">SMS Blast</option>
-        <option value="lokasi">Lokasi</option>
+        <option value="SMS (Short Message Service)">SMS (Short Message Service)</option>
+        <option value="MMS (Multimedia Messaging Service)">MMS (Multimedia Messaging Service)t</option>
+        <option value=" SMS LBA (Location-Based Advertising via SMS)">SMS LBA (Location-Based Advertising via SMS)</option>
+        <option value=" MMS LBA (Location-Based MMS)">MMS LBA (Location-Based MMS)</option>
       </select>
     </div>
   </div>
@@ -256,6 +277,98 @@
 
   // Panggil saat halaman pertama kali dibuka
   window.onload = tampilkanFormKategori;
+   // Tampilkan form sesuai kategori saat halaman dimuat
+  window.onload = tampilkanFormKategori;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+
+    // Fungsi validasi error untuk field input
+    function showError(inputSelector, message) {
+      const input = form.querySelector(inputSelector);
+      if (!input || input.disabled) return;
+
+      const value = input.value.trim();
+      if (!value) {
+        isValid = false;
+        input.style.border = "1px solid red";
+
+        const error = document.createElement("div");
+        error.className = "error-text";
+        error.style.color = "red";
+        error.style.fontSize = "12px";
+        error.style.marginTop = "4px";
+        error.textContent = message;
+
+        input.parentNode.appendChild(error);
+      } else {
+        input.style.border = ""; // Reset border jika valid
+      }
+    }
+
+    form.addEventListener("submit", function (e) {
+      const kategori = document.getElementById("kategori_id").value;
+      let isValid = true;
+
+      // Hapus error sebelumnya
+      form.querySelectorAll(".error-text").forEach(el => el.remove());
+      form.querySelectorAll("input, select, textarea").forEach(el => el.style.border = "");
+
+      if (kategori === "1") {
+        // RADIO
+        showError("#form-radio input[name='nama_produk']", "Wajib diisi");
+        showError("#form-radio textarea[name='deskripsi_produk']", "Wajib diisi");
+        showError("#form-radio input[name='harga']", "Wajib diisi");
+        showError("#form-radio input[name='jam_mulai']", "Wajib diisi");
+        showError("#form-radio input[name='jam_selesai']", "Wajib diisi");
+
+        const hariDipilih = form.querySelectorAll("#form-radio input[name='hari_tayang[]']:checked");
+        if (hariDipilih.length === 0) {
+          const group = form.querySelector("#form-radio .checkbox-group-inline");
+          const error = document.createElement("div");
+          error.className = "error-text";
+          error.style.color = "red";
+          error.style.fontSize = "12px";
+          error.style.marginTop = "4px";
+          error.textContent = "Pilih minimal 1 hari";
+          group.insertAdjacentElement("afterend", error);
+          isValid = false;
+        }
+
+        const fileInput = form.querySelector("#form-radio input[name='photo_produk']");
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+          showError("#form-radio input[name='photo_produk']", "Wajib upload foto");
+        }
+
+      } else if (kategori === "2") {
+        // SMS
+        showError("#form-sms input[name='nama_produk']", "Wajib diisi");
+        showError("#form-sms textarea[name='deskripsi_produk']", "Wajib diisi");
+        showError("#form-sms input[name='harga']", "Wajib diisi");
+        showError("#form-sms select[name='jenis_target']", "Wajib dipilih");
+
+        const providerDipilih = form.querySelectorAll("#form-sms input[name='provider[]']:checked");
+        if (providerDipilih.length === 0) {
+          const group = form.querySelector("#form-sms .checkbox-group-inline");
+          const error = document.createElement("div");
+          error.className = "error-text";
+          error.style.color = "red";
+          error.style.fontSize = "12px";
+          error.style.marginTop = "4px";
+          error.textContent = "Pilih minimal 1 provider";
+          group.insertAdjacentElement("afterend", error);
+          isValid = false;
+        }
+
+        const fileInput = form.querySelector("#form-sms input[name='photo_produk']");
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+          showError("#form-sms input[name='photo_produk']", "Wajib upload foto");
+        }
+      }
+
+      if (!isValid) {
+        e.preventDefault(); // Jangan submit kalau masih ada error
+      }
+    });
+  });
 </script>
-
-
