@@ -1,9 +1,5 @@
-# Jangan upload folder bawaan npm
-node_modules/
-
-# File environment (berisi kredensial API, DB, dll)
 .env
-
+node_modules/
 # Logs
 logs/
 *.log
