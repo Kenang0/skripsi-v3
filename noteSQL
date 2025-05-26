@@ -75,7 +75,7 @@ CREATE TABLE jadwal_produk_radio (
 
 CREATE TABLE detail_produk_sms (
   id_detail_sms SERIAL PRIMARY KEY,
-  produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan) ON DELETE CASCADE,
+  produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan),
   provider_yang_di_layani TEXT,
   jenis_target VARCHAR(100)
 );
@@ -88,26 +88,34 @@ CREATE TABLE pemesanan (
     kategori_id INTEGER REFERENCES kategori(kategori_id),
     jumlah_pemesanan INTEGER,
     tanggal_pemesanan TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status_pemesanan TEXT DEFAULT 'menunggu verifikasi', -- ditolak, menunggu revisi, menunggu pembayaran/pemesanan diterima,
+    status_pemesanan TEXT DEFAULT 'menunggu verifikasi', -- dibatalkan, menunggu perbaikan, menunggu pembayaran/pemesanan diterima, menunggu pengecekan pembayaran, menunggu bukti tayang
     note_pemesanan_user TEXT,    -- catatan dari sisi user
     note_pemesanan_vendor TEXT   -- catatan dari sisi vendor (misalnya alasan tolak atau minta revisi)
 );
 
 CREATE TABLE detail_pemesanan_sms (
     id_detail_sms SERIAL PRIMARY KEY,
-    pemesanan_id INTEGER REFERENCES pemesanan(id_pemesanan) ON DELETE CASCADE,
+    id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
+    nomor_penerima_bukti_tayang INT,
+    masking VARCHAR (50),
+    target_umur VARCHAR(50),
+    tipe_device_penerima text,
+    tanggal_pengiriman_start DATE,
+    tanggal_pengiriman_end DATE,
+    jam_pengiriman TIME,
     teks_iklan_sms TEXT NOT NULL,
-    sumber_nomor VARCHAR(50) CHECK (sumber_nomor IN ('vendor', 'user')),
+    sumber_nomor VARCHAR(50),
+    file_foto_mms TEXT,
     file_nomor_sms_pdf TEXT, -- hanya wajib jika sumber_nomor = 'user'
     alamat_target_sms TEXT, -- untuk SMS LBA
     dps_latitude text,
     dps_longitude text,
-    jenis_sms VARCHAR(50) CHECK (jenis_sms IN ('blast', 'LBA'))
+    
 );
 
 CREATE TABLE detail_pemesanan_radio (
     id_detail_radio SERIAL PRIMARY KEY,
-    pemesanan_id INTEGER REFERENCES pemesanan(id_pemesanan) ON DELETE CASCADE,
+    id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
     tanggal_tayang_pemesanan_radio DATE NOT NULL,
     jam_tayang_pemesanan_radio TIME NOT NULL, -- harus disesuaikan dengan jam yang tersedia
     script_audio TEXT, -- bisa berupa isi langsung atau nama file
@@ -118,7 +126,7 @@ CREATE TABLE detail_pemesanan_radio (
 
 CREATE TABLE bukti_tayang (
     id_bukti SERIAL PRIMARY KEY,
-    pemesanan_id INTEGER REFERENCES pemesanan(id_pemesanan) ON DELETE CASCADE,
+    id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
     tipe_file TEXT CHECK (tipe_file IN ('dokumen', 'audio')),
     file_path TEXT NOT NULL,
     keterangan_tayang TEXT

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NgiklanMurah</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid #eee;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .navbar.scrolled {
+            background-color: rgb(255, 255, 255);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .navbar a {
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        /* Hover untuk nav menu dan ikon */
+        .navbar a:hover {
+            color: #0d6efd !important;
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+
+        .navbar i {
+            transition: transform 0.3s ease;
+        }
+
+        .navbar i:hover {
+            transform: scale(1.2);
+        }
+
+        .produk-card {
+            width: 230px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            font-family: sans-serif;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .gambar-produk {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1;
+            /* contoh: lebar 4, tinggi 3 */
+            overflow: hidden;
+        }
+
+        .gambar-produk img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #f9f9f9;
+        }
+
+
+
+        .logo-toko img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+
+
+        .info-toko {
+            margin-top: -20px;
+            margin-bottom: 5px;
+        }
+
+        .logo-toko {
+            position: static;
+            /* Bukan absolute lagi */
+            background: white;
+            border-radius: 50%;
+            padding: 3px;
+            width: 40px;
+            height: 40px;
+            overflow: hidden;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .nama-toko {
+            font-size: 10px;
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lokasi-toko-static {
+            font-size: 12px;
+            background: #333;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+
+        .detail-produk {
+            padding: 10px;
+        }
+
+        .nama-produk {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+
+
+        .harga-produk {
+            font-size: 16px;
+            color: #e60000;
+            margin-bottom: 5px;
+        }
+
+        .hari-tayang,
+        .jam-tayang,
+        .kategori-produk {
+            font-size: 12px;
+            color: #555;
+        }
+
+        .produk-wrapper {
+            border-top: 1px solid #ddd;
+            padding-top: 2rem;
+        }
+
+        .produk-container {
+            flex-wrap: nowrap;
+            /* biar tidak turun ke bawah */
+        }
+
+        .produk-card {
+            flex: 0 0 auto;
+            /* jangan menyusut, tetap pakai lebar default */
+            margin-top: 5px;
+            margin-left: 10px;
+        }
+
+        .scroll-horizontal {
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .left-btn {
+            left: 0;
+        }
+
+        .right-btn {
+            right: 0;
+        }
+
+
+        .produk-foto {
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            object-fit: contain;
+            aspect-ratio: 1 / 1;
+        }
+
+        .produk-container-wrapper {
+            position: relative;
+            max-width: calc(230px * 3.5 + 30px);
+            /* lebar 3,5 card + padding */
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .produk-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 10px;
+        }
+
+        .produk-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .produk-container::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+        }
+
+        /* Default: sembunyikan scrollbar sepenuhnya */
+        .produk-container {
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Saat hover: munculkan scrollbar */
+        .produk-container-wrapper:hover .produk-container {
+            overflow-x: auto;
+        }
+
+
+
+        /* Scrollbar styling opsional */
+        .scroll-horizontal::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .scroll-horizontal::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid px-4">
+            <!-- Logo -->
+            <img src="/foto/logo_ngiklanmurah.png" alt="Logo" style="height: 20px; padding-right: 5px;">
+            <a href="/home-page" class="navbar-brand fs-5">NGIKLAN MURAH</a>
+
+            <!-- Toggler -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+                <!-- Tampilkan profil user di samping burger icon -->
+                <% if (dataUser) { %>
+                    <div class="d-block d-lg-none ms-2">
+                        <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+                            style="width: 32px; height: 32px; object-fit: cover;">
+                        <span>
+                            <%= dataUser.full_name %> haha
+                        </span>
+                    </div>
+                    <% } %>
+
+            </button>
+
+            <!-- Isi Navbar -->
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <!-- Menu Tengah -->
+                <ul class="navbar-nav mx-auto mb-3 mb-lg-0 text-center">
+                    <li class="nav-item"><a class="nav-link text-dark" href="/home-page">Home</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="#">Kategori</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="#">Tentang Kami</a></li>
+                </ul>
+
+                <!-- Ikon dan Button -->
+                <div class="d-flex flex-column flex-lg-row align-items-center gap-3 text-center">
+                    <!-- ICON -->
+                    <div class="d-flex flex-row flex-wrap justify-content-center gap-3">
+                        <div class="d-flex flex-column align-items-center">
+                            <a href="#" class="text-dark fs-6"><i class="bi bi-cart3"></i></a>
+                            <small>Keranjang</small>
+                        </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <a href="#" class="text-dark fs-6"><i class="bi bi-opencollective"></i></a>
+                            <small>Riwayat</small>
+                        </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <a href="#" class="text-dark fs-6"><i class="bi bi-clipboard-check-fill"></i></a>
+                            <small>Progress</small>
+                        </div>
+                    </div>
+
+                    <!-- Button -->
+                    <!-- Jika user sudah login -->
+                    <div class="user-profile d-none d-lg-block ms-3">
+                        <a href="/pengaturan-akun">
+                            <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+                                style="width: 32px; height: 32px; object-fit: cover;"></a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SECTION PRODUK -->
+    <div class="container mt-5 pt-5">
+        <div class="row g-4">
+            <!-- Gambar Produk -->
+            <div class="col-md-6">
+                <div class="border rounded p-3 text-center">
+                    <img src="/uploads/produk_img/<%= produk.photo_produk %>" alt="Gambar Produk"
+                        class="img-fluid produk-foto">
+
+
+                    <div class="mt-3 d-flex align-items-center justify-content-center gap-2">
+                        <img src="/uploads/profile_pic/<%= produk.photo_vendor %>" class="rounded-circle" width="40"
+                            height="40" style="object-fit: cover;">
+                        <span class="fw-semibold text-truncate" style="max-width: 400px;">Toko Serba Nyaman Toko Serba
+                            Nyaman</span>
+                        <span class="badge bg-dark">Jakarta Barat</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Produk -->
+            <div class="col-md-6">
+                <h2>
+                    <%= produk.nama_produk %>
+                </h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-primary">Rp<%= produk.harga.toLocaleString('id-ID') %>
+                    </h4>
+                </div>
+
+                <!-- Provider yang dilayani -->
+                <div class="mb-2">
+                    <span class="fw-semibold">Provider yang dilayani:</span>
+                    <span>
+                        <%= produk.provider_yang_di_layani %>
+                    </span>
+                </div>
+
+                <!-- Jenis Target -->
+                <div class="mb-2">
+                    <span class="fw-semibold">Jenis :</span>
+                    <span>
+                        <%= produk.jenis_target %>
+                    </span>
+                </div>
+
+                <!-- Deskripsi Produk -->
+                <div class="mb-3">
+                    <span class="fw-semibold">Deskripsi:</span>
+                    <p class="text-muted">
+                        <%= produk.deskripsi_produk %>
+                    </p>
+                    <!-- Ganti deskripsi dari DB -->
+                </div>
+
+                <!-- Tombol Aksi Sampingan -->
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn btn-outline-secondary btn-lg w-50">
+                        <i class="bi bi-cart3 me-2"></i> Keranjang
+                    </button>
+
+                    <a href="/produk-sms/pesan/<%= produk.id_produk_iklan %>" class="btn btn-primary btn-lg w-50">
+                        <i class="bi bi-bag-fill me-2"></i> Pesan Jasa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- PRODUK TERKAIT -->
+    <section class="produk-wrapper py-4 px-2">
+        <div class="text-center mb-3">
+            <h4 class="fw-bold">Rekomendasi produk lain dari vendor</h4>
+        </div>
+
+        <div class="produk-container-wrapper" id="terkait-wrapper">
+            <div class="produk-container d-flex" id="terkait-container">
+                <!-- Contoh Produk -->
+                <% produkTerkait.forEach(p=> { %>
+                    <div class="produk-card">
+                        <a href="<%= p.kategori_id === 2 ? '/view-produk-sms/' + p.id_produk_iklan : '/produk-radio/' + p.id_produk_iklan %>">
+                            <div class="gambar-produk">
+                                <img src="/uploads/produk_img/<%= p.photo_produk %>" alt="Produk Terkait">
+                            </div>
+                        </a>
+                        <div class="info-toko d-flex justify-content-between align-items-center px-2 mt-2">
+                            <div class="logo-toko"><img src="/uploads/profile_pic/<%= p.photo_vendor %>"
+                                    alt="Logo Toko"></div>
+                            <div class="nama-toko text-truncate fw-semibold">
+                                <%= p.nama_toko_vendor %>
+                            </div>
+                            <div class="lokasi-toko-static">
+                                <%= p.kota %>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between gap-1 mt-3">
+                            <button class="btn btn-sm btn-outline-secondary w-100"><i
+                                    class="bi bi-cart3 me-1"></i>Keranjang</button>
+                            <% if (p.kategori_id===2) { %>
+                                <a href="/view-produk-sms/<%= p.id_produk_iklan %>" class="btn btn-sm btn-primary w-100">
+                                    <i class="bi bi-bag me-1"></i>Pesan Jasa
+                                </a>
+                                <% } else if (p.kategori_id===1) { %>
+                                    <!--note route radio belom ada nanti ganti -->
+                                    <a href="/produk-radio/<%= p.id_produk_iklan %>"
+                                        class="btn btn-sm btn-primary w-100">
+                                        <i class="bi bi-bag me-1"></i>Pesan Jasa
+                                    </a>
+                                    <% } %>
+
+                        </div>
+                        <div class="detail-produk scroll-horizontal">
+                            <div class="nama-produk">
+                                <%= p.nama_produk %>
+                            </div>
+                            <div class="harga-produk">Rp<%= p.harga.toLocaleString('id-ID') %>
+                            </div>
+
+                            <% if (p.kategori_id==2) { %>
+                                <div class="hari-tayang">Provider: <%= p.provider_yang_di_layani %>
+                                </div>
+                                <div class="jam-tayang">Jenis: <%= p.jenis_target %>
+                                </div>
+                                <% } else if (p.kategori_id==1) { %>
+                                    <div class="hari-tayang">Hari tayang: <%= p.hari %>
+                                    </div>
+                                    <div class="jam-tayang">Jam: <%= p.jam_mulai?.slice(0,5) %> s/d <%=
+                                                p.jam_selesai?.slice(0,5) %>
+                                    </div>
+                                    <% } %>
+                        </div>
+
+
+
+                    </div>
+                    <% }) %>
+
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="bg-dark text-white mt-5 pt-4 pb-3">
+        <div class="container">
+            <div class="row text-center text-md-start">
+                <!-- Brand dan Deskripsi -->
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold">NGIKLAN MURAH</h5>
+                    <p class="small">Solusi mudah dan terjangkau untuk semua kebutuhan iklan Anda. Billboard, Radio, SMS
+                        dan
+                        lainnya.</p>
+                </div>
+
+                <!-- Navigasi -->
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold">Navigasi</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white text-decoration-none small">Home</a></li>
+                        <li><a href="#" class="text-white text-decoration-none small">Fitur</a></li>
+                        <li><a href="#" class="text-white text-decoration-none small">Harga</a></li>
+                    </ul>
+                </div>
+
+                <!-- Kontak -->
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold">Kontak</h6>
+                    <p class="small mb-1"><i class="bi bi-envelope me-2"></i>support@ngiklanmurah.com</p>
+                    <p class="small"><i class="bi bi-telephone me-2"></i>+62 812-3456-7890</p>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="text-center border-top pt-3 small">
+                © 2025 NgiklanMurah. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+<script>
+    //    efek scroll navbar
+    window.addEventListener('scroll', function () {
+        const navbar = document.querySelector('.navbar');
+        navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+</script>]
+
+</html>

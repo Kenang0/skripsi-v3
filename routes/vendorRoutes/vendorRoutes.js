@@ -1,6 +1,8 @@
 import express from "express";
 import { authenticateVendor } from "../../middleware/authMiddleware.js";
-import { getLoginPageVendor,loginUserVendor,getDashVendorHome,getTambahProduk,postTambahProduk,getProdukVendor,deleteProdukRadio,deleteProdukSMS,updateProduk } from "../../controllers/dashVendorController/authVendor.js";
+import { getLoginPageVendor,loginUserVendor,getDashVendorHome,getTambahProduk,postTambahProduk,getProdukVendor,deleteProdukRadio,deleteProdukSMS,updateProduk,
+  getOnProgressVendor
+ } from "../../controllers/dashVendorController/authVendor.js";
 
 
 const router = express.Router();
@@ -31,4 +33,6 @@ router.delete("/produk/radio/:id", deleteProdukRadio);
 router.delete("/produk/sms/:id", deleteProdukSMS);
 // edit produk
 router.put('/produk/update/:id', updateProduk);
+
+router.get("/ongoing",authenticateVendor,getOnProgressVendor);
 export default router;

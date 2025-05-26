@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
+import { error } from "console";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -186,8 +187,8 @@ export const getProdukVendor = async (req, res) => {
     const semuaProduk = hasil.rows;
 
     // Filter berdasarkan kategori
-    const produkRadio = semuaProduk.filter(p => p.tipe_kategori === "radio");
-    const produkSMS = semuaProduk.filter(p => p.tipe_kategori === "sms");
+    const produkRadio = semuaProduk.filter(p => p.tipe_kategori === "Radio");
+    const produkSMS = semuaProduk.filter(p => p.tipe_kategori === "Messaging");
 
 
     const dataFilter = {
@@ -346,6 +347,56 @@ export const updateProduk = async (req, res) => {
     res.status(500).json({ message: "Gagal memperbarui produk" });
   }
 };
+
+
+export const getOnProgressVendor = async (req, res) => {
+  try {
+    const vendorId = req.user.id;
+
+    console.log("📦 ID Vendor Login:", vendorId);
+
+    const hasil = await pool.query(`
+      SELECT 
+        p.id_pemesanan,
+        p.jumlah_pemesanan,
+        p.note_pemesanan_user,
+        p.status_pemesanan,
+        p.tanggal_pemesanan,
+        prod.nama_produk,
+        prod.harga,
+        prod.photo_produk,
+        u.full_name AS nama_klien,
+        u.photo_user,
+        u.email,
+        u.nomor_tlp
+      FROM pemesanan p
+      JOIN produk_iklan prod ON prod.id_produk_iklan = p.produk_id
+      JOIN users u ON u.id = p.user_id
+      WHERE prod.vendor_id = $1
+        AND LOWER(p.status_pemesanan) != 'dibatalkan'
+      ORDER BY p.tanggal_pemesanan DESC
+    `, [vendorId]);
+
+    console.log(`✅ ${hasil.rowCount} pesanan ditemukan untuk vendor ${vendorId}`);
+    console.table(hasil.rows.map(p => ({
+      id: p.id_pemesanan,
+      produk: p.nama_produk,
+      status: p.status_pemesanan,
+      klien: p.nama_klien
+    })));
+
+    res.render("dashVendor/dashboardVendor", {
+      data: hasil.rows,
+      partial: "dalam_progress",
+      error: ""
+    });
+
+  } catch (err) {
+    console.error("❌ Gagal ambil data progress vendor:", err);
+    res.status(500).send("Terjadi kesalahan saat mengambil data pemesanan vendor.");
+  }
+};
+
 
 
 

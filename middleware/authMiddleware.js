@@ -59,7 +59,7 @@ export const authenticateRoleWeb = (roles) => {
       next();
     } catch (err) {
       res.clearCookie("token");
-      res.redirect("/admin/login");
+      res.redirect("/login");
     }
   };
 };

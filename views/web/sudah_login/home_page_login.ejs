@@ -320,7 +320,7 @@
               <small>Riwayat</small>
             </div>
             <div class="d-flex flex-column align-items-center">
-              <a href="#" class="text-dark fs-6"><i class="bi bi-clipboard-check-fill"></i></a>
+              <a href="/dalam-progress" class="text-dark fs-6"><i class="bi bi-clipboard-check-fill"></i></a>
               <small>Progress</small>
             </div>
           </div>
@@ -434,7 +434,7 @@
 
   </section>
 
-  <!-- Produk SMS -->
+ <!-- Produk SMS -->
   <section class="produk-wrapper py-2 px-2">
     <div class="text-center">
       <h4 class="fw-bold">Produk Iklan SMS dari Vendor</h4>
@@ -444,10 +444,13 @@
     <div class="produk-container-wrapper" id="sms-wrapper">
       <div class="produk-container d-flex" id="sms-container">
         <!-- Kartu produk SMS -->
+
         <% dataSms.forEach(p=> { %>
           <div class="produk-card">
             <div class="gambar-produk">
-              <img src="/uploads/produk_img/<%= p.photo_produk %>" alt="Produk">
+              <a href="/view-produk-sms/<%= p.id_produk_iklan %>">
+             <img src="/uploads/produk_img/<%= p.photo_produk %>" alt="Produk">
+            </a>
             </div>
             <div class="info-toko d-flex justify-content-between align-items-center px-2 mt-2">
               <div class="logo-toko">
@@ -456,27 +459,26 @@
               <div class="nama-toko text-truncate fw-semibold">
                 <%= p.nama_toko_vendor %>
               </div>
-              <div class="lokasi-toko-static">
-                <%= p.kota || 'Lokasi tidak diketahui' %>
-              </div>
+              <div class="lokasi-toko-static"><%= p.kota || 'Lokasi tidak diketahui' %></div>
             </div>
             <div class="d-flex justify-content-between gap-1 mt-3">
               <button class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-cart3 me-1"></i>Keranjang</button>
-              <button class="btn btn-sm btn-primary w-100"><i class="bi bi-bag me-1"></i>Pesan Jasa</button>
+             <a href="/view-produk-sms/<%= p.id_produk_iklan %>" class="btn btn-sm btn-primary w-100"><i class="bi bi-bag me-1"></i>Pesan Jasa</a>
             </div>
             <div class="detail-produk scroll-horizontal">
               <div class="nama-produk">
                 <%= p.nama_produk %>
               </div>
-              <div class="harga-produk">Rp<%= p.harga.toLocaleString('id-ID').replace(/,/g, '.' ) %>
+              <div class="harga-produk">Rp<%= p.harga.toLocaleString('id-ID').replace(/,/g, '.') %>
               </div>
               <div class="hari-tayang">Provider: <%= p.provider_yang_di_layani %>
               </div>
-              <div class="jam-tayang">Tipe: <%= p.jenis_target %>
+              <div class="jam-tayang">Jenis: <%= p.jenis_target %>
               </div>
             </div>
           </div>
           <% }); %>
+
 
       </div>
       <button class="scroll-btn left-btn" onclick="scrollProduk('sms', -1)">
