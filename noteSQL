@@ -127,7 +127,7 @@ CREATE TABLE detail_pemesanan_radio (
 CREATE TABLE bukti_tayang (
     id_bukti SERIAL PRIMARY KEY,
     id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
-    tipe_file TEXT CHECK (tipe_file IN ('dokumen', 'audio')),
+    tipe_file TEXT 
     file_path TEXT NOT NULL,
     keterangan_tayang TEXT
 );

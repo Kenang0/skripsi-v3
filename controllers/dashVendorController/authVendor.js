@@ -292,10 +292,10 @@ export const updateProduk = async (req, res) => {
   const hariArray = Array.isArray(hari) ? hari : hari ? [hari] : [];
   const providerArray = Array.isArray(provider) ? provider : provider ? [provider] : [];
   console.log("🛠️ ID Produk:", id);
-   console.log("🛠️ hargaProduk:", harga);
+  console.log("🛠️ hargaProduk:", harga);
   console.log("📥 Hari (radio):", hari);
   console.log("📥 Hari (radio):", hariArray);
-  
+
   console.log("📥 Jam Mulai:", jam_mulai);
   console.log("📥 Jam Selesai:", jam_selesai);
   console.log("📥 Provider (sms):", provider);
@@ -353,42 +353,45 @@ export const getOnProgressVendor = async (req, res) => {
   try {
     const vendorId = req.user.id;
 
-    console.log("📦 ID Vendor Login:", vendorId);
-
     const hasil = await pool.query(`
-      SELECT 
-        p.id_pemesanan,
-        p.jumlah_pemesanan,
-        p.note_pemesanan_user,
-        p.status_pemesanan,
-        p.tanggal_pemesanan,
-        prod.nama_produk,
-        prod.harga,
-        prod.photo_produk,
-        u.full_name AS nama_klien,
-        u.photo_user,
-        u.email,
-        u.nomor_tlp
+      SELECT
+  p.id_pemesanan,
+  p.jumlah_pemesanan,
+  p.tanggal_pemesanan,
+  p.status_pemesanan,
+  u.full_name, u.nomor_tlp, u.email,
+  u.photo_user,
+  prod.nama_produk, prod.harga, prod.photo_produk, dp.jenis_target, 
+  kat.tipe_kategori,
+  dps.teks_iklan_sms,
+  dps.tanggal_pengiriman_start, dps.tanggal_pengiriman_end, dps.jam_pengiriman,
+  dps.masking, dps.target_umur, dps.tipe_device_penerima,
+  dps.nomor_penerima_bukti_tayang, dps.file_foto_mms,
+  dps.file_nomor_sms_pdf, dps.alamat_target_sms, dps.dps_latitude, dps.dps_longitude
       FROM pemesanan p
       JOIN produk_iklan prod ON prod.id_produk_iklan = p.produk_id
+      JOIN detail_pemesanan_sms dps ON dps.id_pemesanan = p.id_pemesanan
       JOIN users u ON u.id = p.user_id
+      JOIN kategori kat ON kat.kategori_id = prod.kategori_id
+      JOIN detail_produk_sms dp ON dp.produk_id = prod.id_produk_iklan
       WHERE prod.vendor_id = $1
         AND LOWER(p.status_pemesanan) != 'dibatalkan'
       ORDER BY p.tanggal_pemesanan DESC
     `, [vendorId]);
 
-    console.log(`✅ ${hasil.rowCount} pesanan ditemukan untuk vendor ${vendorId}`);
-    console.table(hasil.rows.map(p => ({
-      id: p.id_pemesanan,
-      produk: p.nama_produk,
-      status: p.status_pemesanan,
-      klien: p.nama_klien
-    })));
+    // console.log(`✅ ${hasil.rowCount} pesanan ditemukan untuk vendor ${vendorId}`);
+    // console.table(hasil.rows.map(p => ({
+    //   id: p.id_pemesanan,
+    //   produk: p.nama_produk,
+    //   status: p.status_pemesanan,
+    //   klien: p.nama_klien
+    // })));
 
     res.render("dashVendor/dashboardVendor", {
       data: hasil.rows,
       partial: "dalam_progress",
-      error: ""
+      error: "",
+      googleMapsApiKey: process.env.Maps_API
     });
 
   } catch (err) {
@@ -396,6 +399,7 @@ export const getOnProgressVendor = async (req, res) => {
     res.status(500).send("Terjadi kesalahan saat mengambil data pemesanan vendor.");
   }
 };
+
 
 
 
