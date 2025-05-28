@@ -402,6 +402,38 @@ export const getOnProgressVendor = async (req, res) => {
 
 
 
+export const updateStatusPemesanan = async (req, res) => {
+  const { id } = req.params;
+  const { status, note } = req.body;
+
+  try {
+    const validStatus = ["Menunggu Pembayaran", "Menunggu Penyesuaian", "Ditolak"];
+    if (!validStatus.includes(status)) {
+      return res.status(400).json({ message: "Status tidak valid." });
+    }
+
+    if (status === "Menunggu Penyesuaian") {
+      if (!note || note.trim() === "") {
+        return res.status(400).json({ message: "Alasan revisi wajib diisi." });
+      }
+
+      await pool.query(
+        `UPDATE pemesanan SET status_pemesanan = $1, note_pemesanan_vendor = $2 WHERE id_pemesanan = $3`,
+        [status, note, id]
+      );
+    } else {
+      await pool.query(
+        `UPDATE pemesanan SET status_pemesanan = $1 WHERE id_pemesanan = $2`,
+        [status, id]
+      );
+    }
+
+    res.json({ success: true, message: `Status diubah menjadi ${status}` });
+  } catch (error) {
+    console.error("❌ Gagal update status pemesanan:", error);
+    res.status(500).json({ success: false, message: "Gagal update status" });
+  }
+};
 
 
 

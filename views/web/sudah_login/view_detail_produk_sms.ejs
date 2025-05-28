@@ -244,68 +244,67 @@
 </head>
 
 <body>
-    <!-- navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container-fluid px-4">
-            <!-- Logo -->
-            <img src="/foto/logo_ngiklanmurah.png" alt="Logo" style="height: 20px; padding-right: 5px;">
-            <a href="/home-page" class="navbar-brand fs-5">NGIKLAN MURAH</a>
+  <!-- navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid px-4">
+      <!-- Logo -->
+      <img src="/foto/logo_ngiklanmurah.png" alt="Logo" style="height: 20px; padding-right: 5px;">
+      <a href="/home-page" class="navbar-brand fs-5">NGIKLAN MURAH</a>
 
-            <!-- Toggler -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-                <!-- Tampilkan profil user di samping burger icon -->
-                <% if (dataUser) { %>
-                    <div class="d-block d-lg-none ms-2">
-                        <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
-                            style="width: 32px; height: 32px; object-fit: cover;">
-                        <span>
-                            <%= dataUser.full_name %> haha
-                        </span>
-                    </div>
-                    <% } %>
+<div class="d-flex align-items-center ms-auto">
+  <!-- Toggler -->
+  <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-            </button>
+  <!-- Profil User Khusus Mobile -->
+  <% if (dataUser) { %>
+    <div class="d-block d-lg-none d-flex align-items-center">
+      <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+        style="width: 32px; height: 32px; object-fit: cover;">
+    </div>
+  <% } %>
+</div>
 
-            <!-- Isi Navbar -->
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <!-- Menu Tengah -->
-                <ul class="navbar-nav mx-auto mb-3 mb-lg-0 text-center">
-                    <li class="nav-item"><a class="nav-link text-dark" href="/home-page">Home</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="#">Kategori</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="#">Tentang Kami</a></li>
-                </ul>
+      <!-- Isi Navbar -->
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <!-- Menu Tengah -->
+        <ul class="navbar-nav mx-auto mb-3 mb-lg-0 text-center">
+          <li class="nav-item"><a class="nav-link text-dark" href="/home-page">Home</a></li>
+          <li class="nav-item"><a class="nav-link text-dark" href="#">Kategori</a></li>
+          <li class="nav-item"><a class="nav-link text-dark" href="#">Tentang Kami</a></li>
+        </ul>
 
-                <!-- Ikon dan Button -->
-                <div class="d-flex flex-column flex-lg-row align-items-center gap-3 text-center">
-                    <!-- ICON -->
-                    <div class="d-flex flex-row flex-wrap justify-content-center gap-3">
-                        <div class="d-flex flex-column align-items-center">
-                            <a href="#" class="text-dark fs-6"><i class="bi bi-cart3"></i></a>
-                            <small>Keranjang</small>
-                        </div>
-                        <div class="d-flex flex-column align-items-center">
-                            <a href="#" class="text-dark fs-6"><i class="bi bi-opencollective"></i></a>
-                            <small>Riwayat</small>
-                        </div>
-                        <div class="d-flex flex-column align-items-center">
-                            <a href="#" class="text-dark fs-6"><i class="bi bi-clipboard-check-fill"></i></a>
-                            <small>Progress</small>
-                        </div>
-                    </div>
-
-                    <!-- Button -->
-                    <!-- Jika user sudah login -->
-                    <div class="user-profile d-none d-lg-block ms-3">
-                        <a href="/pengaturan-akun">
-                            <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
-                                style="width: 32px; height: 32px; object-fit: cover;"></a>
-                    </div>
-
-                </div>
+        <!-- Ikon dan Button -->
+        <div class="d-flex flex-column flex-lg-row align-items-center gap-3 text-center">
+          <!-- ICON -->
+          <div class="d-flex flex-row flex-wrap justify-content-center gap-3">
+            <div class="d-flex flex-column align-items-center">
+              <a href="#" class="text-dark fs-6"><i class="bi bi-cart3"></i></a>
+              <small>Keranjang</small>
             </div>
+            <div class="d-flex flex-column align-items-center">
+              <a href="#" class="text-dark fs-6"><i class="bi bi-opencollective"></i></a>
+              <small>Riwayat</small>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+              <a href="/dalam-progress" class="text-dark fs-6"><i class="bi bi-clipboard-check-fill"></i></a>
+              <small>Progress</small>
+            </div>
+          </div>
+
+          <!-- Button -->
+          <!-- Jika user sudah login -->
+          <div class="user-profile d-none d-lg-block ms-3">
+            <a href="/pengaturan-akun">
+              <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+                style="width: 32px; height: 32px; object-fit: cover;"></a>
+          </div>
+
         </div>
-    </nav>
+      </div>
+    </div>
+  </nav>
 
     <!-- SECTION PRODUK -->
     <div class="container mt-5 pt-5">

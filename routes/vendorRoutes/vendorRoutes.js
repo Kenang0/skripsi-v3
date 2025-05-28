@@ -1,7 +1,7 @@
 import express from "express";
 import { authenticateVendor } from "../../middleware/authMiddleware.js";
 import { getLoginPageVendor,loginUserVendor,getDashVendorHome,getTambahProduk,postTambahProduk,getProdukVendor,deleteProdukRadio,deleteProdukSMS,updateProduk,
-  getOnProgressVendor
+  getOnProgressVendor,updateStatusPemesanan
  } from "../../controllers/dashVendorController/authVendor.js";
 
 
@@ -35,4 +35,6 @@ router.delete("/produk/sms/:id", deleteProdukSMS);
 router.put('/produk/update/:id', updateProduk);
 
 router.get("/ongoing",authenticateVendor,getOnProgressVendor);
+
+router.post("/pemesanan/:id/status",authenticateVendor, updateStatusPemesanan);
 export default router;

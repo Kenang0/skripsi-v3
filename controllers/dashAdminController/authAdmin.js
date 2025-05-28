@@ -44,7 +44,18 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage }).single("foto_user");
+// Hanya izinkan file gambar
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Hanya file gambar (jpg, jpeg, png) yang diperbolehkan"), false);
+  }
+};
+
+// Export middleware
+const upload = multer({ storage, fileFilter }).single("foto_user");
 
 //untuk foto produk
 const storageProduk = multer.diskStorage({
@@ -997,6 +1008,8 @@ export const updatePassword = async (req, res) => {
   }
 };
 
+
+
 export const updateFoto = async (req, res) => {
   upload(req, res, async function (err) {
     if (err) {
@@ -1012,20 +1025,32 @@ export const updateFoto = async (req, res) => {
     }
 
     try {
-      const result = await pool.query(`SELECT photo_user FROM users WHERE id = $1`, [userId]);
-      const fotoLama = result.rows[0]?.photo_user;
+      const { rows } = await pool.query(`SELECT photo_user FROM users WHERE id = $1`, [userId]);
+      const fotoLama = rows[0]?.photo_user;
+      const fotoBaru = file.filename;
+      const folder = path.join("public", "uploads", "profile_pic");
 
       const isDefault = ["img_placeholder.jpg", "userPlaceholder.png"].includes(fotoLama);
 
-      if (fotoLama && !isDefault) {
-        const pathFoto = path.join("public", "uploads", "profile_pic", fotoLama);
-        if (fs.existsSync(pathFoto)) fs.unlinkSync(pathFoto);
+      const pathLama = path.join(folder, fotoLama);
+      const pathBaru = path.join(folder, fotoBaru);
+
+      // Kalau nama sama, timpa langsung
+      if (fotoLama === fotoBaru) {
+        fs.writeFileSync(pathLama, fs.readFileSync(pathBaru));
+      } else {
+        // Kalau nama beda dan bukan default, hapus lama
+        if (fotoLama && !isDefault && fs.existsSync(pathLama)) {
+          fs.unlinkSync(pathLama);
+        }
+
+        // Simpan ke DB dengan nama baru
+        await pool.query(`UPDATE users SET photo_user = $1 WHERE id = $2`, [fotoBaru, userId]);
       }
 
-      await pool.query(`UPDATE users SET photo_user = $1 WHERE id = $2`, [file.filename, userId]);
       res.json({ success: true });
-    } catch (err) {
-      console.error("❌ Gagal update foto:", err);
+    } catch (error) {
+      console.error("❌ Gagal update foto:", error);
       res.status(500).json({ success: false, message: "Server error" });
     }
   });

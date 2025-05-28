@@ -68,6 +68,7 @@ router.put('/dashboardAdmin/tolak-pks/:pksId', authenticateRoleDashAdmin(["admin
 router.get("/dashboardAdmin/pengaturan-akun", authenticateRoleDashAdmin(["admin", "project lead"]), getHalamanPengaturan);
 router.post("/internal/update-password",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance","klien"]),updatePassword);
 router.post("/internal/update-profil",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance", "klien"]),updateProfil);
+router.post("/internal/update-foto",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance", "klien"]),updateFoto);
 
 
 

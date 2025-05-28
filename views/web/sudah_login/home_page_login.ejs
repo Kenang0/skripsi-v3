@@ -282,21 +282,20 @@
       <img src="/foto/logo_ngiklanmurah.png" alt="Logo" style="height: 20px; padding-right: 5px;">
       <a href="/home-page" class="navbar-brand fs-5">NGIKLAN MURAH</a>
 
-      <!-- Toggler -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-        <span class="navbar-toggler-icon"></span>
-        <!-- Tampilkan profil user di samping burger icon -->
-        <% if (dataUser) { %>
-          <div class="d-block d-lg-none ms-2">
-            <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
-              style="width: 32px; height: 32px; object-fit: cover;">
-            <span>
-              <%= dataUser.full_name %> haha
-            </span>
-          </div>
-          <% } %>
+<div class="d-flex align-items-center ms-auto">
+  <!-- Toggler -->
+  <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-      </button>
+  <!-- Profil User Khusus Mobile -->
+  <% if (dataUser) { %>
+    <div class="d-block d-lg-none d-flex align-items-center">
+      <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+        style="width: 32px; height: 32px; object-fit: cover;">
+    </div>
+  <% } %>
+</div>
 
       <!-- Isi Navbar -->
       <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -328,9 +327,9 @@
           <!-- Button -->
           <!-- Jika user sudah login -->
           <div class="user-profile d-none d-lg-block ms-3">
-              <a href="/pengaturan-akun">
-            <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
-              style="width: 32px; height: 32px; object-fit: cover;"></a>
+            <a href="/pengaturan-akun">
+              <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+                style="width: 32px; height: 32px; object-fit: cover;"></a>
           </div>
 
         </div>
@@ -434,7 +433,7 @@
 
   </section>
 
- <!-- Produk SMS -->
+  <!-- Produk SMS -->
   <section class="produk-wrapper py-2 px-2">
     <div class="text-center">
       <h4 class="fw-bold">Produk Iklan SMS dari Vendor</h4>
@@ -449,8 +448,8 @@
           <div class="produk-card">
             <div class="gambar-produk">
               <a href="/view-produk-sms/<%= p.id_produk_iklan %>">
-             <img src="/uploads/produk_img/<%= p.photo_produk %>" alt="Produk">
-            </a>
+                <img src="/uploads/produk_img/<%= p.photo_produk %>" alt="Produk">
+              </a>
             </div>
             <div class="info-toko d-flex justify-content-between align-items-center px-2 mt-2">
               <div class="logo-toko">
@@ -459,17 +458,20 @@
               <div class="nama-toko text-truncate fw-semibold">
                 <%= p.nama_toko_vendor %>
               </div>
-              <div class="lokasi-toko-static"><%= p.kota || 'Lokasi tidak diketahui' %></div>
+              <div class="lokasi-toko-static">
+                <%= p.kota || 'Lokasi tidak diketahui' %>
+              </div>
             </div>
             <div class="d-flex justify-content-between gap-1 mt-3">
               <button class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-cart3 me-1"></i>Keranjang</button>
-             <a href="/view-produk-sms/<%= p.id_produk_iklan %>" class="btn btn-sm btn-primary w-100"><i class="bi bi-bag me-1"></i>Pesan Jasa</a>
+              <a href="/view-produk-sms/<%= p.id_produk_iklan %>" class="btn btn-sm btn-primary w-100"><i
+                  class="bi bi-bag me-1"></i>Pesan Jasa</a>
             </div>
             <div class="detail-produk scroll-horizontal">
               <div class="nama-produk">
                 <%= p.nama_produk %>
               </div>
-              <div class="harga-produk">Rp<%= p.harga.toLocaleString('id-ID').replace(/,/g, '.') %>
+              <div class="harga-produk">Rp<%= p.harga.toLocaleString('id-ID').replace(/,/g, '.' ) %>
               </div>
               <div class="hari-tayang">Provider: <%= p.provider_yang_di_layani %>
               </div>

@@ -179,7 +179,7 @@
                     <img src="<%= p.photo_user || '/uploads/user_foto/default.png' %>" class="rounded-circle me-2"
                       width="30" height="30">
                     <span>
-                      <%= p.nama_klien %>
+                      <%= p.full_name %>
                     </span>
                   </div>
                 </td>
@@ -305,6 +305,15 @@
             </tbody>
           </table>
 
+          <% if (p.jenis_target?.toLowerCase().includes('lba')) { %>
+            <div class="mb-3">
+              <strong>Lokasi Pengiriman:</strong><br>
+              Latitude: <%= p.dps_latitude %>, Longitude: <%= p.dps_longitude %><br>
+              Alamat: <%= p.alamat_target_sms %>
+              <div id="map-<%= p.id_pemesanan %>" data-lat="<%= p.dps_latitude %>" data-lng="<%= p.dps_longitude %>" style="height: 300px; margin-top: 10px;"></div>
+            </div>
+          <% } %>
+
           <% if (p.jenis_target?.toLowerCase().includes('mms')){ %>
             <div class="mb-3">
               <strong>Foto MMS:</strong><br>
@@ -312,14 +321,7 @@
             </div>
           <% } %>
 
-          <% if (p.jenis_target?.toLowerCase().includes('lba')) { %>
-            <div class="mb-3">
-              <strong>Lokasi Target:</strong><br>
-              Latitude: <%= p.dps_latitude %>, Longitude: <%= p.dps_longitude %><br>
-              Alamat: <%= p.alamat_target_sms %>
-              <div id="map-<%= p.id_pemesanan %>" data-lat="<%= p.dps_latitude %>" data-lng="<%= p.dps_longitude %>" style="height: 300px; margin-top: 10px;"></div>
-            </div>
-          <% } %>
+     
 
           <%  if (!p.jenis_target.toLowerCase().includes('lba')) { %>
             <div class="mb-3">
@@ -330,11 +332,27 @@
 
           <div class="footer gray mt-4 small text-center text-muted">
             Invoice ini sah dan diproses oleh komputer.<br>
-            Hubungi kami jika membutuhkan bantuan lebih lanjut.<br>
-            <a href="https://www.tokopedia.com/help">https://www.tokopedia.com/help</a>
+            Hubungi kami jika membutuhkan bantuan lebih lanjut di.<br>
+            <a href="#">placeholder@email.com</a>
           </div>
+
+          
         </div>
       </div>
+<div class="modal-footer d-flex justify-content-between align-items-center flex-wrap">
+  <div class="fw-semibold text-muted">Aksi:</div>
+  <div class="d-flex gap-2 flex-wrap">
+    <button class="btn btn-outline-success btn-sm" onclick="handleSetujui('<%= p.id_pemesanan %>')">
+      <i class="bi bi-check-circle me-1"></i> Setujui Pemesanan
+    </button>
+    <button class="btn btn-outline-warning btn-sm" onclick="handleRevisi('<%= p.id_pemesanan %>')">
+      <i class="bi bi-pencil-square me-1"></i> Minta Penyesuaian
+    </button>
+    <button class="btn btn-outline-danger btn-sm" onclick="handleTolak('<%= p.id_pemesanan %>')">
+      <i class="bi bi-x-circle me-1"></i> Tolak Pemesanan
+    </button>
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -398,12 +416,14 @@
             <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
               <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
             </a>
-            <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
+            <a href="#" class="btn btn-outline-success btn-sm w-100">
               <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
             </a>
           </div>
         `;
-
+  // <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
+  //             <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
+  //           </a>
 
           kontenBox.innerHTML = isiHTML;
           detailBox.classList.remove("d-none");
@@ -427,6 +447,51 @@
       new google.maps.Marker({ position: lokasi, map });
     });
   }
+</script>
+
+<script>
+function updateStatus(id, status, note = "") {
+  const payload = { status };
+  if (note) payload.note = note;
+
+  fetch(`/vendor/pemesanan/${id}/status`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      alert(data.message || "Status diperbarui.");
+      location.reload();
+    })
+    .catch((err) => {
+      alert("Gagal mengubah status.");
+      console.error(err);
+    });
+}
+
+function handleSetujui(id) {
+  if (confirm("Yakin ingin menyetujui pemesanan ini?")) {
+    updateStatus(id, "Mengunggu Pembayaran");
+  }
+}
+
+function handleRevisi(id) {
+  const alasan = prompt("Masukkan alasan revisi untuk pemesanan ini:");
+  if (alasan && alasan.trim() !== "") {
+    updateStatus(id, "Menunggu Penyesuaian", alasan);
+  } else if (alasan !== null) {
+    alert("Revisi dibatalkan. Alasan harus diisi.");
+  }
+}
+
+function handleTolak(id) {
+  if (confirm("Yakin ingin menolak pemesanan ini? Keputusan ini tidak dapat dibatalkan.")) {
+    updateStatus(id, "Ditolak");
+  }
+}
 </script>
 
 
