@@ -1,7 +1,7 @@
 import express from "express";
 import { authenticateVendor } from "../../middleware/authMiddleware.js";
 import { getLoginPageVendor,loginUserVendor,getDashVendorHome,getTambahProduk,postTambahProduk,getProdukVendor,deleteProdukRadio,deleteProdukSMS,updateProduk,
-  getOnProgressVendor,updateStatusPemesanan
+  getOnProgressVendor,updateStatusPemesanan,generateBuktiPDF
  } from "../../controllers/dashVendorController/authVendor.js";
 
 
@@ -37,4 +37,5 @@ router.put('/produk/update/:id', updateProduk);
 router.get("/ongoing",authenticateVendor,getOnProgressVendor);
 
 router.post("/pemesanan/:id/status",authenticateVendor, updateStatusPemesanan);
+router.get("/pemesanan/:id/download-pdf",authenticateVendor, generateBuktiPDF);
 export default router;

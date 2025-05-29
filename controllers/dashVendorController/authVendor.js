@@ -6,6 +6,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import { error } from "console";
+import ejs from "ejs";
+import puppeteer from "puppeteer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -406,15 +408,19 @@ export const updateStatusPemesanan = async (req, res) => {
   const { id } = req.params;
   const { status, note } = req.body;
 
+  console.log("📥 ID:", id);
+  console.log("📥 Status:", status);
+  console.log("📥 Note:", note);
+
   try {
     const validStatus = ["Menunggu Pembayaran", "Menunggu Penyesuaian", "Ditolak"];
     if (!validStatus.includes(status)) {
-      return res.status(400).json({ message: "Status tidak valid." });
+      return res.status(400).json({ success: false, message: "Status tidak valid." });
     }
 
     if (status === "Menunggu Penyesuaian") {
       if (!note || note.trim() === "") {
-        return res.status(400).json({ message: "Alasan revisi wajib diisi." });
+        return res.status(400).json({ success: false, message: "Alasan revisi wajib diisi." });
       }
 
       await pool.query(
@@ -428,13 +434,103 @@ export const updateStatusPemesanan = async (req, res) => {
       );
     }
 
-    res.json({ success: true, message: `Status diubah menjadi ${status}` });
+    return res.json({
+      success: true,
+      message: `Status berhasil diubah menjadi "${status}".`,
+      updatedStatus: status,
+    });
   } catch (error) {
     console.error("❌ Gagal update status pemesanan:", error);
-    res.status(500).json({ success: false, message: "Gagal update status" });
+    return res.status(500).json({ success: false, message: "Gagal update status" });
   }
 };
 
 
 
+export const generateBuktiPDF = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(`
+      SELECT
+        p.id_pemesanan,
+        p.jumlah_pemesanan,
+        p.tanggal_pemesanan,
+        p.status_pemesanan,
+        u.full_name, u.nomor_tlp, u.email,
+        u.photo_user,
+        prod.nama_produk, prod.harga, prod.photo_produk, dp.jenis_target, 
+        kat.tipe_kategori,
+        dps.teks_iklan_sms,
+        dps.tanggal_pengiriman_start, dps.tanggal_pengiriman_end, dps.jam_pengiriman,
+        dps.masking, dps.target_umur, dps.tipe_device_penerima,
+        dps.nomor_penerima_bukti_tayang, dps.file_foto_mms,
+        dps.file_nomor_sms_pdf, dps.alamat_target_sms, dps.dps_latitude, dps.dps_longitude,
+        v.nama_toko_vendor
+      FROM pemesanan p
+      JOIN produk_iklan prod ON prod.id_produk_iklan = p.produk_id
+      JOIN detail_pemesanan_sms dps ON dps.id_pemesanan = p.id_pemesanan
+      JOIN users u ON u.id = p.user_id
+      JOIN kategori kat ON kat.kategori_id = prod.kategori_id
+      JOIN detail_produk_sms dp ON dp.produk_id = prod.id_produk_iklan
+      JOIN users_vendor v ON v.id_vendor = prod.vendor_id
+      WHERE p.id_pemesanan = $1
+  `, [id]);
+
+    if (!result.rows.length) {
+      return res.status(404).send("Data pemesanan tidak ditemukan.");
+    }
+
+    const p = result.rows[0];
+    const toBase64 = (filePath) => {
+      const image = fs.readFileSync(filePath);
+      const ext = path.extname(filePath).substring(1);
+      return `data:image/${ext};base64,${image.toString("base64")}`;
+    };
+    const safeToBase64 = (filePath) => {
+      try {
+        if (!filePath) return null;
+        const image = fs.readFileSync(filePath);
+        const ext = path.extname(filePath).substring(1);
+        return `data:image/${ext};base64,${image.toString("base64")}`;
+      } catch (err) {
+        console.warn("⚠️ Gagal baca file gambar:", filePath);
+        return null;
+      }
+    };
+    p.logo_base64 = toBase64(path.resolve("public/foto/logo_ngiklanmurah.png"));
+    // Lokasi template PDF (pastikan kamu sudah punya pdf_template.ejs di folder views)
+    const templatePath = path.resolve("views/pdf_template.ejs");
+    p.local_photo_produk = toBase64(path.resolve("public/uploads/produk_img", p.photo_produk));
+    p.local_foto_mms = safeToBase64(
+      p.file_foto_mms ? path.resolve("public/uploads/sms_files", p.file_foto_mms) : null
+    );
+    const html = await ejs.renderFile(templatePath, { p });
+
+    if (!html || html.trim() === "") {
+      console.error("❌ HTML kosong setelah render.");
+      return res.status(500).send("Template HTML kosong.");
+    }
+
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+
+    if (!pdfBuffer || pdfBuffer.length < 1000) {
+      console.error("❌ PDF buffer kosong atau gagal dibuat.");
+      return res.status(500).send("PDF gagal dibuat.");
+    }
+    await browser.close();
+
+    res.setHeader("Content-Disposition", `attachment; filename=bukti_pemesanan_${id}.pdf`);
+    res.contentType("application/pdf");
+    res.end(pdfBuffer)
+
+  } catch (err) {
+    console.error("❌ Gagal generate PDF:", err);
+    res.status(500).send("Gagal membuat PDF.");
+  }
+};
 

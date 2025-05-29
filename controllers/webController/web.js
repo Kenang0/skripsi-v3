@@ -451,7 +451,7 @@ export const handlePesanSMS = (req, res) => {
       ]);
 
       console.log("✅ Pemesanan SMS berhasil disimpan.");
-      res.redirect("/dashboard");
+      res.redirect("/dalam-progress");
 
     } catch (err) {
       console.error("❌ Gagal simpan pemesanan SMS:", err);

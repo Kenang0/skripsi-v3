@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Bukti Pemesanan</title>
+  <style>
+    /* templete awal buat download masih perlu di edit lagi  */
+    body {
+      font-family: Arial, sans-serif;
+      color: #000;
+      padding: 40px;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      height: 60px;
+    }
+
+    h5 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0f0f0;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      text-align: center;
+      color: #777;
+    }
+
+    .img-product {
+      max-height: 80px;
+    }
+
+    .img-mms {
+      max-width: 200px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .alamat {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+    <img src="<%= p.logo_base64 %>" alt="Logo" class="logo">
+      <div>
+        <h5>BUKTI PEMESANAN</h5>
+        <small><strong>NOMOR PEMESANAN:</strong> <%= p.id_pemesanan %></small>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <div><strong>DITERBITKAN ATAS:</strong></div>
+      Nama Toko: <strong><%= p.nama_toko_vendor %></strong><br>
+      <br>
+      <div><strong>UNTUK:</strong></div>
+      Pembeli: <strong><%= p.full_name %></strong><br>
+      Tanggal Pemesanan: <%= new Date(p.tanggal_pemesanan).toLocaleDateString("id-ID") %><br>
+      Nomor Tlp: <%= p.nomor_tlp %><br>
+      Email: <%= p.email %>
+    </div>
+
+    <div class="section-title">Informasi Produk</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Produk</th>
+          <th>Jenis</th>
+          <th>Jumlah</th>
+          <th>Harga Satuan</th>
+          <th>Total Harga</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+           <img src="<%= p.local_photo_produk %>" class="img-product"><br>
+            <strong><%= p.nama_produk %></strong>
+          </td>
+          <td><%= p.tipe_kategori %><br><%= p.jenis_target %></td>
+          <td><%= p.jumlah_pemesanan %></td>
+          <td>Rp<%= p.harga?.toLocaleString("id-ID") %></td>
+          <td>Rp<%= (p.harga * p.jumlah_pemesanan).toLocaleString("id-ID") %></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Detail Pemesanan</div>
+    <table>
+      <tbody>
+        <tr><td>Nomor Penerima Bukti Tayang</td><td><%= p.nomor_penerima_bukti_tayang || "-" %></td></tr>
+        <tr><td>Masking</td><td><%= p.masking || "-" %></td></tr>
+        <tr><td>Target Device</td><td><%= p.tipe_device_penerima || "-" %></td></tr>
+        <tr><td>Target Umur</td><td><%= p.target_umur || "-" %></td></tr>
+        <tr>
+          <td>Tanggal Pengiriman</td>
+          <td>
+            <% const tglStart = new Date(p.tanggal_pengiriman_start);
+               const tglEnd = new Date(p.tanggal_pengiriman_end);
+               const same = tglStart.toDateString() === tglEnd.toDateString();
+            %>
+            <% if (same) { %>
+              <%= tglStart.toLocaleDateString("id-ID") %>
+            <% } else { %>
+              <%= tglStart.toLocaleDateString("id-ID") %> s/d <%= tglEnd.toLocaleDateString("id-ID") %>
+            <% } %>
+          </td>
+        </tr>
+        <tr><td>Jam Pengiriman</td><td><%= p.jam_pengiriman %></td></tr>
+        <tr><td>Teks Iklan</td><td><%= p.teks_iklan_sms %></td></tr>
+      </tbody>
+    </table>
+
+    <% if (p.jenis_target?.toLowerCase().includes("lba")) { %>
+      <div class="section-title">Target Lokasi (LBA)</div>
+      Latitude: <%= p.dps_latitude %><br>
+      Longitude: <%= p.dps_longitude %><br>
+      <div class="alamat"><%= p.alamat_target_sms %></div>
+    <% } %>
+
+    <% if (p.jenis_target?.toLowerCase().includes("mms")) { %>
+      <div class="section-title">Foto MMS</div>
+      <img src="<%= p.local_foto_mms %>" class="img-mms">
+    <% } %>
+
+    <% if (!p.jenis_target?.toLowerCase().includes("lba")) { %>
+      <div class="section-title">File Nomor</div>
+      <p>File nomor disertakan secara terpisah dan dapat diunduh dari sistem.</p>
+    <% } %>
+
+    <div class="footer">
+      Bukti ini dihasilkan secara otomatis oleh sistem.<br>
+      Jika ada pertanyaan, silakan hubungi <a href="@">support@ngiklanmurah.com</a>
+    </div>
+  </div>
+</body>
+</html>

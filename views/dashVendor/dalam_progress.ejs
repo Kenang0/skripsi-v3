@@ -163,6 +163,8 @@
       jam: p.jam_pengiriman || "-",
       teks: p.teks_iklan_sms || "-",
       nomor_penerima_bukti_tayang: p.nomor_penerima_bukti_tayang || "-",
+      file_nomor_sms_pdf: p.file_nomor_sms_pdf || null,
+      file_foto_mms: p.file_foto_mms || null
     }) %>'>
                 <td>
                   <%= p.nama_produk %>
@@ -450,7 +452,7 @@
 </script>
 
 <script>
-function updateStatus(id, status, note = "") {
+function updateStatus(id, status, note = "", callback) {
   const payload = { status };
   if (note) payload.note = note;
 
@@ -461,35 +463,74 @@ function updateStatus(id, status, note = "") {
     },
     body: JSON.stringify(payload),
   })
-    .then((res) => res.json())
-    .then((data) => {
+    .then(async (res) => {
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Terjadi kesalahan.");
+      }
+
       alert(data.message || "Status diperbarui.");
-      location.reload();
+      if (callback) callback();
     })
     .catch((err) => {
-      alert("Gagal mengubah status.");
+      alert(err.message || "Gagal mengubah status.");
       console.error(err);
     });
 }
 
+
 function handleSetujui(id) {
   if (confirm("Yakin ingin menyetujui pemesanan ini?")) {
-    updateStatus(id, "Mengunggu Pembayaran");
+    updateStatus(id, "Menunggu Pembayaran", "", () => {
+      const row = document.querySelector(`.baris-pemesanan.active`);
+      if (!row) return;
+
+      const detail = JSON.parse(row.dataset.detail);
+
+      // ✅ Buka file PDF
+      window.open(`/vendor/pemesanan/${id}/download-pdf`, "_blank");
+
+      // ✅ Download file nomor
+      if (detail.file_nomor_sms_pdf) {
+        window.open(`/uploads/sms_files/${detail.file_nomor_sms_pdf}`, "_blank");
+      }
+
+      // ✅ Download MMS (jika ada)
+      if (detail.file_foto_mms) {
+        window.open(`/uploads/sms_files/${detail.file_foto_mms}`, "_blank");
+      }
+
+      // (Opsional) reload halaman setelah delay
+      setTimeout(() => {
+        location.reload();
+      }, 3000);
+    });
   }
 }
+
+
 
 function handleRevisi(id) {
   const alasan = prompt("Masukkan alasan revisi untuk pemesanan ini:");
   if (alasan && alasan.trim() !== "") {
-    updateStatus(id, "Menunggu Penyesuaian", alasan);
+    updateStatus(id, "Menunggu Penyesuaian", alasan, () => {
+      // Aksi setelah revisi berhasil
+      alert("Revisi berhasil dikirim.");
+      location.reload();
+    });
   } else if (alasan !== null) {
     alert("Revisi dibatalkan. Alasan harus diisi.");
   }
 }
 
 function handleTolak(id) {
-  if (confirm("Yakin ingin menolak pemesanan ini? Keputusan ini tidak dapat dibatalkan.")) {
-    updateStatus(id, "Ditolak");
+  if (confirm("Yakin ingin menolak pemesanan ini?")) {
+    updateStatus(id, "Ditolak", "", () => {
+      // Aksi setelah tolak berhasil
+      alert("Pemesanan berhasil ditolak.");
+      location.reload();
+    });
   }
 }
 </script>
