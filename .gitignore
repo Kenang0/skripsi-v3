@@ -17,7 +17,7 @@ build/
 *.sqlite
 
 # Folder upload (jika ada simpanan file upload sementara)
-uploads/
+
 temp/
 
 # VSCode settings (opsional)
