@@ -316,21 +316,27 @@
             </div>
           <% } %>
 
-          <% if (p.jenis_target?.toLowerCase().includes('mms')){ %>
-            <div class="mb-3">
-              <strong>Foto MMS:</strong><br>
-              <img src="/uploads/sms_files/<%= p.file_foto_mms %>" class="img-fluid" style="max-width: 200px; border: 1px solid #ccc;">
-            </div>
-          <% } %>
+<% if (p.jenis_target?.toLowerCase().includes('mms')){ %>
+  <div class="mb-3">
+    <strong>Foto MMS:</strong><br>
+    <img src="/uploads/sms_files/<%= p.file_foto_mms %>" class="img-fluid" style="max-width: 200px; border: 1px solid #ccc;">
+    <br>
+    <a href="/uploads/sms_files/<%= p.file_foto_mms %>" download class="btn btn-sm btn-outline-primary mt-2">
+      <i class="bi bi-download"></i> Download Foto MMS
+    </a>
+  </div>
+<% } %>
 
-     
-
-          <%  if (!p.jenis_target.toLowerCase().includes('lba')) { %>
-            <div class="mb-3">
-              <strong>File Nomor:</strong><br>
-              <iframe src="/uploads/sms_files/<%= p.file_nomor_sms_pdf %>" width="100%" height="400px" style="border: 1px solid #ccc;"></iframe>
-            </div>
-          <% } %>
+<%  if (!p.jenis_target.toLowerCase().includes('lba')) { %>
+  <div class="mb-3">
+    <strong>File Nomor:</strong><br>
+    <iframe src="/uploads/sms_files/<%= p.file_nomor_sms_pdf %>" width="100%" height="400px" style="border: 1px solid #ccc;"></iframe>
+    <br>
+    <a href="/uploads/sms_files/<%= p.file_nomor_sms_pdf %>" download class="btn btn-sm btn-outline-primary mt-2">
+      <i class="bi bi-download"></i> Download File Nomor
+    </a>
+  </div>
+<% } %>
 
           <div class="footer gray mt-4 small text-center text-muted">
             Invoice ini sah dan diproses oleh komputer.<br>

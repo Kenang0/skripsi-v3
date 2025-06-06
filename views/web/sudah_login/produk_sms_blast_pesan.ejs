@@ -200,17 +200,17 @@
                                 value="<%= produk.jenis_target.toLowerCase().includes('mms') ? 'mms' : 'sms' %>">
 
                             <div class="mb-2">
-                                <label class="form-label">Masking Sender:</label>
+                                <label class="form-label">Masking Sender:<span style="color:red">* </span></label>
                                 <input type="text" class="form-control" name="masking_sender">
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label">Target Umur:</label>
+                                <label class="form-label">Target Umur:<span style="color:red">* </span></label>
                                 <input type="text" class="form-control" name="target_umur">
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label">Tipe Device yang Menerima:</label><br>
+                                <label class="form-label">Tipe Device yang Menerima:<span style="color:red">* </span></label><br>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="checkbox" name="tipe_device" value="Android"
                                         id="android">
@@ -230,13 +230,13 @@
 
                             <div class="row mb-2 align-items-end">
                                 <div class="col tanggal-wrap">
-                                    <label class="form-label">Tanggal Pengiriman:</label>
+                                    <label class="form-label">Tanggal Pengiriman:<span style="color:red">* </span></label>
                                     <div class="d-flex gap-2 align-items-center" id="tanggalPengirimanGroup">
                                         <input type="date" class="form-control" name="tanggal_kirim" id="tanggal_start">
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <label class="form-label">Jam Pengiriman:</label>
+                                    <label class="form-label">Jam Pengiriman:<span style="color:red">* </span></label>
                                     <input type="time" class="form-control" name="jam_kirim">
                                 </div>
                             </div>
@@ -244,7 +244,7 @@
 
                             <% if (!produk.jenis_target.toLowerCase().includes("lba")) { %>
                                 <div class="mb-2">
-                                    <label class="form-label">Sumber Nomor Tujuan:</label>
+                                    <label class="form-label">Sumber Nomor Tujuan:<span style="color:red">* </span></label>
                                     <select class="form-select" name="sumber_nomor" id="sumber_nomor"
                                         onchange="toggleInputNomor()">
                                         <option value="vendor">Gunakan dari Vendor</option>
@@ -260,19 +260,19 @@
 
                                     <% if (produk.jenis_target.toLowerCase().includes("mms")) { %>
                                         <div class="mb-2">
-                                            <label class="form-label">Upload Gambar (untuk MMS):</label>
+                                            <label class="form-label">Upload Gambar (untuk MMS):<span style="color:red">* </span></label>
                                             <input type="file" class="form-control" name="file_foto_mms" value="mms">
                                         </div>
                                         <% } %>
 
                                             <div class="mb-2">
-                                                <label class="form-label">Kata-kata Pesan:</label>
+                                                <label class="form-label">Teks Iklan:<span style="color:red">* </span></label>
                                                 <input type="text" class="form-control" name="teks_iklan_sms">
                                             </div>
 
                                             <% if (produk.jenis_target.toLowerCase().includes("lba")) { %>
                                                 <div class="mb-2">
-                                                    <label class="form-label">Alamat Lokasi Target:</label>
+                                                    <label class="form-label">Alamat Lokasi Target:<span style="color:red">* </span></label>
                                                     <input type="text" class="form-control" id="inputAlamat"
                                                         placeholder="Contoh: Jl. Jend. Sudirman No.1, Jakarta">
                                                 </div>
@@ -288,15 +288,14 @@
                                                 <% } %>
 
                                                     <div class="mb-2">
-                                                        <label class="form-label">Nomor Penerima Bukti
-                                                            Tayang:</label>
+                                                        <label class="form-label">Nomor Penerima Bukti Tayang:<span style="color:red">* </span></label>
                                                         <input type="text" class="form-control"
                                                             name="nomor_penerima_bukti_tayang"
                                                             placeholder="08xxxxxxxxxx">
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <label class="form-label">Catatan:</label>
+                                                        <label class="form-label">Catatan :</label>
                                                         <textarea class="form-control" rows="3"
                                                             name="catatan"></textarea>
                                                     </div>
