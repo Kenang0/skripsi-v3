@@ -96,7 +96,7 @@ CREATE TABLE pemesanan (
 CREATE TABLE detail_pemesanan_sms (
     id_detail_sms SERIAL PRIMARY KEY,
     id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
-    nomor_penerima_bukti_tayang INT,
+    nomor_penerima_bukti_tayang TEXT,
     masking VARCHAR (50),
     target_umur VARCHAR(50),
     tipe_device_penerima text,

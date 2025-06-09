@@ -329,7 +329,7 @@ export const uploadSMSFiles = multer({
   storage,
   // limits: { fileSize: 5 * 1024 * 1024 }, // limit 5MB
   fileFilter: (req, file, cb) => {
-    const allowed = ["image/jpeg", "image/png", "application/pdf"];
+    const allowed = ["image/jpeg", "image/png","text/csv", "application/vnd.ms-excel"];
     if (allowed.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -341,7 +341,7 @@ export const uploadSMSFiles = multer({
 
 const uploadFields = uploadSMSFiles.fields([
   { name: "file_foto_mms", maxCount: 1 },
-  { name: "file_nomor_sms_pdf", maxCount: 1 }
+  { name: "file_nomor_sms_csv", maxCount: 1 }
 ]);
 
 export const handlePesanSMS = (req, res) => {
@@ -373,15 +373,15 @@ export const handlePesanSMS = (req, res) => {
       const tanggal_pengiriman_end = req.body.tanggal_kirim_end || req.body.tanggal_kirim;
 
 
-      const file_foto_mms = req.files["file_foto_mms"]?.[0]?.filename || null;
-      const file_nomor_sms_pdf = req.files["file_nomor_sms_pdf"]?.[0]?.filename || null;
+    const file_foto_mms = req.files["file_foto_mms"]?.[0]?.filename || null;
+     const file_nomor_sms_csv = req.files["file_nomor_sms_csv"]?.[0]?.filename || null;
 
       console.log("🛩️ Incoming request from user:", userId);
       console.log("📦 Produk ID:", id);
       console.log("📞 nomor penerima:", nomor_penerima_bukti_tayang);
       console.log("📩 Teks iklan:", teks_iklan_sms);
       console.log("🗂️ File foto MMS:", file_foto_mms);
-      console.log("📄 File nomor PDF:", file_nomor_sms_pdf);
+      console.log("📄 File nomor PDF:", file_nomor_sms_csv);
       console.log("📍 Alamat:", alamat_target_sms);
       console.log("🌐 Latitude/Longitude:", latitude, longitude);
       console.log("📌 Sumber nomor (user input):", sumber_nomor_from_user);
@@ -437,7 +437,7 @@ export const handlePesanSMS = (req, res) => {
         nomor_penerima_bukti_tayang,
         teks_iklan_sms,
         (jenis_target === "MMS (Multimedia Messaging Service)" || jenis_target === "MMS LBA (Location-Based MMS)") ? file_foto_mms : null,
-        sumber_nomor_from_user === "user" ? file_nomor_sms_pdf : null,
+        sumber_nomor_from_user === "user" ? file_nomor_sms_csv : null,
         alamat_target_sms || null,
         latitude || null,
         longitude || null,

@@ -372,10 +372,9 @@
                                     <td>File Nomor</td>
                                     <td>
                                         <% if (detailSMS.file_nomor_sms_pdf) { %>
-                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                                data-bs-target="#pdfModal">
-                                                Lihat File Nomor
-                                            </button>
+                                            <a href="/uploads/sms_files/<%= detailSMS.file_nomor_sms_pdf %>" class="btn btn-sm btn-primary" download>
+                                             Download File Nomor CSV
+                                                </a>
                                             <% } else { %>
                                                 <em>Menggunakan file nomor dari vendor</em>
                                                 <% } %>
@@ -410,21 +409,6 @@
                     </table>
                 </div>
 
-                <div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="pdfModalLabel">Preview File Nomor</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Tutup"></button>
-                            </div>
-                            <div class="modal-body" style="height: 80vh;">
-                                <iframe src="/uploads/sms_files/<%= detailSMS.file_nomor_sms_pdf %>" width="100%"
-                                    height="100%" style="border: none;"></iframe>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
 <% if (pemesanan.jenis_target?.toLowerCase().includes('lba') || pemesanan.jenis_target?.toLowerCase().includes('mms')) { %>
   <div class="section">

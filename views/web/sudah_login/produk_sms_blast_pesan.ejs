@@ -206,7 +206,7 @@
 
                             <div class="mb-2">
                                 <label class="form-label">Target Umur:<span style="color:red">* </span></label>
-                                <input type="text" class="form-control" name="target_umur">
+                                <input type="text" class="form-control" name="target_umur" placeholder=" Contoh : 25 s/d 30 Tahun">
                             </div>
 
                             <div class="mb-2">
@@ -252,9 +252,8 @@
                                     </select>
                                 </div>
                                 <div class="mb-2" id="inputDaftarNomor" style="display: none;">
-                                    <label class="form-label">Upload File Daftar Nomor (PDF)</label>
-                                    <input type="file" class="form-control" name="file_nomor_sms_pdf"
-                                        accept="application/pdf">
+                                    <label class="form-label">Upload File Daftar Nomor (CSV)</label>
+                                    <input type="file" class="form-control" name="file_nomor_sms_csv"  accept=".csv,text/csv,application/vnd.ms-excel">
                                 </div>
                                 <% } %>
 
@@ -267,7 +266,7 @@
 
                                             <div class="mb-2">
                                                 <label class="form-label">Teks Iklan:<span style="color:red">* </span></label>
-                                                <input type="text" class="form-control" name="teks_iklan_sms">
+                                                <textarea name="teks_iklan_sms" class="form-control" rows="3" ></textarea>
                                             </div>
 
                                             <% if (produk.jenis_target.toLowerCase().includes("lba")) { %>
@@ -380,6 +379,7 @@
             group.innerHTML = "";
 
             const today = new Date();
+            today.setDate(today.getDate() + 2);
             const todayStr = today.toISOString().split('T')[0];
 
             // Tanggal Start

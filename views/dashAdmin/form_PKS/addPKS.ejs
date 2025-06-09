@@ -236,6 +236,10 @@
     <div class="modal-content"
         style="position:absolute; top:10%; left:10%; width:80%; height:80%; background:white; padding:10px;">
         <span class="close">&times;</span>
+        <button id="customDownloadButton"
+  style="position: absolute; top: 10px; right: 50px; background: #0d6efd; color: white; border: none; padding: 6px 12px; border-radius: 5px; font-size: 13px; z-index: 999;">
+  <i class="fa fa-download me-1"></i> Download
+</button>
         <iframe id="pdfPreview" style="width:100%; height:90%;"></iframe>
     </div>
 </div>
@@ -385,7 +389,7 @@
         }
 
         if (data.pdfPath) {
-            document.getElementById("pdfPreview").src = data.pdfPath;
+            document.getElementById("pdfPreview").src = data.pdfPath + "#toolbar=0";
             document.getElementById("previewModal").style.display = "block";
             document.getElementById("downloadButton").disabled = false;
 
@@ -399,13 +403,12 @@
     });
 
     // download button 
-    document.getElementById("downloadButton").addEventListener("click", async function () {
+    async function handleDownloadPDF(source = "luar") {
         if (!pdfFilename) {
             alert("PDF belum tersedia. Silakan preview ulang.");
             return;
         }
 
-        // Ambil data form yang sebelumnya dikirim dari generatePDF
         const formData = new FormData(document.getElementById("multiStepForm"));
         formData.append("pdfFilename", pdfFilename);
 
@@ -423,28 +426,36 @@
                 icon: 'success',
                 title: 'PKS tersimpan ke database',
                 showConfirmButton: false,
-                timer: 2500,
-                timerProgressBar: true,
+                timer: 2000,
                 background: '#1e293b',
                 color: '#ffffff'
             });
 
             document.getElementById("nextButton").disabled = false;
-
-            // ✅ Simpan pks_id dari respons server
             pks_id = data.pks_id || null;
-            console.log("✅ pks_id setelah download:", pks_id);
 
             const downloadLink = document.createElement("a");
             downloadLink.href = `/pks_permanen/${pdfFilename}`;
             downloadLink.download = pdfFilename;
             document.body.appendChild(downloadLink);
             downloadLink.click();
-            document.body.removeChild(downloadLink); // Hapus setelah download
+            document.body.removeChild(downloadLink);
+
+            if (source === "modal") {
+                setTimeout(() => {
+                    document.getElementById("previewModal").style.display = "none";
+                }, 2200);
+            }
         } else {
             alert("Gagal menyimpan PKS: " + data.error);
         }
-    });
+    }
+
+    // tombol luar modal
+    document.getElementById("downloadButton").addEventListener("click", () => handleDownloadPDF("luar"));
+
+    // tombol dalam modal
+    document.getElementById("customDownloadButton").addEventListener("click", () => handleDownloadPDF("modal"));
 
     document.getElementById("nextButton").addEventListener("click", function (event) {
         event.preventDefault();

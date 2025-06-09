@@ -133,6 +133,14 @@
     width: 100px;
     margin-top: 15px;
   }
+
+  @media (max-width: 768px) {
+    .custom-btn-download {
+      font-size: 9px !important;
+      padding: 6px 10px !important;
+    }
+  }
+  
 </style>
 
 <body class="bg-light">
@@ -156,6 +164,7 @@
             <% data.forEach((p)=> { %>
               <tr class="baris-pemesanan" data-detail='<%- JSON.stringify({
       id: p.id_pemesanan,
+      status: p.status_pemesanan,
       foto: p.photo_produk || "/uploads/produk_img/default.png",
       masking: p.masking || "-",
       tglStart: new Date(p.tanggal_pengiriman_start).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
@@ -232,6 +241,9 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalTitle<%= p.id_pemesanan %>">Bukti Pemesanan</h5>
+        <a href="#" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+       <i class="bi bi-download"></i> Download Bukti Pemesanan (PDF)
+        </a>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
       </div>
       <div class="modal-body">
@@ -303,6 +315,9 @@
                 </td>
               </tr>
               <tr><td>Jam Pengiriman</td><td><%= p.jam_pengiriman %></td></tr>
+              <%  if (!p.jenis_target.toLowerCase().includes('lba')) { %>
+              <tr><td>File Nomor:</td><td><a href="/uploads/sms_files/<%= p.file_nomor_sms_pdf %>"  download class="btn btn-sm btn-outline-primary mt-2 w-100  custom-btn-download"><i class="bi bi-download me-1 "style="font-size: 13px;"></i> Download File Nomor</a></td></tr>
+                <% } %>
               <tr><td>Teks Iklan</td><td><%= p.teks_iklan_sms %></td></tr>
             </tbody>
           </table>
@@ -321,22 +336,13 @@
     <strong>Foto MMS:</strong><br>
     <img src="/uploads/sms_files/<%= p.file_foto_mms %>" class="img-fluid" style="max-width: 200px; border: 1px solid #ccc;">
     <br>
-    <a href="/uploads/sms_files/<%= p.file_foto_mms %>" download class="btn btn-sm btn-outline-primary mt-2">
-      <i class="bi bi-download"></i> Download Foto MMS
-    </a>
+     <a href="/uploads/sms_files/<%= p.file_foto_mms %>" download class="btn btn-sm btn-outline-primary mt-2">
+    <i class="bi bi-download"></i> Download Foto MMS
+  </a>
   </div>
 <% } %>
 
-<%  if (!p.jenis_target.toLowerCase().includes('lba')) { %>
-  <div class="mb-3">
-    <strong>File Nomor:</strong><br>
-    <iframe src="/uploads/sms_files/<%= p.file_nomor_sms_pdf %>" width="100%" height="400px" style="border: 1px solid #ccc;"></iframe>
-    <br>
-    <a href="/uploads/sms_files/<%= p.file_nomor_sms_pdf %>" download class="btn btn-sm btn-outline-primary mt-2">
-      <i class="bi bi-download"></i> Download File Nomor
-    </a>
-  </div>
-<% } %>
+
 
           <div class="footer gray mt-4 small text-center text-muted">
             Invoice ini sah dan diproses oleh komputer.<br>
@@ -424,9 +430,11 @@
             <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
               <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
             </a>
-            <a href="#" class="btn btn-outline-success btn-sm w-100">
-              <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
+            ${data.status === 'dalam pengerjaan' ? `
+            <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
+            <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
             </a>
+          ` : ''}
           </div>
         `;
   // <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
@@ -494,18 +502,7 @@ function handleSetujui(id) {
 
       const detail = JSON.parse(row.dataset.detail);
 
-      // ✅ Buka file PDF
-      window.open(`/vendor/pemesanan/${id}/download-pdf`, "_blank");
 
-      // ✅ Download file nomor
-      if (detail.file_nomor_sms_pdf) {
-        window.open(`/uploads/sms_files/${detail.file_nomor_sms_pdf}`, "_blank");
-      }
-
-      // ✅ Download MMS (jika ada)
-      if (detail.file_foto_mms) {
-        window.open(`/uploads/sms_files/${detail.file_foto_mms}`, "_blank");
-      }
 
       // (Opsional) reload halaman setelah delay
       setTimeout(() => {
