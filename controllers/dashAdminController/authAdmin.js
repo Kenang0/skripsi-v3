@@ -227,7 +227,7 @@ if (Array.isArray(req.body.kategori)) {
     const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox", '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
 
-    let templateHtml = fs.readFileSync(path.resolve(__dirname, "../../public/templates/template_PKS.html"), "utf8");
+    let templateHtml = fs.readFileSync(path.resolve(__dirname, "../../public/templates/template_pks.html"), "utf8");
 
     // buat pengecekan kalau nik  tidak di isi diganti dengan ......
     const nikFormatted = nik.trim() === "" ? "............................................" : nik;
