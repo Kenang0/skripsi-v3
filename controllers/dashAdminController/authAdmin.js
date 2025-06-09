@@ -223,7 +223,8 @@ if (Array.isArray(req.body.kategori)) {
 
     // mulai perubahan template
     console.log("Meluncurkan Puppeteer...");
-    const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox"] });
+    console.log("✅ Puppeteer path:", puppeteer.executablePath());
+    const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox", '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
 
     let templateHtml = fs.readFileSync(path.resolve(__dirname, "../../public/templates/template_PKS.html"), "utf8");
@@ -264,6 +265,7 @@ if (Array.isArray(req.body.kategori)) {
   } catch (error) {
     console.error("Error saat membuat PDF:", error);
     res.json({ error: "Terjadi kesalahan dalam pembuatan PDF." });
+    console.error("STACK:", error.stack);
   }
 };
 
