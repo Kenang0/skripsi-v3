@@ -62,6 +62,21 @@
       background-color: rgba(0, 0, 0, 0.2);
       border-radius: 10px;
     }
+
+    html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
   </style>
 </head>
 
@@ -83,7 +98,7 @@
         <!-- Profil User Khusus Mobile -->
         <% if (data) { %>
           <div class="d-block d-lg-none d-flex align-items-center">
-            <img src="/uploads/profile_pic/<%= data.photo_user %>" alt="User" class="rounded-circle"
+            <img src="/uploads/profile_pic/<%= user.photo_user %>" alt="User" class="rounded-circle"
               style="width: 32px; height: 32px; object-fit: cover;">
           </div>
           <% } %>
@@ -120,7 +135,7 @@
           <!-- Jika user sudah login -->
           <div class="user-profile d-none d-lg-block ms-3">
             <a href="/pengaturan-akun">
-              <img src="/uploads/profile_pic/<%= data.photo_user %>" alt="User" class="rounded-circle"
+              <img src="/uploads/profile_pic/<%= user.photo_user %>" alt="User" class="rounded-circle"
                 style="width: 32px; height: 32px; object-fit: cover;"></a>
           </div>
 
@@ -129,7 +144,7 @@
     </div>
   </nav>
 
-  <section class="container mt-5" style="padding-top: 50px;">
+  <main class="container mt-5" style="padding-top: 50px;">
     <h3 class="mb-4">Daftar Pemesanan Anda</h3>
 
     <% if (data.length===0) { %>
@@ -173,13 +188,42 @@
                 <a href="/bukti-pemesanan/<%= d.id_pemesanan %>" class="btn btn-link p-0">Bukti Pemesanan</a><br>
 
 
-                <% if ((d.status_pemesanan || '' ).toLowerCase()==='menunggu penyesuaian' ) { %>
-                  <!-- Tombol untuk membuka modal -->
-                  <button class="btn btn-sm btn-outline-warning mt-2 " data-bs-toggle="modal"
+           <% if (p.status_pemesanan.toLowerCase() === 'menunggu penyesuaian') { %>
+  <button class="btn btn-warning btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#penyesuaianModal-<%= p.id_pemesanan %>">
+    Lengkapi Form
+  </button>
+   <!-- Tombol untuk membuka modal -->
+                  <!-- <button class="btn btn-sm btn-outline-warning mt-2 " data-bs-toggle="modal"
                     data-bs-target="#formPenyesuaianModal-<%= d.id_pemesanan %>">
                     Lengkapi Form
-                  </button>
-                  <% } %>
+                  </button> -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="penyesuaianModal-<%= p.id_pemesanan %>" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Form Penyesuaian - <%= p.nama_produk %></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <% if (p.tipe_kategori === 'radio') { %>
+            <% include partials/form_radio_penyesuaian %>
+          <% } else if (p.tipe_kategori === 'messaging') { %>
+            <% if (p.sms_jenis_target === 'MMS') { %>
+              <% include partials/form_sms_mms_penyesuaian %>
+            <% } else if (p.sms_jenis_target === 'LBA') { %>
+              <% include partials/form_sms_lba_penyesuaian %>
+            <% } else { %>
+              <% include partials/form_sms_biasa_penyesuaian %>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
                   <% const status=(d.status_pemesanan || '' ).trim().toLowerCase(); 
                   if (status==='menunggu verifikasi'|| status==='menunggu penyesuaian' ) { %>
                     <a href="/batal-pemesanan/<%= d.id_pemesanan %>"
@@ -197,7 +241,7 @@
             </div>
           </div>
 
-          <!-- Modal Form Penyesuaian -->
+          <!-- Modal Form Penyesuaian
 <div class="modal fade" id="formPenyesuaianModal-<%= d.id_pemesanan %>" tabindex="-1" aria-labelledby="formPenyesuaianLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" action="/lengkapi-form-penyesuaian/<%= d.id_pemesanan %>" method="POST">
@@ -207,7 +251,7 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label for="catatan" class="form-label">Catatan Penyesuaian</label>
+          <label for="catatan" class="form-label">Catatan Penyesuaian dari vendor</label>
           <textarea class="form-control" id="catatan" name="catatan" rows="3" required></textarea>
         </div>
         <div class="mb-3">
@@ -221,10 +265,10 @@
       </div>
     </form>
   </div>
-</div>
+</div> -->
 
           <% }) %>
-  </section>
+</main>
 
 
 

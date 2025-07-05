@@ -1,241 +1,411 @@
 <style>
-    .container-produk {
-        padding-left: 30px;
-        padding-right: 30px;
-        padding-top: 30px;
-    }
+  /* ========== GLOBAL STYLING ========== */
+  .container-produk {
+    padding: 30px;
+  }
 
-    .kotak-tabel {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
-        margin-bottom: 30px;
-        padding-left: 30px;
-        padding-right: 30px;
-        padding-top: 30px;
-    }
+  .kotak-tabel {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+    margin-bottom: 30px;
+    padding: 30px;
+  }
 
+  .kotak-header {
+    background-color: #c9c6c6ad;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .kotak-header h5 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .p-3 {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  .table-wrapper {
+    margin-bottom: 20px;
+  }
+
+  /* ========== TABLE BASE ========== */
+  table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 900px;
+  }
+
+  table thead th {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  table td {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+
+  /* ========== COLUMN WIDTHS ========== */
+  .kolom-no {
+    width: 40px;
+    text-align: center;
+  }
+
+  .kolom-foto {
+    width: 120px;
+  }
+
+  .kolom-status,
+  .kolom-aksi {
+    width: 130px;
+  }
+
+  .kolom-nama,
+  .kolom-hari,
+  .kolom-jam,
+  .kolom-harga,
+  .kolom-target {
+    width: 170px;
+  }
+
+  .kolom-provider {
+    width: 200px;
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .kolom-deskripsi {
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    min-width: 220px;
+    max-width: 300px;
+  }
+
+  table thead th.kolom-provider {
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ========== IMAGE STYLE ========== */
+  .foto-produk-tabel {
+    max-height: 60px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+  }
+
+  /* ========== DROPDOWN ========== */
+  .form-select-sm {
+    font-size: 0.8rem;
+    padding: 2px 10px;
+    min-width: 150px;
+  }
+
+  /* ========== RESPONSIVE ========== */
+
+  @media (max-width: 768px) {
     .kotak-header {
-        background-color: #c9c6c6ad;
-        padding: 10px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
     }
 
-    .kotak-header h5 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 600;
+    #filterKategori {
+      width: 100% !important;
     }
 
-    .p-3 {
-        padding: 20px;
-        overflow-x: auto;
-    }
-
-    .kolom-no {
-        width: 40px;
-        text-align: center;
-    }
-
-    .kolom-foto {
-        width: 250px;
-    }
-
-  
-    .kolom-status,
-    .kolom-aksi {
-        width: 120px;
-    }
-
-     .kolom-nama,
-    .kolom-hari,
-    .kolom-jam,
-    .kolom-harga{
-        width: 170px;
-    }
-
-    .kolom-deskripsi {
-        width: auto;
-    }
-
-
-
-    table thead th {
-        font-size: 0.85rem;
-        white-space: nowrap;
-    }
-
+    table thead th,
     table td {
-        font-size: 0.9rem;
-        white-space: nowrap;
-    }
-
-    .table-wrapper {
-        margin-bottom: 20px;
+      font-size: 0.75rem;
     }
 
     .form-select-sm {
-        font-size: 0.8rem;
-        padding: 2px 8px;
+      font-size: 0.75rem;
+    }
+
+    .kolom-foto {
+      width: 90px;
+    }
+
+    .foto-produk-tabel {
+      max-height: 50px;
+    }
+
+    .kolom-nama,
+    .kolom-harga,
+    .kolom-hari,
+    .kolom-jam,
+    .kolom-status,
+    .kolom-target {
+      width: 100px;
+    }
+
+    .kolom-provider {
+      width: 150px;
+    }
+
+    .kolom-deskripsi {
+      max-width: 240px;
+    }
+
+    .kolom-aksi {
+      width: 120px;
+    }
+  }
+
+  @media (max-width: 576px) {
+
+    .container-produk,
+    .kotak-tabel {
+      padding: 15px;
     }
 
     table {
-        table-layout: fixed;
-        width: 100%;
+      table-layout: auto !important;
+      min-width: 800px;
     }
+
+    .kolom-provider {
+      width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kolom-deskripsi {
+      max-width: 240px;
+    }
+
+    .kolom-status,
+    .kolom-aksi {
+      width: 130px;
+    }
+
+    .foto-produk-tabel {
+      max-height: 45px;
+    }
+
+    .form-select-sm {
+      font-size: 0.7rem;
+    }
+  }
+
+  @media (min-width: 1024px) and (max-width: 1366px) {
+
+    .table td,
+    .table th {
+      font-size: 0.85rem;
+    }
+
+    .kolom-foto {
+      width: 100px;
+    }
+
+    .kolom-nama,
+    .kolom-hari,
+    .kolom-jam,
+    .kolom-harga,
+    .kolom-deskripsi,
+    .kolom-provider {
+      width: 170px;
+    }
+
+    .kolom-status,
+    .kolom-aksi {
+      width: 130px;
+    }
+
+    .form-select-sm {
+      font-size: 0.75rem;
+    }
+
+    .foto-produk-tabel {
+      max-height: 55px;
+    }
+  }
 </style>
 <div class="container-produk">
-    <div class="kotak-tabel">
-        <div class="kotak-header">
-            <h5>Daftar Produk Iklan</h5>
-            <select id="filterKategori" class="form-select form-select-sm w-auto">
-                <option value="semua">Tampilkan Semua</option>
-                <option value="radio">Produk Radio</option>
-                <option value="sms">Produk SMS</option>
-            </select>
-        </div>
-        <div class="p-3">
-
-            <!-- Tabel Produk Radio -->
-            <div id="tabelRadio" class="table-wrapper">
-                <h6 class="mb-2">Produk Radio</h6>
-                <table class="table table-bordered table-striped">
-                    <thead class="table-primary">
-                        <tr>
-                            <th class="kolom-no">No</th>
-                            <th class="kolom-foto">Photo Produk</th>
-                            <th class="kolom-nama">Nama Produk</th>
-                            <th class="kolom-hari">Hari</th>
-                            <th class="kolom-jam">Jam</th>
-                            <th class="kolom-harga">Harga</th>
-                            <th class="kolom-deskripsi">Deskripsi</th>
-                            <th class="kolom-status">Status</th>
-                            <th class="kolom-aksi">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (data.radio.length===0) { %>
-                            <tr>
-                                <td colspan="9" class="text-center">Tidak ada produk radio.</td>
-                            </tr>
-                            <% } else { %>
-                                <% data.radio.forEach((produk, i)=> { %>
-                                    <tr>
-                                        <td class="kolom-no">
-                                            <%= i + 1 %>
-                                        </td>
-                                        <td class="kolom-foto"><img src="/uploads/produk_img/<%= produk.photo_produk %>"
-                                                alt=""style="max-height: 200px; max-width: 200px; object-fit: contain;">
-                                        </td>
-                                        <td class="kolom-nama">
-                                            <%= produk.nama_produk %>
-                                        </td>
-                                        <td class="kolom-hari">
-                                            <%= produk.hari || '-' %>
-                                        </td>
-                                        <td class="kolom-jam">
-                                            <%= produk.jam_mulai && produk.jam_selesai ? `${produk.jam_mulai} s/d
-                                                ${produk.jam_selesai}` : '-' %>
-                                        </td>
-                                        <td class="kolom-harga">Rp <%= produk.harga.toLocaleString('id-ID') %>
-                                        </td>
-                                        <td class="kolom-deskripsi">
-                                            <%- produk.deskripsi_produk.replace(/\n/g, '<br>') %>
-                                        </td>
-                                        <td class="kolom-status">
-                                            <%= produk.status_produk %>
-                                        </td>
-                                        <td class="kolom-aksi">
-                                           <button class="btn btn-sm btn-outline-primary edit-radio" data-id="<%= produk.id_produk_iklan %>">Edit</button>
-                                            <button class="btn btn-sm btn-danger btn-delete-radio" data-id="<%= produk.id_produk_iklan %>">Hapus</button>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Tabel Produk SMS -->
-            <div id="tabelSMS" class="table-wrapper">
-                <h6 class="mb-2">Produk SMS</h6>
-                <table class="table table-bordered table-striped">
-                    <thead class="table-primary">
-                        <tr>
-                            <th class="kolom-no">No</th>
-                            <th class="kolom-foto">Photo Produk</th>
-                            <th class="kolom-nama">Nama Produk</th>
-                            <th class="kolom-harga">Provider Yang Di Layani</th>
-                            <th class="kolom-nama">Target</th>
-                            <th class="kolom-harga">Harga</th>
-                            <th class="kolom-deskripsi">Deskripsi</th>
-                            <th class="kolom-status">Status</th>
-                            <th class="kolom-aksi">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (data.sms.length===0) { %>
-                            <tr>
-                                <td colspan="9" class="text-center">Tidak ada produk SMS.</td>
-                            </tr>
-                            <% } else { %>
-                                <% data.sms.forEach((produk, i)=> { %>
-                                    <tr>
-                                        
-                                        <td class="kolom-no">
-                                            <%= i + 1 %>
-                                        </td>
-                                        <td class="kolom-foto"><img src="/uploads/produk_img/<%= produk.photo_produk %>"
-                                                alt=""style="max-height: 200px; max-width: 200px; object-fit: contain;">
-                                        </td>
-                                        <td class="kolom-nama">
-                                            <%= produk.nama_produk %>
-                                        </td>
-                                        <td class="kolom-harga">
-                                            <%= produk.provider_yang_di_layani || '-' %>
-                                        </td>
-                                        <td class="kolom-nama">
-                                            <%= produk.jenis_target || '-' %>
-                                        </td>
-                                        <td  class="kolom-harga">Rp <%= produk.harga.toLocaleString('id-ID') %>
-                                        </td>
-                                         <td class="kolom-deskripsi">
-                                            <%- produk.deskripsi_produk.replace(/\n/g, '<br>') %>
-                                        </td>
-                                         <td class="kolom-status">
-                                            <%= produk.status_produk %>
-                                        </td>
-                                        <td class="kolom-aksi">
-                                            <button class="btn btn-sm btn-outline-primary edit-sms" data-id="<%= produk.id_produk_iklan %>">Edit</button>
-                                            <button class="btn btn-sm btn-danger btn-delete-sms" data-id="<%= produk.id_produk_iklan %>">Hapus</button>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
+  <div class="kotak-tabel">
+    <div class="kotak-header">
+      <h5>Daftar Produk Iklan</h5>
+      <select id="filterKategori" class="form-select form-select-sm w-auto" style="min-width: 160px;">
+        <option value="radio" selected>Produk Radio</option>
+        <option value="sms">Produk SMS</option>
+        <option value="semua">Tampilkan Semua</option>
+      </select>
     </div>
-   
+    <div class="p-3">
+
+      <!-- Tabel Produk Radio -->
+      <div id="tabelRadio" class="table-wrapper">
+        <h6 class="mb-2">Produk Radio</h6>
+        <table id="tabelRadioData" class="table table-bordered table-striped">
+          <thead class="table-primary">
+            <tr>
+              <th class="kolom-no">No</th>
+              <th class="kolom-foto">Photo Produk</th>
+              <th class="kolom-nama">Nama Produk</th>
+              <th class="kolom-hari">Hari</th>
+              <th class="kolom-jam">Jam</th>
+              <th class="kolom-harga">Harga</th>
+              <th class="kolom-deskripsi">Deskripsi</th>
+              <th class="kolom-harga">Slot Penayangan</th>
+              <th class="kolom-status">Status</th>
+              <th class="kolom-aksi">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (data.radio.length===0) { %>
+              <tr>
+                <td colspan="10" class="text-center">Tidak ada produk radio.</td>
+              </tr>
+              <% } else { %>
+                <% data.radio.forEach((produk, i)=> { %>
+                  <tr>
+                    <td class="kolom-no">
+                      <%= i + 1 %>
+                    </td>
+                    <td class="kolom-foto">
+                      <img src="/uploads/produk_img/<%= produk.photo_produk %>" alt="Foto" class="foto-produk-tabel">
+                    </td>
+
+                    <td class="kolom-nama">
+                      <%= produk.nama_produk %>
+                    </td>
+                    <td class="kolom-hari">
+                      <%= produk.hari || '-' %>
+                    </td>
+                    <td class="kolom-jam">
+                      <%= produk.jam_mulai && produk.jam_selesai ? `${produk.jam_mulai} s/d ${produk.jam_selesai}` : '-'
+                        %>
+                    </td>
+                    <td class="kolom-harga">Rp <%= produk.harga.toLocaleString('id-ID') %>
+                    </td>
+                    <td class="kolom-deskripsi">
+                      <%- produk.deskripsi_produk.replace(/\n/g, '<br>' ) %>
+                    </td>
+                    <td class="kolom-slot">Per <%= produk.slot_penayangan %> Menit
+                    </td>
+                    <td class="kolom-status">
+                      <%= produk.status_produk %>
+                    </td>
+                    <td class="kolom-aksi">
+                      <button class="btn btn-sm btn-outline-primary edit-radio"
+                        data-id="<%= produk.id_produk_iklan %>">Edit</button>
+                      <button class="btn btn-sm btn-danger btn-delete-radio"
+                        data-id="<%= produk.id_produk_iklan %>">Hapus</button>
+                    </td>
+                  </tr>
+                  <% }) %>
+                    <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tabel Produk SMS -->
+      <div id="tabelSMS" class="table-wrapper">
+
+        <h6 class="mb-2">Produk SMS</h6>
+        <table id="tabelSMSData" class="table table-bordered table-striped">
+          <thead class="table-primary">
+            <tr>
+              <th class="kolom-no">No</th>
+              <th class="kolom-foto">Photo Produk</th>
+              <th class="kolom-nama">Nama Produk</th>
+              <th class="kolom-provider">Provider Yang Di Layani</th>
+              <th class="kolom-target">Target</th>
+              <th class="kolom-harga">Harga</th>
+              <th class="kolom-deskripsi">Deskripsi</th>
+              <th class="kolom-status">Status</th>
+              <th class="kolom-aksi">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (data.sms.length===0) { %>
+              <tr>
+                <td colspan="9" class="text-center">Tidak ada produk SMS.</td>
+              </tr>
+              <% } else { %>
+                <% data.sms.forEach((produk, i)=> { %>
+                  <tr>
+
+                    <td class="kolom-no">
+                      <%= i + 1 %>
+                    </td>
+                    <td class="kolom-foto">
+                      <img src="/uploads/produk_img/<%= produk.photo_produk %>" alt="Foto" class="foto-produk-tabel">
+                    </td>
+
+                    <td class="kolom-nama">
+                      <%= produk.nama_produk %>
+                    </td>
+                    <td class="kolom-provider">
+                      <%= produk.provider_yang_di_layani || '-' %>
+                    </td>
+                    <td class="kolom-target">
+                      <%= produk.jenis_target || '-' %>
+                    </td>
+                    <td class="kolom-harga">Rp <%= produk.harga.toLocaleString('id-ID') %>
+                    </td>
+                    <td class="kolom-deskripsi">
+                      <%- produk.deskripsi_produk.replace(/\n/g, '<br>' ) %>
+                    </td>
+                    <td class="kolom-status">
+                      <%= produk.status_produk %>
+                    </td>
+                    <td class="kolom-aksi">
+                      <button class="btn btn-sm btn-outline-primary edit-sms"
+                        data-id="<%= produk.id_produk_iklan %>">Edit</button>
+                      <button class="btn btn-sm btn-danger btn-delete-sms"
+                        data-id="<%= produk.id_produk_iklan %>">Hapus</button>
+                    </td>
+                  </tr>
+                  <% }) %>
+                    <% } %>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
- <!-- Modal Edit Produk -->
+<!-- Modal Edit Produk -->
 <div class="modal fade" id="modalEditProduk" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalEditLabel">Edit Produk</h5>
+        <h5 class="modal-title" id="modalEditLabel">Edit Produk hehe</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="formEditProduk">
           <input type="hidden" name="id_produk_iklan" id="editIdProduk">
+
+          <div class="mb-3">
+            <label for="editPhoto" class="form-label">Ubah Foto Produk</label>
+            <input type="file" class="form-control" id="editPhoto" name="photo_produk" accept="image/*">
+          </div>
 
           <div class="mb-3">
             <label for="editNamaProduk" class="form-label">Nama Produk</label>
@@ -252,6 +422,7 @@
             <input type="number" class="form-control" id="editHarga" name="harga">
           </div>
 
+          <!-- radio edit special field -->
           <div id="fieldRadio" style="display: none">
             <div class="mb-3">
               <label class="form-label">Hari Tayang:</label><br>
@@ -285,8 +456,20 @@
                 <input type="time" class="form-control" name="jam_selesai">
               </div>
             </div>
+            <div class="mb-3">
+              <!-- <span style="color:red">*</span> -->
+              <label class="form-label">Slot Penayangan Per: </label>
+              <select name="slot_penayangan" id="editSlot" class="form-select">
+                <option value="">-- Pilih --</option>
+                <option value="30">30 Menit</option>
+                <option value="60">60 Menit</option>
+              </select>
+            </div>
+
+
           </div>
 
+          <!-- Mesengger edit special field -->
           <div id="fieldSms" style="display: none">
             <div class="mb-3">
               <label class="form-label">Provider yang dilayani:</label><br>
@@ -309,8 +492,11 @@
             <div class="mb-3">
               <label class="form-label">Jenis Target:</label>
               <select class="form-select" name="jenis_target">
-                <option value="SMS Blast">SMS Blast</option>
-                <option value="SMS LBA">SMS LBA (Location Based Ads)</option>
+                <option value="SMS (Short Message Service)">SMS (Short Message Service)</option>
+                <option value="MMS (Multimedia Messaging Service)">MMS (Multimedia Messaging Service)t</option>
+                <option value="SMS LBA (Location-Based Advertising via SMS)">SMS LBA (Location-Based Advertising via
+                  SMS)</option>
+                <option value="MMS LBA (Location-Based MMS)">MMS LBA (Location-Based MMS)</option>
               </select>
             </div>
           </div>
@@ -329,7 +515,13 @@
     </div>
   </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const modal = new bootstrap.Modal(document.getElementById('modalEditProduk'));
@@ -374,7 +566,16 @@
             document.querySelector('input[name="jam_mulai"]').value = start;
             document.querySelector('input[name="jam_selesai"]').value = end;
           }
-        } 
+
+
+          const slotText = baris.querySelector('.kolom-slot')?.innerText.trim(); 
+          const slotValue = slotText.match(/\d+/)?.[0];
+          if (slotValue) {
+            document.getElementById('editSlot').value = slotValue;
+          }
+
+        }
+
         // === Tambahan untuk field SMS ===
         else {
           document.querySelectorAll('input[name="provider[]"]').forEach(cb => cb.checked = false);
@@ -398,118 +599,151 @@
     });
 
     // Submit form
-document.getElementById('formEditProduk').addEventListener('submit', async function (e) {
-  e.preventDefault();
+    document.getElementById('formEditProduk').addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-  const form = this;
-  const formData = new FormData(form);
-  const id = formData.get('id_produk_iklan');
+      const form = this;
+      const formData = new FormData(form); // Biarkan file ikut otomatis
 
-  // ✅ Ambil array manual
-  const hari = [];
-  form.querySelectorAll('input[name="hari[]"]:checked').forEach(cb => hari.push(cb.value));
+      const id = formData.get('id_produk_iklan');
 
-  const provider = [];
-  form.querySelectorAll('input[name="provider[]"]:checked').forEach(cb => provider.push(cb.value));
+      try {
+        const res = await fetch(`/vendor/produk/update/${id}`, {
+          method: 'POST', // Ubah ke POST karena multer tidak support PUT
+          body: formData
+        });
 
-  // Gabungkan semua data ke objek final
-  const data = {
-    id_produk_iklan: id,
-    nama_produk: formData.get('nama_produk'),
-    deskripsi_produk: formData.get('deskripsi_produk'),
-    harga: formData.get('harga'),
-    status_produk: formData.get('status_produk'),
-    jam_mulai: formData.get('jam_mulai'),
-    jam_selesai: formData.get('jam_selesai'),
-    jenis_target: formData.get('jenis_target'),
-    hari,
-    provider
-  };
+        const result = await res.json();
 
-  try {
-    const res = await fetch(`/vendor/produk/update/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+        if (res.ok) {
+          alert('Produk berhasil diperbarui');
+          location.reload();
+        } else {
+          alert('Gagal: ' + result.message);
+        }
+      } catch (err) {
+        alert('Terjadi error: ' + err.message);
+      }
     });
 
-    const result = await res.json();
 
-    if (res.ok) {
-      alert('Produk berhasil diperbarui');
-      location.reload();
-    } else {
-      alert('Gagal: ' + result.message);
-    }
-  } catch (err) {
-    alert('Terjadi error: ' + err.message);
-  }
-});
+  });
 
+  document.addEventListener("DOMContentLoaded", function () {
+    const radioTable = document.getElementById("tabelRadio");
+    const smsTable = document.getElementById("tabelSMS");
+
+    // Default tampilkan Radio
+    radioTable.style.display = "block";
+    smsTable.style.display = "none";
+    document.getElementById("filterKategori").value = "radio";
+
+    document.getElementById("filterKategori").addEventListener("change", function () {
+      const val = this.value;
+
+      // Tampilkan/hidden berdasarkan pilihan
+      radioTable.style.display = (val === "radio" || val === "semua") ? "block" : "none";
+      smsTable.style.display = (val === "sms" || val === "semua") ? "block" : "none";
+
+      // ⏩ Adjust DataTables layout
+      if (val === "sms" || val === "semua") {
+        if ($.fn.dataTable.isDataTable('#tabelSMSData')) {
+          $('#tabelSMSData').DataTable().columns.adjust().draw();
+        }
+      }
+      if (val === "radio" || val === "semua") {
+        if ($.fn.dataTable.isDataTable('#tabelRadioData')) {
+          $('#tabelRadioData').DataTable().columns.adjust().draw();
+        }
+      }
+    });
+  });
+
+  // Hapus produk radio
+  document.querySelectorAll('.btn-delete-radio').forEach(btn => {
+    btn.addEventListener('click', async function () {
+      const baris = this.closest('tr');
+      const produkId = this.getAttribute("data-id");
+
+
+      const konfirmasi = confirm("Yakin ingin menghapus produk radio ini?");
+      if (!konfirmasi) return;
+
+      try {
+        const res = await fetch(`/vendor/produk/radio/${produkId}`, { method: "DELETE" });
+        const hasil = await res.json();
+
+        if (res.ok) {
+          baris.remove();
+          alert(hasil.message);
+        } else {
+          alert("❌ Gagal: " + hasil.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error saat menghapus.");
+      }
+    });
+  });
+
+  // Hapus produk SMS
+  document.querySelectorAll('.btn-delete-sms').forEach(btn => {
+    btn.addEventListener('click', async function () {
+      const baris = this.closest('tr');
+      const produkId = this.getAttribute("data-id");
+
+
+      const konfirmasi = confirm("Yakin ingin menghapus produk SMS ini?");
+      if (!konfirmasi) return;
+
+      try {
+        const res = await fetch(`/vendor/produk/sms/${produkId}`, { method: "DELETE" });
+        const hasil = await res.json();
+
+        if (res.ok) {
+          baris.remove();
+          alert(hasil.message);
+        } else {
+          alert("❌ Gagal: " + hasil.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error saat menghapus.");
+      }
+    });
+  });
+
+  // tabel CDN
+  $(document).ready(function () {
+    $('#tabelRadioData').DataTable({
+      lengthMenu: [5, 10, 15, 20],
+      language: {
+        search: "Cari:",
+        lengthMenu: "Tampilkan _MENU_ data",
+        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+        paginate: {
+          previous: "Sebelumnya",
+          next: "Berikutnya"
+        },
+        zeroRecords: "Tidak ada produk radio"
+      }
+    });
+
+    $('#tabelSMSData').DataTable({
+      lengthMenu: [5, 10, 15, 20],
+      language: {
+        search: "Cari:",
+        lengthMenu: "Tampilkan _MENU_ data",
+        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+        paginate: {
+          previous: "Sebelumnya",
+          next: "Berikutnya"
+        },
+        zeroRecords: "Tidak ada produk mesangger"
+      }
+    });
   });
 </script>
 
-
-
-<script>
-    document.getElementById("filterKategori").addEventListener("change", function () {
-        const val = this.value;
-        document.getElementById("tabelRadio").style.display = (val === "radio" || val === "semua") ? "block" : "none";
-        document.getElementById("tabelSMS").style.display = (val === "sms" || val === "semua") ? "block" : "none";
-    });
-
-    // Hapus produk radio
-document.querySelectorAll('.btn-delete-radio').forEach(btn => {
-  btn.addEventListener('click', async function () {
-    const baris = this.closest('tr');
-    const produkId = this.getAttribute("data-id");
-
-
-    const konfirmasi = confirm("Yakin ingin menghapus produk radio ini?");
-    if (!konfirmasi) return;
-
-    try {
-      const res = await fetch(`/vendor/produk/radio/${produkId}`, { method: "DELETE" });
-      const hasil = await res.json();
-
-      if (res.ok) {
-        baris.remove();
-        alert(hasil.message);
-      } else {
-        alert("❌ Gagal: " + hasil.message);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error saat menghapus.");
-    }
-  });
-});
-
-// Hapus produk SMS
-document.querySelectorAll('.btn-delete-sms').forEach(btn => {
-  btn.addEventListener('click', async function () {
-    const baris = this.closest('tr');
-   const produkId = this.getAttribute("data-id");
-
-
-    const konfirmasi = confirm("Yakin ingin menghapus produk SMS ini?");
-    if (!konfirmasi) return;
-
-    try {
-      const res = await fetch(`/vendor/produk/sms/${produkId}`, { method: "DELETE" });
-      const hasil = await res.json();
-
-      if (res.ok) {
-        baris.remove();
-        alert(hasil.message);
-      } else {
-        alert("❌ Gagal: " + hasil.message);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error saat menghapus.");
-    }
-  });
-});
 
 </script>

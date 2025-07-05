@@ -8,6 +8,7 @@ import multer from "multer";
 import { error } from "console";
 import ejs from "ejs";
 import puppeteer from "puppeteer";
+import { transporter } from "../../nodemailer.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -120,16 +121,16 @@ export const postTambahProduk = async (req, res) => {
 
       // === KATEGORI: RADIO ===
       if (kategori_id === "1") {
-        const { jam_mulai, jam_selesai, hari_tayang } = req.body;
+        const { jam_mulai, jam_selesai, hari_tayang,slot_penayangan } = req.body;
 
         // Gabungkan semua hari menjadi satu string dipisah koma
         const hariGabung = Array.isArray(hari_tayang) ? hari_tayang.join(",") : hari_tayang;
 
 
         await pool.query(
-          `INSERT INTO jadwal_produk_radio (produk_id, hari, jam_mulai, jam_selesai)
-           VALUES ($1, $2, $3, $4)`,
-          [produkIdBaru, hariGabung, jam_mulai, jam_selesai]
+          `INSERT INTO jadwal_produk_radio (produk_id, hari, jam_mulai, jam_selesai,slot_penayangan)
+           VALUES ($1, $2, $3, $4,$5)`,
+          [produkIdBaru, hariGabung, jam_mulai, jam_selesai,slot_penayangan]
         );
 
       }
@@ -174,6 +175,7 @@ export const getProdukVendor = async (req, res) => {
         jadwal_produk_radio.hari,
         jadwal_produk_radio.jam_mulai,
         jadwal_produk_radio.jam_selesai,
+        jadwal_produk_radio.slot_penayangan,
         detail_produk_sms.provider_yang_di_layani,
         detail_produk_sms.jenis_target
       FROM produk_iklan
@@ -250,15 +252,26 @@ export const deleteProdukSMS = async (req, res) => {
   const id = req.params.id;
 
   try {
+    // ⛔️ Cek apakah produk ini sudah pernah dipesan
+    const cek = await pool.query("SELECT 1 FROM pemesanan WHERE produk_id = $1 LIMIT 1", [id]);
+    if (cek.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Produk tidak bisa dihapus karena sudah pernah dipesan.",
+      });
+    }
+
     await pool.query("BEGIN");
 
-    // Ambil nama file
+    // 🔍 Ambil nama file foto produk
     const result = await pool.query("SELECT photo_produk FROM produk_iklan WHERE id_produk_iklan = $1", [id]);
     const photoFile = result.rows[0]?.photo_produk;
 
+    // 🗑 Hapus detail produk SMS dan produk utama
     await pool.query("DELETE FROM detail_produk_sms WHERE produk_id = $1", [id]);
     await pool.query("DELETE FROM produk_iklan WHERE id_produk_iklan = $1", [id]);
 
+    // 🧹 Hapus file foto jika ada
     if (photoFile) {
       const filePath = path.join("public", "uploads", "produk_img", photoFile);
       if (fs.existsSync(filePath)) {
@@ -276,78 +289,84 @@ export const deleteProdukSMS = async (req, res) => {
 };
 
 export const updateProduk = async (req, res) => {
-  const id = req.params.id;
-
-  const {
-    nama_produk,
-    deskripsi_produk,
-    harga,
-    status_produk,
-    hari,              // array (khusus radio)
-    jam_mulai,         // khusus radio
-    jam_selesai,       // khusus radio
-    provider,          // array (khusus sms)
-    jenis_target       // khusus sms
-  } = req.body;
-
-  // ✅ Normalisasi agar aman meski cuma 1 nilai dikirim
-  const hariArray = Array.isArray(hari) ? hari : hari ? [hari] : [];
-  const providerArray = Array.isArray(provider) ? provider : provider ? [provider] : [];
-  console.log("🛠️ ID Produk:", id);
-  console.log("🛠️ hargaProduk:", harga);
-  console.log("📥 Hari (radio):", hari);
-  console.log("📥 Hari (radio):", hariArray);
-
-  console.log("📥 Jam Mulai:", jam_mulai);
-  console.log("📥 Jam Selesai:", jam_selesai);
-  console.log("📥 Provider (sms):", provider);
-  console.log("📥 Provider (sms):", providerArray);
-  console.log("📥 Jenis Target:", jenis_target);
-  try {
-    await pool.query("BEGIN");
-
-    // Update umum di produk_iklan
-    await pool.query(
-      `UPDATE produk_iklan SET 
-        nama_produk = $1, 
-        deskripsi_produk = $2, 
-        harga = $3, 
-        status_produk = $4 
-      WHERE id_produk_iklan = $5`,
-      [nama_produk, deskripsi_produk, harga, status_produk, id]
-    );
-
-    // Cek kategori produk (radio jika ada entri di jadwal)
-    const cekRadio = await pool.query(`SELECT * FROM jadwal_produk_radio WHERE produk_id = $1`, [id]);
-    const isRadio = cekRadio.rows.length > 0;
-
-    if (isRadio) {
-      const hariGabung = hariArray.join(",");
-      await pool.query(
-        `UPDATE jadwal_produk_radio 
-         SET hari = $1, jam_mulai = $2, jam_selesai = $3 
-         WHERE produk_id = $4`,
-        [hariGabung, jam_mulai, jam_selesai, id]
-      );
-    } else {
-      const providerGabung = providerArray.join(",");
-      await pool.query(
-        `UPDATE detail_produk_sms SET 
-          provider_yang_di_layani = $1, 
-          jenis_target = $2 
-        WHERE produk_id = $3`,
-        [providerGabung, jenis_target, id]
-      );
+  upload(req, res, async function (err) {
+    if (err) {
+      return res.status(500).json({ message: "Gagal upload gambar." });
     }
 
-    await pool.query("COMMIT");
-    res.json({ message: "Produk berhasil diperbarui" });
+    const id = req.params.id;
+    const {
+      nama_produk,
+      deskripsi_produk,
+      harga,
+      status_produk,
+      hari,
+      jam_mulai,
+      jam_selesai,
+      provider,
+      jenis_target,
+      slot_penayangan
+    } = req.body;
 
-  } catch (err) {
-    await pool.query("ROLLBACK");
-    console.error("❌ Error update produk:", err);
-    res.status(500).json({ message: "Gagal memperbarui produk" });
-  }
+    const hariArray = Array.isArray(hari) ? hari : hari ? [hari] : [];
+    const providerArray = Array.isArray(provider) ? provider : provider ? [provider] : [];
+
+    try {
+      await pool.query("BEGIN");
+
+      // 🖼️ kalau ada gambar baru, update; kalau tidak, tetap pakai yang lama
+      let queryProduk = `
+        UPDATE produk_iklan SET 
+          nama_produk = $1, 
+          deskripsi_produk = $2, 
+          harga = $3, 
+          status_produk = $4
+      `;
+      const params = [nama_produk, deskripsi_produk, harga, status_produk];
+
+      if (req.file) {
+        queryProduk += `, photo_produk = $5`;
+        params.push(req.file.filename);
+        queryProduk += ` WHERE id_produk_iklan = $6`;
+        params.push(id);
+      } else {
+        queryProduk += ` WHERE id_produk_iklan = $5`;
+        params.push(id);
+      }
+
+      await pool.query(queryProduk, params);
+
+      // cek tipe kategori
+      const cekRadio = await pool.query(`SELECT * FROM jadwal_produk_radio WHERE produk_id = $1`, [id]);
+      const isRadio = cekRadio.rows.length > 0;
+
+      if (isRadio) {
+        const hariGabung = hariArray.join(",");
+        await pool.query(
+          `UPDATE jadwal_produk_radio 
+           SET hari = $1, jam_mulai = $2, jam_selesai = $3 ,slot_penayangan = $4 
+           WHERE produk_id = $5`,
+          [hariGabung, jam_mulai, jam_selesai,slot_penayangan ,id]
+        );
+      } else {
+        const providerGabung = providerArray.join(",");
+        await pool.query(
+          `UPDATE detail_produk_sms SET 
+            provider_yang_di_layani = $1, 
+            jenis_target = $2 
+          WHERE produk_id = $3`,
+          [providerGabung, jenis_target, id]
+        );
+      }
+
+      await pool.query("COMMIT");
+      res.json({ message: "Produk berhasil diperbarui" });
+    } catch (err) {
+      await pool.query("ROLLBACK");
+      console.error("❌ Error update produk:", err);
+      res.status(500).json({ message: "Gagal memperbarui produk" });
+    }
+  });
 };
 
 
@@ -356,39 +375,87 @@ export const getOnProgressVendor = async (req, res) => {
     const vendorId = req.user.id;
 
     const hasil = await pool.query(`
-      SELECT
-  p.id_pemesanan,
-  p.jumlah_pemesanan,
-  p.tanggal_pemesanan,
-  p.status_pemesanan,
-  u.full_name, u.nomor_tlp, u.email,
-  u.photo_user,
-  prod.nama_produk, prod.harga, prod.photo_produk, dp.jenis_target, 
-  kat.tipe_kategori,
-  dps.teks_iklan_sms,
-  dps.tanggal_pengiriman_start, dps.tanggal_pengiriman_end, dps.jam_pengiriman,
-  dps.masking, dps.target_umur, dps.tipe_device_penerima,
-  dps.nomor_penerima_bukti_tayang, dps.file_foto_mms,
-  dps.file_nomor_sms_pdf, dps.alamat_target_sms, dps.dps_latitude, dps.dps_longitude
-      FROM pemesanan p
-      JOIN produk_iklan prod ON prod.id_produk_iklan = p.produk_id
-      JOIN detail_pemesanan_sms dps ON dps.id_pemesanan = p.id_pemesanan
-      JOIN users u ON u.id = p.user_id
-      JOIN kategori kat ON kat.kategori_id = prod.kategori_id
-      JOIN detail_produk_sms dp ON dp.produk_id = prod.id_produk_iklan
-      WHERE prod.vendor_id = $1
-        AND LOWER(p.status_pemesanan) != 'dibatalkan'
-      ORDER BY p.tanggal_pemesanan DESC
-    `, [vendorId]);
+    SELECT
+    p.id_pemesanan,
+    p.jumlah_pemesanan,
+    p.tanggal_pemesanan,
+    p.status_pemesanan,
 
-    // console.log(`✅ ${hasil.rowCount} pesanan ditemukan untuk vendor ${vendorId}`);
-    // console.table(hasil.rows.map(p => ({
-    //   id: p.id_pemesanan,
-    //   produk: p.nama_produk,
-    //   status: p.status_pemesanan,
-    //   klien: p.nama_klien
-    // })));
+    u.full_name, u.nomor_tlp, u.email, u.photo_user,
 
+    prod.nama_produk, prod.harga, prod.photo_produk,
+    kat.tipe_kategori,
+
+    -- SMS
+    dp_sms.jenis_target AS sms_jenis_target,
+    dps.masking, dps.target_umur, dps.tipe_device_penerima,
+    dps.teks_iklan_sms, dps.tanggal_pengiriman_start, dps.tanggal_pengiriman_end, dps.jam_pengiriman,
+    dps.nomor_penerima_bukti_tayang, dps.file_foto_mms,
+    dps.file_nomor_sms_pdf, dps.alamat_target_sms, dps.dps_latitude, dps.dps_longitude,
+
+    -- RADIO
+    dpr.tanggal_tayang_pemesanan_radio,
+    dpr.jam_tayang_pemesanan_radio,
+    fpr.file_script,
+    fpr.file_audio,
+
+    -- Tambahkan ini DI SINI
+    (
+      SELECT json_agg(json_build_object(
+        'tanggal', tanggal_tayang_pemesanan_radio,
+        'jam', jam_tayang_pemesanan_radio
+      )) FROM detail_pemesanan_radio
+      WHERE id_pemesanan = p.id_pemesanan
+    ) AS slot_penayangan_radio
+
+  FROM pemesanan p
+  JOIN produk_iklan prod ON prod.id_produk_iklan = p.produk_id
+  JOIN users u ON u.id = p.user_id
+  JOIN kategori kat ON kat.kategori_id = prod.kategori_id
+
+  LEFT JOIN detail_produk_sms dp_sms ON dp_sms.produk_id = prod.id_produk_iklan
+  LEFT JOIN detail_pemesanan_sms dps ON dps.id_pemesanan = p.id_pemesanan
+
+  LEFT JOIN (
+    SELECT DISTINCT ON (id_pemesanan) id_pemesanan, tanggal_tayang_pemesanan_radio, jam_tayang_pemesanan_radio
+    FROM detail_pemesanan_radio
+    ORDER BY id_pemesanan, tanggal_tayang_pemesanan_radio ASC
+  ) dpr ON dpr.id_pemesanan = p.id_pemesanan
+
+  LEFT JOIN file_pemesanan_radio fpr ON fpr.id_pemesanan = p.id_pemesanan
+
+  WHERE prod.vendor_id = $1
+    AND LOWER(p.status_pemesanan) != 'dibatalkan'
+  ORDER BY p.tanggal_pemesanan DESC
+`, [vendorId]);
+
+    console.log(`✅ ${hasil.rowCount} pemesanan ditemukan untuk vendor ID ${vendorId}`);
+    console.table(hasil.rows.map(p => ({
+      id: p.id_pemesanan,
+      produk: p.nama_produk,
+      kategori: p.tipe_kategori,
+      status: p.status_pemesanan,
+      jenis_target: p.sms_jenis_target,
+      tanggal: p.tanggal_pemesanan,
+    })));
+
+hasil.rows.forEach((p, index) => {
+  if (p.slot_penayangan_radio && Array.isArray(p.slot_penayangan_radio)) {
+    console.log(`📅 Pemesanan ID ${p.id_pemesanan} - Slot Penayangan:`);
+
+    p.slot_penayangan = p.slot_penayangan_radio.map((item) => {
+      const jam = item.jam?.substring(0, 5); // "01:53"
+      console.log(`- Tanggal: ${item.tanggal}, Jam: ${jam}`);
+      return {
+        title: `${jam} Tayang`,
+        start: item.tanggal
+      };
+    });
+  } else {
+    console.log(`⚠️ Pemesanan ID ${p.id_pemesanan} tidak punya data slot penayangan`);
+    p.slot_penayangan = [];
+  }
+});
     res.render("dashVendor/dashboardVendor", {
       data: hasil.rows,
       partial: "dalam_progress",
@@ -401,7 +468,6 @@ export const getOnProgressVendor = async (req, res) => {
     res.status(500).send("Terjadi kesalahan saat mengambil data pemesanan vendor.");
   }
 };
-
 
 
 export const updateStatusPemesanan = async (req, res) => {
@@ -534,3 +600,90 @@ export const generateBuktiPDF = async (req, res) => {
   }
 };
 
+export const forgotPasswordVendor = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email wajib diisi.' });
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM users_vendor WHERE email_vendor = $1`,
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Email tidak ditemukan untuk akun internal.' });
+    }
+
+    const user = result.rows[0];
+
+   const token = jwt.sign(
+  { id: user.id_vendor, email: user.email_vendor }, 
+  process.env.JWT_SECRET,
+  { expiresIn: '1d' }
+)
+
+    const resetURL = `http://localhost:3000/vendor/reset-password?token=${token}`; // ganti saat hosting
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: user.email_vendor,
+      subject: 'Reset Password Akun Internal',
+      html: `
+        <h3>Reset Password Akun</h3>
+        <p>Halo ${user.nama_lengkap || 'Pengguna'},</p>
+        <p>Kami menerima permintaan untuk mereset password Anda.</p>
+        <p>Silakan klik link berikut untuk mengatur ulang password Anda:</p>
+        <a href="${resetURL}">${resetURL}</a>
+        <br><br>
+        <p>Link ini berlaku selama 1 hari.</p>
+        <p>Jika Anda tidak merasa melakukan permintaan ini, abaikan email ini.</p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ success: true, message: 'Link reset password telah dikirim ke email.' });
+
+  } catch (error) {
+    console.error('❌ Error forgotPasswordInternal:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan saat memproses permintaan.' });
+  }
+};
+
+export const vertifikasi_vendor = async (req, res) => {
+  const { token } = req.query;
+
+  console.log("🔑 Token diterima:", token);
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ Token berhasil diverifikasi:", decoded);
+
+    const { id } = decoded;
+    console.log("🆔 ID dari token:", id);
+
+    const updateRes = await pool.query(
+      "UPDATE users_vendor SET vertifikasi_vendor = 'sudah terverifikasi' WHERE id_vendor = $1 RETURNING *",
+      [id]
+    );
+
+    if (updateRes.rowCount === 0) {
+      console.warn("⚠️ Tidak ada user yang diupdate. ID mungkin salah atau tidak ditemukan.");
+      return res.status(404).send("Pengguna tidak ditemukan.");
+    }
+
+    console.log("📝 Data vendor setelah update:", updateRes.rows[0]);
+
+    // Tampilkan form atur password
+    res.render('Email/setPassword_dan_Konfirmasi_email', {
+      token: token
+    });
+
+  } catch (err) {
+    console.error("❌ Error verifikasi token vendor:", err);
+    res.status(400).send("❌ Link tidak valid atau sudah kadaluarsa.");
+  }
+};

@@ -29,3 +29,18 @@ export const pengaturan_akun = (req, res) => {
   res.render("web/sudah_login/pengaturan_akun", {
   });
 };
+
+export const register_akun = (req, res) => {
+  res.render("register_user", {
+  });
+};
+
+export const Produk_radio = (req, res) => {
+  res.render("web/sudah_login/view_detail_produk_radio", {
+  });
+};
+
+export const Pemenesanan_radio = (req, res) => {
+  res.render("web/sudah_login/produk_radio_pesan", {
+  });
+};

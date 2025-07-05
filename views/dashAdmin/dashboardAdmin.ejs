@@ -15,7 +15,11 @@
 </div>
 
   <div id="content">
-    <%- include(partial, { error: error || {}, data: data || {} }) %>
+    <%- include(partial, locals) %>
+
+<!-- komentar # -->
+    <%# include(partial, { error: error || {}, data: data || {} }) %> 
+
   </div>
 
 </body>

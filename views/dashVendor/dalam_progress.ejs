@@ -140,7 +140,6 @@
       padding: 6px 10px !important;
     }
   }
-  
 </style>
 
 <body class="bg-light">
@@ -154,6 +153,7 @@
           <thead>
             <tr>
               <th>Nama Produk</th>
+              <th>Kategori</th>
               <th>Jumlah</th>
               <th>Tanggal</th>
               <th>Pemesan</th>
@@ -173,10 +173,16 @@
       teks: p.teks_iklan_sms || "-",
       nomor_penerima_bukti_tayang: p.nomor_penerima_bukti_tayang || "-",
       file_nomor_sms_pdf: p.file_nomor_sms_pdf || null,
+      tipe_kategori: p.tipe_kategori,
+      file_script : p.file_script,
+      file_audio : p.file_audio,
       file_foto_mms: p.file_foto_mms || null
     }) %>'>
                 <td>
                   <%= p.nama_produk %>
+                </td>
+                <td>
+                  <%= p.tipe_kategori %>
                 </td>
                 <td>
                   <%= p.jumlah_pemesanan %>
@@ -209,9 +215,9 @@
               <% }) %>
           </tbody>
         </table>
-        
+
       </div>
-      
+
 
       <!-- KANAN -->
       <div class="col-lg-4">
@@ -225,318 +231,479 @@
     </div>
   </div>
 
-  <% data.forEach((p) => { %>
-  <!-- existing <tr> -->
-<% }) %>
+  <% data.forEach((p)=> { %>
+    <!-- existing <tr> -->
+    <% }) %>
 
-<!-- MODAL BUKTI PEMESANAN -->
-<% data.forEach((p) => { 
-  const tglStart = new Date(p.tanggal_pengiriman_start);
-  const tglEnd = new Date(p.tanggal_pengiriman_end);
-  const sameDate = tglStart.toDateString() === tglEnd.toDateString();
-  const options = { day: 'numeric', month: 'long', year: 'numeric' };
-%>
-<div class="modal fade" id="modalBuktiPemesanan-<%= p.id_pemesanan %>" tabindex="-1" aria-labelledby="modalTitle<%= p.id_pemesanan %>" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle<%= p.id_pemesanan %>">Bukti Pemesanan</h5>
-        <a href="#" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
-       <i class="bi bi-download"></i> Download Bukti Pemesanan (PDF)
-        </a>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
-      <div class="modal-body">
-        <div class="container-detail">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <img src="/foto/logo_ngiklanmurah.png" style="height: 60px;" alt="Logo-modal">
-            <div class="text-end">
-              <h5 class="mb-1">BUKTI PEMESANAN</h5>
-              <small><strong>NOMOR PEMESANAN:</strong> <%= p.id_pemesanan %></small>
+      <!-- MODAL BUKTI PEMESANAN -->
+      <% data.forEach((p)=> {
+        const tglStart = new Date(p.tanggal_pengiriman_start);
+        const tglEnd = new Date(p.tanggal_pengiriman_end);
+        const sameDate = tglStart.toDateString() === tglEnd.toDateString();
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        %>
+        <div class="modal fade" id="modalBuktiPemesanan-<%= p.id_pemesanan %>" tabindex="-1"
+          aria-labelledby="modalTitle<%= p.id_pemesanan %>" aria-hidden="true">
+          <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle<%= p.id_pemesanan %>">Bukti Pemesanan</h5>
+                <a href="#" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                  <i class="bi bi-download"></i> Download Bukti Pemesanan (PDF)
+                </a>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+              </div>
+              <div class="modal-body">
+                <div class="container-detail">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <img src="/foto/logo_ngiklanmurah.png" style="height: 60px;" alt="Logo-modal">
+                    <div class="text-end">
+                      <h5 class="mb-1">BUKTI PEMESANAN</h5>
+                      <small><strong>NOMOR PEMESANAN:</strong>
+                        <%= p.id_pemesanan %>
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <strong>DITERBITKAN ATAS</strong><br>
+                      Nama Toko: <strong>
+                        <%= p.nama_toko_vendor %>
+                      </strong>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                      <strong>UNTUK</strong><br>
+                      Pembeli: <strong>
+                        <%= p.full_name %>
+                      </strong><br>
+                      Tanggal Pemesanan: <%= new Date(p.tanggal_pemesanan).toLocaleDateString("id-ID", options) %><br>
+                        Nomor Tlp: <%= p.nomor_tlp %><br>
+                          Email: <%= p.email %>
+                    </div>
+                  </div>
+
+                  <table class="table table-bordered small mb-4">
+                    <thead class="table-light">
+                      <tr>
+                        <th>INFO PRODUK</th>
+                        <th>Jenis</th>
+                        <th>Jumlah</th>
+                        <th>Harga Satuan</th>
+                        <th>Total Harga</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <img src="/uploads/produk_img/<%= p.photo_produk %>" class="img-fluid"
+                            style="max-height: 80px;"><br>
+                          <strong>
+                            <%= p.nama_produk %>
+                          </strong>
+                        </td>
+                        <td>
+                          <%= p.tipe_kategori %><br>
+                            <%= p.jenis_target %>
+                        </td>
+                        <td>
+                          <%= p.jumlah_pemesanan %>
+                        </td>
+                        <td>Rp<%= p.harga?.toLocaleString("id-ID") %>
+                        </td>
+                        <td>Rp<%= (p.harga * p.jumlah_pemesanan).toLocaleString("id-ID") %>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <!-- DETAIL PEMESANAN SMS -->
+                  <% if (p.tipe_kategori?.toLowerCase()==='messaging' ) { %>
+                    <table class="table table-bordered small mb-4">
+                      <thead class="table-light text-center">
+                        <tr>
+                          <th colspan="2">DETAIL PEMESANAN</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Nomor Penerima Bukti Tayang</td>
+                          <td>
+                            <%= p.nomor_penerima_bukti_tayang || "-" %>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Masking</td>
+                          <td>
+                            <%= p.masking || "-" %>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Target Device</td>
+                          <td>
+                            <%= p.tipe_device_penerima || "-" %>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Target Umur</td>
+                          <td>
+                            <%= p.target_umur || "-" %>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Tanggal Pengiriman</td>
+                          <td>
+                            <% if (sameDate) { %>
+                              <%= tglStart.toLocaleDateString("id-ID", options) %>
+                                <% } else { %>
+                                  <%= tglStart.toLocaleDateString("id-ID", options) %> s/d <%=
+                                      tglEnd.toLocaleDateString("id-ID", options) %>
+                                      <% } %>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Jam Pengiriman</td>
+                          <td>
+                            <%= p.jam_pengiriman %>
+                          </td>
+                        </tr>
+                        <% if (p.sms_jenis_target && !p.sms_jenis_target.toLowerCase().includes('lba')) { %>
+                          <tr>
+                            <td>File Nomor:</td>
+                            <td><a href="/uploads/sms_files/<%= p.file_nomor_sms_pdf %>" download
+                                class="btn btn-sm btn-outline-primary mt-2 w-100  custom-btn-download"><i
+                                  class="bi bi-download me-1 " style="font-size: 13px;"></i> Download File Nomor</a>
+                            </td>
+                          </tr>
+                          <% } %>
+                            <tr>
+                              <td>Teks Iklan</td>
+                              <td>
+                                <%= p.teks_iklan_sms %>
+                              </td>
+                            </tr>
+                      </tbody>
+                    </table>
+                    <% } %>
+
+                      <% if (p.sms_jenis_target?.toLowerCase().includes('lba')) { %>
+                        <div class="mb-3">
+                          <strong>Lokasi Pengiriman:</strong><br>
+                          Latitude: <%= p.dps_latitude %>, Longitude: <%= p.dps_longitude %><br>
+                              Alamat: <%= p.alamat_target_sms %>
+                                <div id="map-<%= p.id_pemesanan %>" data-lat="<%= p.dps_latitude %>"
+                                  data-lng="<%= p.dps_longitude %>" style="height: 300px; margin-top: 10px;"></div>
+                        </div>
+                        <% } %>
+
+                          <% if (p.sms_jenis_target?.toLowerCase().includes('mms')){ %>
+                            <div class="mb-3">
+                              <strong>Foto MMS:</strong><br>
+                              <img src="/uploads/sms_files/<%= p.file_foto_mms %>" class="img-fluid"
+                                style="max-width: 200px; border: 1px solid #ccc;">
+                              <br>
+                              <a href="/uploads/sms_files/<%= p.file_foto_mms %>" download
+                                class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="bi bi-download"></i> Download Foto MMS
+                              </a>
+                            </div>
+                            <% } %>
+
+
+                              <!-- Detail Radio -->
+                              <% if (p.tipe_kategori?.toLowerCase()==='radio' ) { %>
+                                <div class="mb-4">
+                                  <h6 class="fw-semibold">Jadwal Penayangan</h6>
+                                  <div id="calendar-<%= p.id_pemesanan %>" class="mb-3" style="max-width: 800px;"></div>
+                                  <small>
+                                    <span
+                                      style="display:inline-block;width:12px;height:12px;background:#3b82f6;margin-right:4px;"></span>
+                                    Hari Penayangan
+                                    &nbsp;&nbsp;
+                                  </small>
+
+                                </div>
+                                <!-- calender -->
+                                <script>
+                                  const modalId = 'modalBuktiPemesanan-<%= p.id_pemesanan %>';
+                                  const calendarId = 'calendar-<%= p.id_pemesanan %>';
+
+
+
+                                  const modalElement = document.getElementById(modalId);
+                                  if (modalElement) {
+                                    modalElement.addEventListener('shown.bs.modal', function () {
+                                      const calendarEl = document.getElementById(calendarId);
+                                      if (calendarEl && !calendarEl.dataset.rendered) {
+                                        const events = <%- JSON.stringify(p.slot_penayangan || []) %>;
+                                        const initialDate = events.length > 0 ? events[0].start : new Date().toISOString().slice(0, 10);
+
+                                        const calendar = new FullCalendar.Calendar(calendarEl, {
+                                          initialView: 'dayGridMonth',
+                                          locale: 'id',
+                                          initialDate: initialDate, // ⬅️ Tampilkan mulai dari tanggal awal
+                                          height: 400,
+                                          buttonText: {
+                                            today: 'Hari Ini' // 🔘 Ganti tulisan "today"
+                                          },
+                                          events: events,
+                                          eventContent: function (arg) {
+                                            return { html: `<div style="color:white; font-size:11px;">• ${arg.event.title}</div>` };
+                                          }
+                                        });
+                                        calendar.render();
+                                        calendarEl.dataset.rendered = 'true'; // supaya tidak render dua kali
+                                      }
+                                    });
+                                  }
+                                </script>
+
+                                <div class="mb-3">
+                                  <h6 class="fw-semibold">Script Iklan (PDF)</h6>
+                                  <% if (p.file_script) { %>
+                                    <a href="/uploads/file_iklan/<%= p.file_script %>" target="_blank"
+                                      class="btn btn-sm btn-outline-primary">
+                                      <i class="bi bi-download"></i> Download Script
+                                    </a>
+                                    <% } else { %>
+                                      <p class="text-muted">Belum ada file script</p>
+                                      <% } %>
+                                </div>
+
+                                <div class="mb-3">
+                                  <h6 class="fw-semibold">Audio Iklan</h6>
+                                  <% if (p.file_audio) { %>
+                                    <audio controls>
+                                      <source src="/uploads/file_iklan/<%= p.file_audio %>" type="audio/mpeg">
+                                      Browser Anda tidak mendukung audio player.
+                                    </audio>
+                                    <br>
+                                    <a href="/uploads/file_iklan/<%= p.file_audio %>" download
+                                      class="btn btn-sm btn-outline-primary mt-2">
+                                      <i class="bi bi-download"></i> Download Audio
+                                    </a>
+                                    <% } else { %>
+                                      <p class="text-muted">Belum ada audio iklan</p>
+                                      <% } %>
+                                </div>
+                                <% } %>
+
+                                  <div class="footer gray mt-4 small text-center text-muted">
+                                    Invoice ini sah dan diproses oleh komputer.<br>
+                                    Hubungi kami jika membutuhkan bantuan lebih lanjut di.<br>
+                                    <a href="#">placeholder@email.com</a>
+                                  </div>
+
+
+                </div>
+              </div>
+              <div class="modal-footer d-flex justify-content-between align-items-center flex-wrap">
+                <div class="fw-semibold text-muted">Aksi:</div>
+                <div class="d-flex gap-2 flex-wrap">
+                  <button class="btn btn-outline-success btn-sm" onclick="handleSetujui('<%= p.id_pemesanan %>')">
+                    <i class="bi bi-check-circle me-1"></i> Setujui Pemesanan
+                  </button>
+                  <button class="btn btn-outline-warning btn-sm" onclick="handleRevisi('<%= p.id_pemesanan %>')">
+                    <i class="bi bi-pencil-square me-1"></i> Minta Penyesuaian
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm" onclick="handleTolak('<%= p.id_pemesanan %>')">
+                    <i class="bi bi-x-circle me-1"></i> Tolak Pemesanan
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <strong>DITERBITKAN ATAS</strong><br>
-              Nama Toko: <strong><%= p.nama_toko_vendor %></strong>
-            </div>
-            <div class="col-md-6 text-md-end">
-              <strong>UNTUK</strong><br>
-              Pembeli: <strong><%= p.full_name %></strong><br>
-              Tanggal Pemesanan: <%= new Date(p.tanggal_pemesanan).toLocaleDateString("id-ID", options) %><br>
-              Nomor Tlp: <%= p.nomor_tlp %><br>
-              Email: <%= p.email %>
-            </div>
-          </div>
 
-          <table class="table table-bordered small mb-4">
-            <thead class="table-light">
-              <tr>
-                <th>INFO PRODUK</th>
-                <th>Jenis</th>
-                <th>Jumlah</th>
-                <th>Harga Satuan</th>
-                <th>Total Harga</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <img src="/uploads/produk_img/<%= p.photo_produk %>" class="img-fluid" style="max-height: 80px;"><br>
-                  <strong><%= p.nama_produk %></strong>
-                </td>
-                <td><%= p.tipe_kategori %><br><%= p.jenis_target %></td>
-                <td><%= p.jumlah_pemesanan %></td>
-                <td>Rp<%= p.harga?.toLocaleString("id-ID") %></td>
-                <td>Rp<%= (p.harga * p.jumlah_pemesanan).toLocaleString("id-ID") %></td>
-              </tr>
-            </tbody>
-          </table>
-
-          <!-- DETAIL PEMESANAN -->
-          <table class="table table-bordered small mb-4">
-            <thead class="table-light text-center">
-              <tr><th colspan="2">DETAIL PEMESANAN</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Nomor Penerima Bukti Tayang</td><td><%= p.nomor_penerima_bukti_tayang || "-" %></td></tr>
-              <tr><td>Masking</td><td><%= p.masking || "-" %></td></tr>
-              <tr><td>Target Device</td><td><%= p.tipe_device_penerima || "-" %></td></tr>
-              <tr><td>Target Umur</td><td><%= p.target_umur || "-" %></td></tr>
-              <tr>
-                <td>Tanggal Pengiriman</td>
-                <td>
-                  <% if (sameDate) { %>
-                    <%= tglStart.toLocaleDateString("id-ID", options) %>
-                  <% } else { %>
-                    <%= tglStart.toLocaleDateString("id-ID", options) %> s/d <%= tglEnd.toLocaleDateString("id-ID", options) %>
-                  <% } %>
-                </td>
-              </tr>
-              <tr><td>Jam Pengiriman</td><td><%= p.jam_pengiriman %></td></tr>
-              <%  if (!p.jenis_target.toLowerCase().includes('lba')) { %>
-              <tr><td>File Nomor:</td><td><a href="/uploads/sms_files/<%= p.file_nomor_sms_pdf %>"  download class="btn btn-sm btn-outline-primary mt-2 w-100  custom-btn-download"><i class="bi bi-download me-1 "style="font-size: 13px;"></i> Download File Nomor</a></td></tr>
-                <% } %>
-              <tr><td>Teks Iklan</td><td><%= p.teks_iklan_sms %></td></tr>
-            </tbody>
-          </table>
-
-          <% if (p.jenis_target?.toLowerCase().includes('lba')) { %>
-            <div class="mb-3">
-              <strong>Lokasi Pengiriman:</strong><br>
-              Latitude: <%= p.dps_latitude %>, Longitude: <%= p.dps_longitude %><br>
-              Alamat: <%= p.alamat_target_sms %>
-              <div id="map-<%= p.id_pemesanan %>" data-lat="<%= p.dps_latitude %>" data-lng="<%= p.dps_longitude %>" style="height: 300px; margin-top: 10px;"></div>
-            </div>
-          <% } %>
-
-<% if (p.jenis_target?.toLowerCase().includes('mms')){ %>
-  <div class="mb-3">
-    <strong>Foto MMS:</strong><br>
-    <img src="/uploads/sms_files/<%= p.file_foto_mms %>" class="img-fluid" style="max-width: 200px; border: 1px solid #ccc;">
-    <br>
-     <a href="/uploads/sms_files/<%= p.file_foto_mms %>" download class="btn btn-sm btn-outline-primary mt-2">
-    <i class="bi bi-download"></i> Download Foto MMS
-  </a>
-  </div>
-<% } %>
-
-
-
-          <div class="footer gray mt-4 small text-center text-muted">
-            Invoice ini sah dan diproses oleh komputer.<br>
-            Hubungi kami jika membutuhkan bantuan lebih lanjut di.<br>
-            <a href="#">placeholder@email.com</a>
-          </div>
-
-          
         </div>
-      </div>
-<div class="modal-footer d-flex justify-content-between align-items-center flex-wrap">
-  <div class="fw-semibold text-muted">Aksi:</div>
-  <div class="d-flex gap-2 flex-wrap">
-    <button class="btn btn-outline-success btn-sm" onclick="handleSetujui('<%= p.id_pemesanan %>')">
-      <i class="bi bi-check-circle me-1"></i> Setujui Pemesanan
-    </button>
-    <button class="btn btn-outline-warning btn-sm" onclick="handleRevisi('<%= p.id_pemesanan %>')">
-      <i class="bi bi-pencil-square me-1"></i> Minta Penyesuaian
-    </button>
-    <button class="btn btn-outline-danger btn-sm" onclick="handleTolak('<%= p.id_pemesanan %>')">
-      <i class="bi bi-x-circle me-1"></i> Tolak Pemesanan
-    </button>
-  </div>
-</div>
+        <% }) %>
+
+
+
+          <!-- Bootstrap Icons -->
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+          <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initMap"></script>
+
+          <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
+          <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+
+          <!-- detail Mesangging -->
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const detailBox = document.getElementById("detailPemesananKanan");
+              const kontenBox = document.getElementById("konten-detail-kanan");
+
+              document.querySelectorAll(".baris-pemesanan").forEach(row => {
+                row.addEventListener("click", function () {
+                  // Hapus status 'active' dari semua baris
+                  document.querySelectorAll(".baris-pemesanan").forEach(r => r.classList.remove("active"));
+                  this.classList.add("active");
+
+                  const data = JSON.parse(this.dataset.detail);
+
+                  // Format tanggal pengiriman
+                  const labelTanggal = (data.tglStart === data.tglEnd)
+                    ? data.tglStart
+                    : `${data.tglStart} s/d ${data.tglEnd}`;
+
+                  // Isi detail HTML
+                  const tipe = data.tipe_kategori?.toLowerCase();
+
+                  let isiHTML = `
+  <img src="/uploads/produk_img/${data.foto}" class="img-fluid rounded mb-3" style="max-width: 100%;">
+`;
+
+                  if (tipe === 'radio') {
+                    isiHTML += `
+    <div class="table-responsive">
+      <table class="table table-bordered small mb-0">
+        <tbody>
+          <tr><th scope="row">Tanggal Tayang pertama</th><td>${data.tglStart}</td></tr>
+          <tr><th scope="row">Jam Tayang</th><td>${data.jam}</td></tr>
+        </tbody>
+      </table>
     </div>
+    <div class="d-flex justify-content-between gap-2 mt-3">
+    <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
+      <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
+    </a>
+    ${data.status === 'menunggu bukti tayang' ? `
+      <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
+        <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
+      </a>
+    ` : ''}
   </div>
-</div>
-<% }) %>
+  `;
+                  } else {
+                    const labelTanggal = (data.tglStart === data.tglEnd) ? data.tglStart : `${data.tglStart} s/d ${data.tglEnd}`;
+                    isiHTML += `
+    <div class="table-responsive">
+      <table class="table table-bordered small mb-0">
+        <tbody>
+          <tr><th scope="row">Masking</th><td>${data.masking}</td></tr>
+          <tr><th scope="row">No Penerima Bukti Tayang</th><td>${data.nomor_penerima_bukti_tayang || "-"}</td></tr>
+          <tr><th scope="row">Tanggal Pengiriman</th><td>${labelTanggal}</td></tr>
+          <tr><th scope="row">Jam Pengiriman</th><td>${data.jam}</td></tr>
+          <tr><th scope="row">Teks Iklan</th><td>${data.teks}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between gap-2 mt-3">
+    <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
+      <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
+    </a>
+    ${data.status === 'menunggu bukti tayang' ? `
+      <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
+        <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
+      </a>
+    ` : ''}
+  </div>
+  `;
+                  }
+
+                  // <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
+                  //             <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
+                  //           </a>
+
+                  kontenBox.innerHTML = isiHTML;
+                  detailBox.classList.remove("d-none");
+                });
+              });
+            });
+          </script>
+
+          <script>
+            function initMap() {
+              document.querySelectorAll('[id^="map-"]').forEach(mapEl => {
+                const lat = parseFloat(mapEl.dataset.lat);
+                const lng = parseFloat(mapEl.dataset.lng);
+                const lokasi = { lat, lng };
+
+                const map = new google.maps.Map(mapEl, {
+                  zoom: 17,
+                  center: lokasi
+                });
+
+                new google.maps.Marker({ position: lokasi, map });
+              });
+            }
+          </script>
+
+          <script>
+            function updateStatus(id, status, note = "", callback) {
+              const payload = { status };
+              if (note) payload.note = note;
+
+              fetch(`/vendor/pemesanan/${id}/status`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              })
+                .then(async (res) => {
+                  const data = await res.json();
+
+                  if (!res.ok) {
+                    throw new Error(data.message || "Terjadi kesalahan.");
+                  }
+
+                  alert(data.message || "Status diperbarui.");
+                  if (callback) callback();
+                })
+                .catch((err) => {
+                  alert(err.message || "Gagal mengubah status.");
+                  console.error(err);
+                });
+            }
+
+
+            function handleSetujui(id) {
+              if (confirm("Yakin ingin menyetujui pemesanan ini?")) {
+                updateStatus(id, "Menunggu Pembayaran", "", () => {
+                  const row = document.querySelector(`.baris-pemesanan.active`);
+                  if (!row) return;
+
+                  const detail = JSON.parse(row.dataset.detail);
 
 
 
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initMap"></script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const detailBox = document.getElementById("detailPemesananKanan");
-      const kontenBox = document.getElementById("konten-detail-kanan");
-
-      document.querySelectorAll(".baris-pemesanan").forEach(row => {
-        row.addEventListener("click", function () {
-          // Hapus status 'active' dari semua baris
-          document.querySelectorAll(".baris-pemesanan").forEach(r => r.classList.remove("active"));
-          this.classList.add("active");
-
-          const data = JSON.parse(this.dataset.detail);
-
-          // Format tanggal pengiriman
-          const labelTanggal = (data.tglStart === data.tglEnd)
-            ? data.tglStart
-            : `${data.tglStart} s/d ${data.tglEnd}`;
-
-          // Isi detail HTML
-          const isiHTML = `
-          <img src="/uploads/produk_img/${data.foto}" class="img-fluid rounded mb-3" style="max-width: 100%;">
-          <div class="table-responsive">
-            <table class="table table-bordered small mb-0">
-              <tbody>
-                <tr>
-                  <th scope="row">Masking</th>
-                  <td>${data.masking}</td>
-                </tr>
-                <tr>
-                  <th scope="row">No Penerima Bukti Tayang</th>
-                  <td>${data.nomor_penerima_bukti_tayang || "-"}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Tanggal Pengiriman</th>
-                  <td>${labelTanggal}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Jam Pengiriman</th>
-                  <td>${data.jam}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Teks Iklan</th>
-                  <td>${data.teks}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="d-flex justify-content-between gap-2">
-            <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
-              <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
-            </a>
-            ${data.status === 'dalam pengerjaan' ? `
-            <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
-            <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
-            </a>
-          ` : ''}
-          </div>
-        `;
-  // <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
-  //             <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
-  //           </a>
-
-          kontenBox.innerHTML = isiHTML;
-          detailBox.classList.remove("d-none");
-        });
-      });
-    });
-  </script>
-
-  <script>
-  function initMap() {
-    document.querySelectorAll('[id^="map-"]').forEach(mapEl => {
-      const lat = parseFloat(mapEl.dataset.lat);
-      const lng = parseFloat(mapEl.dataset.lng);
-      const lokasi = { lat, lng };
-
-      const map = new google.maps.Map(mapEl, {
-        zoom: 17,
-        center: lokasi
-      });
-
-      new google.maps.Marker({ position: lokasi, map });
-    });
-  }
-</script>
-
-<script>
-function updateStatus(id, status, note = "", callback) {
-  const payload = { status };
-  if (note) payload.note = note;
-
-  fetch(`/vendor/pemesanan/${id}/status`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  })
-    .then(async (res) => {
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Terjadi kesalahan.");
-      }
-
-      alert(data.message || "Status diperbarui.");
-      if (callback) callback();
-    })
-    .catch((err) => {
-      alert(err.message || "Gagal mengubah status.");
-      console.error(err);
-    });
-}
-
-
-function handleSetujui(id) {
-  if (confirm("Yakin ingin menyetujui pemesanan ini?")) {
-    updateStatus(id, "Menunggu Pembayaran", "", () => {
-      const row = document.querySelector(`.baris-pemesanan.active`);
-      if (!row) return;
-
-      const detail = JSON.parse(row.dataset.detail);
+                  // (Opsional) reload halaman setelah delay
+                  setTimeout(() => {
+                    location.reload();
+                  }, 3000);
+                });
+              }
+            }
 
 
 
-      // (Opsional) reload halaman setelah delay
-      setTimeout(() => {
-        location.reload();
-      }, 3000);
-    });
-  }
-}
+            function handleRevisi(id) {
+              const alasan = prompt("Masukkan alasan revisi untuk pemesanan ini:");
+              if (alasan && alasan.trim() !== "") {
+                updateStatus(id, "Menunggu Penyesuaian", alasan, () => {
+                  // Aksi setelah revisi berhasil
+                  alert("Revisi berhasil dikirim.");
+                  location.reload();
+                });
+              } else if (alasan !== null) {
+                alert("Revisi dibatalkan. Alasan harus diisi.");
+              }
+            }
 
-
-
-function handleRevisi(id) {
-  const alasan = prompt("Masukkan alasan revisi untuk pemesanan ini:");
-  if (alasan && alasan.trim() !== "") {
-    updateStatus(id, "Menunggu Penyesuaian", alasan, () => {
-      // Aksi setelah revisi berhasil
-      alert("Revisi berhasil dikirim.");
-      location.reload();
-    });
-  } else if (alasan !== null) {
-    alert("Revisi dibatalkan. Alasan harus diisi.");
-  }
-}
-
-function handleTolak(id) {
-  if (confirm("Yakin ingin menolak pemesanan ini?")) {
-    updateStatus(id, "Ditolak", "", () => {
-      // Aksi setelah tolak berhasil
-      alert("Pemesanan berhasil ditolak.");
-      location.reload();
-    });
-  }
-}
-</script>
+            function handleTolak(id) {
+              if (confirm("Yakin ingin menolak pemesanan ini?")) {
+                updateStatus(id, "Ditolak", "", () => {
+                  // Aksi setelah tolak berhasil
+                  alert("Pemesanan berhasil ditolak.");
+                  location.reload();
+                });
+              }
+            }
+          </script>
 
 
 </body>

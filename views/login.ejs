@@ -13,7 +13,25 @@
     <link rel="stylesheet" href="/css/loginPagedanRegiter.css">
     <title>Login</title>
 </head>
+<style>
+.custom-close {
+  font-size: 1.6rem;
+  color: #dc3545; /* merah tegas */
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.custom-close:hover {
+  font-weight: 800;
+  transform: scale(1.1);
+  color: #b71c1c; /* merah lebih gelap saat hover */
+}
+
+</style>
 <body>
 
 
@@ -58,14 +76,12 @@
                                             <input type="checkbox" id="remember">
                                             <label for="remember">Remember me</label>
                                         </p>
-                                        <p class="forgot"><a href="#">Forgot Password?</a></p>
+                                        <p class="forgot">
+                                            <a href="#" data-bs-toggle="modal"
+                                                data-bs-target="#forgotPasswordModal">Forgot Password?</a>
+                                        </p>
                                         <p><button type="submit">Login</button></p>
                                     </form>
-                                    <div class="afterform">
-                                        <p>Belum Punya Akun?</p>
-                                        <a href="/auth/register" class="t-signup">Daftar</a>
-                                        <p><a href="/vendor/auth/login" class="t-signup">Login sebagai Vendor</a></p>
-                                    </div>
 
                         </div>
                     </div>
@@ -77,9 +93,88 @@
 
     </div>
 
-
+    <!-- Modal Lupa Password -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+              <div class="modal-header border-0">
+  <h5 class="modal-title" id="forgotPasswordLabel">Lupa Password</h5>
+<span class="custom-close" data-bs-dismiss="modal" aria-label="Tutup">
+  <ion-icon name="close-outline"></ion-icon>
+</span>
+</div>
+                <div class="modal-body">
+                    <form id="forgotPasswordForm">
+                        <div class="mb-3">
+                            <label for="forgotEmail" class="form-label">Masukkan Email</label>
+                            <input type="email" class="form-control" id="forgotEmail" placeholder="email@domain.com">
+                            <div class="invalid-feedback">Email tidak boleh kosong.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Reset Password</button>
+                    </form>
+                    <div id="forgotMsg" class="text-center mt-3 fw-semibold"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<<script>
+  const forgotForm = document.getElementById('forgotPasswordForm');
+  const forgotEmail = document.getElementById('forgotEmail');
+  const forgotMsg = document.getElementById('forgotMsg');
+
+  forgotForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const emailValue = forgotEmail.value.trim();
+    if (!emailValue) {
+      forgotEmail.classList.add('is-invalid');
+      forgotMsg.textContent = 'Email tidak boleh kosong.';
+      forgotMsg.classList.add('text-danger');
+      return;
+    }
+
+    forgotEmail.classList.remove('is-invalid');
+    forgotMsg.textContent = '';
+    forgotMsg.classList.remove('text-danger');
+
+    try {
+      const res = await fetch('/admin/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailValue })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        forgotMsg.textContent = data.message;
+        forgotMsg.classList.add('text-success');
+      } else {
+        forgotMsg.textContent = data.message || 'Terjadi kesalahan.';
+        forgotMsg.classList.add('text-danger');
+      }
+
+      setTimeout(() => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
+        modal.hide();
+        forgotForm.reset();
+        forgotMsg.textContent = '';
+      }, 3000);
+
+    } catch (err) {
+      console.error('Error:', err);
+      forgotMsg.textContent = 'Gagal mengirim permintaan reset.';
+      forgotMsg.classList.add('text-danger');
+    }
+  });
+</script>
+
+
 </body>
+
+
 
 </html>

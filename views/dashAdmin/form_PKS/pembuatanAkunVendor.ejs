@@ -46,122 +46,123 @@
   </div>
 
 
-    <form id="multiStepForm" action="/admin/dashboardAdmin/pembuatan-akun-vendor" method="POST">
-      <input type="hidden" name="pks_id" value="<%= data.pks_id %>">
+  <form id="multiStepForm" action="/admin/dashboardAdmin/pembuatan-akun-vendor" method="POST">
+    <input type="hidden" name="pks_id" value="<%= data.pks_id %>">
 
-      <div class="form-step">
-        <p>palce holder</p>
-      </div>
+    <div class="form-step">
+      <p>palce holder</p>
+    </div>
 
-      <div class="form-step">
-        <p class="text-center"> 1</p>
-      </div>
+    <div class="form-step">
+      <p class="text-center"> 1</p>
+    </div>
 
-      <div class="form-step step-upload">
-        1.5
-      </div>
-
-
+    <div class="form-step step-upload">
+      1.5
+    </div>
 
 
-      <div class="form-step">
 
-        <!-- Mulai kontennya -->
-        <div class="container my-5">
-          <div class="mx-auto p-4 rounded shadow-sm bg-white" style="max-width: 600px;">
-            <h3 class="text-center mb-4">Form Pembuatan Akun Vendor</h3>
 
-            <div class="bg-light p-3 rounded mb-4 border">
-              <p class="mb-1"><strong>Nama PT dari PKS:</strong>
-                <%= data.pt_mitra %>
-              </p>
-              <p class="mb-0"><strong>Alamat dari PKS:</strong>
-                <%= data.alamat_pks %>
-              </p>
+    <div class="form-step">
+
+      <!-- Mulai kontennya -->
+      <div class="container my-5">
+        <div class="mx-auto p-4 rounded shadow-sm bg-white" style="max-width: 600px;">
+          <h3 class="text-center mb-4">Form Pembuatan Akun Vendor</h3>
+
+          <div class="bg-light p-3 rounded mb-4 border">
+            <p class="mb-1"><strong>Nama PT dari PKS:</strong>
+              <%= data.pt_mitra %>
+            </p>
+            <p class="mb-0"><strong>Alamat dari PKS:</strong>
+              <%= data.alamat_pks %>
+            </p>
+          </div>
+
+
+          <div class="row mb-3">
+            <label for="nama_toko_vendor" class="col-sm-4 col-form-label">Nama Toko Vendor</label>
+            <div class="col-sm-8">
+
+              <input type="text" class="form-control" id="nama_toko_vendor" name="nama_toko_vendor"
+                placeholder="Contoh: Mitra Iklan Digital">
             </div>
+          </div>
+
+          <div class="row mb-3">
+            <label for="email" class="col-sm-4 col-form-label">Email</label>
+            <div class="col-sm-8">
+              <input type="email" class="form-control" id="email" name="email" placeholder="contoh@email.com">
+            </div>
+            <div class="invalid-feedback">Email sudah terdaftar.</div>
+          </div>
 
 
-              <div class="row mb-3">
-                <label for="nama_toko_vendor" class="col-sm-4 col-form-label">Nama Toko Vendor</label>
-                <div class="col-sm-8">
-
-                  <input type="text" class="form-control" id="nama_toko_vendor" name="nama_toko_vendor"
-                    placeholder="Contoh: Mitra Iklan Digital">
-                </div>
-              </div>
-
-              <div class="row mb-3">
-                <label for="email" class="col-sm-4 col-form-label">Email</label>
-                <div class="col-sm-8">
-                  <input type="email" class="form-control" id="email" name="email" placeholder="contoh@email.com">
-                </div>
-              </div>
-
-
-              <div class="row mb-3">
-                <label for="password" class="col-sm-4 col-form-label">Password</label>
-                <div class="col-sm-8">
-                  <!-- <div class="input-group"> -->
-                  <input type="password" class="form-control" id="password" name="password"
-                    placeholder="Minimal 6 karakter">
-                  <!-- <span class="input-group-text bg-white">
+          <div class="row mb-3">
+            <label for="password" class="col-sm-4 col-form-label">Password</label>
+            <div class="col-sm-8">
+              <!-- <div class="input-group"> -->
+              <input type="password" class="form-control" id="password" name="password"
+                placeholder="Minimal 6 karakter">
+              <!-- <span class="input-group-text bg-white">
               <i class="fa fa-eye toggle-password" data-target="password" style="cursor: pointer;"></i>
             </span>
           </div> -->
 
-                  <div class="invalid-feedback"></div>
-                </div>
-              </div>
+              <div class="invalid-feedback"></div>
+            </div>
+          </div>
 
-              <div class="row mb-3">
-                <label for="reenter_password" class="col-sm-4 col-form-label">Re-enter Password</label>
-                <div class="col-sm-8">
-                  <!-- <div class="input-group"> -->
-                  <input type="password" class="form-control" id="reenter_password" name="reenter_password"
-                    placeholder="Ulangi password">
-                  <!-- <span class="input-group-text bg-white"> -->
-                  <!-- <i class="fa fa-eye toggle-password" data-target="reenter_password" style="cursor: pointer;"></i>
+          <div class="row mb-3">
+            <label for="reenter_password" class="col-sm-4 col-form-label">Re-enter Password</label>
+            <div class="col-sm-8">
+              <!-- <div class="input-group"> -->
+              <input type="password" class="form-control" id="reenter_password" name="reenter_password"
+                placeholder="Ulangi password">
+              <!-- <span class="input-group-text bg-white"> -->
+              <!-- <i class="fa fa-eye toggle-password" data-target="reenter_password" style="cursor: pointer;"></i>
             </span>
           </div>           -->
-                  <div class="invalid-feedback"></div>
-                </div>
-              </div>
-
-
-              <div class="row mb-4">
-                <label for="no_telepon" class="col-sm-4 col-form-label">No Telepon</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" id="no_telepon" name="no_telepon"
-                    placeholder="Contoh: 081234567890">
-                </div>
-              </div>
-
-              <div class="text-center">
-                <button type="submit" class="btn btn-primary px-4">Buat Akun Vendor</button>
-              </div>
-           
+              <div class="invalid-feedback"></div>
+            </div>
           </div>
-        </div>
 
+
+          <div class="row mb-4">
+            <label for="no_telepon" class="col-sm-4 col-form-label">No Telepon</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" id="no_telepon" name="no_telepon"
+                placeholder="Contoh: 081234567890">
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary px-4">Buat Akun Vendor</button>
+          </div>
+
+        </div>
       </div>
+
+    </div>
 
 
 
 
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  document.getElementById('multiStepForm').addEventListener('submit', function (e) {
+  const form = document.getElementById('multiStepForm');
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
+    const fields = ['nama_toko_vendor', 'email', 'password', 'reenter_password', 'no_telepon'];
     let isValid = true;
 
-    const fields = ['nama_toko_vendor', 'email', 'password', 'reenter_password', 'no_telepon'];
     fields.forEach(id => {
       const input = document.getElementById(id);
-      const value = input.value.trim();
-
-      if (value === '') {
+      if (!input.value.trim()) {
         input.classList.add('is-invalid');
         isValid = false;
       } else {
@@ -171,7 +172,6 @@
 
     const pass = document.getElementById('password');
     const repass = document.getElementById('reenter_password');
-
     if (pass.value !== repass.value) {
       pass.classList.add('is-invalid');
       repass.classList.add('is-invalid');
@@ -180,19 +180,57 @@
       isValid = false;
     }
 
-    if (isValid) {
-      e.target.submit(); // submit form jika semua valid
+    if (!isValid) return;
+
+    const formData = {
+      pks_id: document.querySelector('input[name="pks_id"]').value,
+      nama_toko_vendor: document.getElementById('nama_toko_vendor').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      password: pass.value.trim(),
+      no_telepon: document.getElementById('no_telepon').value.trim()
+    };
+
+    try {
+      const res = await fetch('/admin/dashboardAdmin/pembuatan-akun-vendor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        // Tandai input error
+        if (result.field === 'email') {
+          const emailInput = document.getElementById('email');
+          emailInput.classList.add('is-invalid');
+        }
+
+        return Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: result.message || 'Terjadi kesalahan.'
+        });
+      }
+
+      // Jika sukses
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Akun vendor berhasil dibuat.',
+        timer: 2000,
+        showConfirmButton: false
+      }).then(() => {
+        window.location.href = result.redirect;
+      });
+
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Gagal mengirim data ke server.'
+      });
     }
   });
-
-  document.querySelectorAll('.toggle-password').forEach(icon => {
-    icon.addEventListener('click', () => {
-      const input = document.getElementById(icon.dataset.target);
-      const isPassword = input.type === 'password';
-      input.type = isPassword ? 'text' : 'password';
-      icon.classList.toggle('fa-eye');
-      icon.classList.toggle('fa-eye-slash');
-    });
-  });
-
 </script>

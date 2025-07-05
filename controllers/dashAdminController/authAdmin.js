@@ -127,7 +127,7 @@ export const getDashHome = async (req, res) => {
     const Data_tim_internal = await pool.query(`
       SELECT full_name, role, email, nomor_tlp AS nomor_tlp, alamat, photo_user
       FROM users
-      WHERE role IN ('admin', 'partnership', 'project_lead', 'finance')
+      WHERE role IN ('admin', 'partnership', 'project lead', 'finance')
       ORDER BY full_name
     `);
 
@@ -180,14 +180,14 @@ export const preview_PDF_PKS = async (req, res) => {
   } = req.body;
 
 
-let kategori_produk = "";
-if (Array.isArray(req.body.kategori)) {
-  kategori_produk = '<ul class="three-column-list">' +
-    req.body.kategori.map(item => `<li>${item}</li>`).join("") +
-    '</ul>';
-} else if (typeof req.body.kategori === "string") {
-  kategori_produk = `<ul class="three-column-list"><li>${req.body.kategori}</li></ul>`;
-}
+  let kategori_produk = "";
+  if (Array.isArray(req.body.kategori)) {
+    kategori_produk = '<ul class="three-column-list">' +
+      req.body.kategori.map(item => `<li>${item}</li>`).join("") +
+      '</ul>';
+  } else if (typeof req.body.kategori === "string") {
+    kategori_produk = `<ul class="three-column-list"><li>${req.body.kategori}</li></ul>`;
+  }
 
   try {
 
@@ -231,8 +231,8 @@ if (Array.isArray(req.body.kategori)) {
 
     // buat pengecekan kalau nik  tidak di isi diganti dengan ......
     const nikFormatted = nik.trim() === "" ? "............................................" : nik;
-    
-  
+
+
     const formData = {
       ...req.body,
       nik: nikFormatted,
@@ -287,7 +287,7 @@ export const savedandownload_PKS = async (req, res) => {
     const user_id = req.user.id;
     const status = "Menunggu Tanda Tangan";
 
-    // 🔁 Pindahkan file dari pks_sementara ke pks_permanen
+    // 🔁 Pindah file dari pks_sementara ke pks_permanen
     const sumber = path.resolve(__dirname, "../../public/pks_sementara", pdfFilename);
     const tujuan = path.resolve(__dirname, "../../public/pks_permanen", pdfFilename);
 
@@ -296,7 +296,7 @@ export const savedandownload_PKS = async (req, res) => {
       fs.mkdirSync(folderPermanen, { recursive: true });
     }
 
-    // Pindahkan file
+    // Pindah file
     fs.renameSync(sumber, tujuan);
 
     // Simpan data ke database
@@ -317,7 +317,7 @@ export const savedandownload_PKS = async (req, res) => {
 };
 
 
-// Auto delete file pdf di pks_sementara yang lebih dari 1 jam
+// Auto delete file pdf di pks_sementara yang lebih dari 30 /1 jam
 cron.schedule("*/30 * * * *", () => { // setiap 30 menit
   const folder = path.resolve(__dirname, "../../public/pks_sementara");
 
@@ -461,7 +461,7 @@ export const kirimEmailVerifikasiVendor = async (user) => {
   const token = jwt.sign(
     { id: user.id, email: user.email_vendor },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "1d" }
   );
 
   const verifikasiURL = `http://localhost:3000/admin/verifikasivendor?token=${token}`; // ubah ke domain saat hosting
@@ -492,12 +492,26 @@ export const simpanAkunVendor = async (req, res) => {
   console.log("Data dari form:", req.body);
 
   try {
+    // 1. Cek email vendor sudah dipakai
+    const existing = await pool.query(
+      `SELECT * FROM users_vendor WHERE email_vendor = $1`,
+      [email]
+    );
+
+    if (existing.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        field: 'email',
+        message: 'Email sudah terdaftar sebagai vendor. Silakan gunakan email lain.'
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result_vendor = await pool.query(
       `INSERT INTO users_vendor
-      (pks_id, nama_toko_vendor, email_vendor, password_vendor, no_telepon_vendor,photo_vendor, vertifikasi_vendor)
-      VALUES ($1, $2, $3, $4, $5,$6, 'belom terbertifikasi') RETURNING *`,
+        (pks_id, nama_toko_vendor, email_vendor, password_vendor, no_telepon_vendor, photo_vendor, vertifikasi_vendor)
+       VALUES ($1, $2, $3, $4, $5, $6, 'belom terbertifikasi') RETURNING *`,
       [pks_id, nama_toko_vendor, email, hashedPassword, no_telepon, "userPlaceholder.png"]
     );
 
@@ -507,10 +521,9 @@ export const simpanAkunVendor = async (req, res) => {
       `SELECT pt_mitra FROM pks WHERE pks_id = $1`,
       [pks_id]
     );
-    
-    const nama_pt_mitra = hasilPT.rows[0]?.nama_pt_mitra;
 
-    // Kirim email verifikasi dan beberapa data
+    const nama_pt_mitra = hasilPT.rows[0]?.pt_mitra || '';
+
     await kirimEmailVerifikasiVendor({
       id: vendorBaru.id_vendor,
       email_vendor: vendorBaru.email_vendor,
@@ -523,13 +536,19 @@ export const simpanAkunVendor = async (req, res) => {
       [pks_id]
     );
 
-    // Redirect ke halaman sukses
-    res.redirect(`/admin/dashboardAdmin/pks-selesai/${pks_id}`);
+    res.status(201).json({
+      success: true,
+      redirect: `/admin/dashboardAdmin/pks-selesai/${pks_id}`
+    });
   } catch (err) {
     console.error("Error simpan akun vendor:", err);
-    res.status(500).send("Gagal menyimpan akun vendor.");
+    res.status(500).json({
+      success: false,
+      message: 'Gagal menyimpan akun vendor.'
+    });
   }
 };
+
 
 // email mengset password vendor dan melakukan vertifikasi
 export const vertifikasiVendor = async (req, res) => {
@@ -882,7 +901,7 @@ export const kirimEmailVerifikasi = async (user) => {
   const token = jwt.sign(
     { id: user.id, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "1d" }
   );
 
   const verifikasiURL = `http://localhost:3000/admin/verifikasi?token=${token}`; // ganti nanti pas udah di hosting
@@ -896,7 +915,7 @@ export const kirimEmailVerifikasi = async (user) => {
       <p>Kami dari <strong>PT Pandawa Sakti Digital</strong> menginformasikan bahwa akun Anda telah berhasil dibuat.</p>
       <p>Silakan klik tautan berikut untuk mengatur kata sandi Anda dan mengaktifkan akun:</p>
       <p><a href="${verifikasiURL}">${verifikasiURL}</a></p><br>
-      <p><small>Link ini berlaku selama 7 hari.</small></p>
+      <p><small>Link ini berlaku selama 1 hari.</small></p>
       <br>
       <p>Hormat kami,<br><strong>PT Pandawa Sakti Digital</strong></p>
     `
@@ -958,11 +977,11 @@ export const getHalamanPengaturan = async (req, res) => {
     const result = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
     const user = result.rows[0];
 
-    res.render("dashAdmin/dashboardAdmin", { 
+    res.render("dashAdmin/dashboardAdmin", {
       partial: 'pengaturan_akun',
       role: req.user.role,
-      error:"",
-      data : "",
+      error: "",
+      data: "",
       user
     });
   } catch (err) {
@@ -973,7 +992,7 @@ export const getHalamanPengaturan = async (req, res) => {
 
 
 export const updateProfil = async (req, res) => {
-  const userId = req.user.id; 
+  const userId = req.user.id;
   const { full_name, nomor_tlp, alamat } = req.body;
 
   try {
@@ -1058,5 +1077,145 @@ export const updateFoto = async (req, res) => {
   });
 };
 
+export const forgotPasswordInternal = async (req, res) => {
+  try {
+    const { email } = req.body;
 
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email wajib diisi.' });
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM users WHERE email = $1 AND role != 'klien'`,
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Email tidak ditemukan untuk akun internal.' });
+    }
+
+    const user = result.rows[0];
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    const resetURL = `http://localhost:3000/admin/reset-password?token=${token}`; // ganti saat hosting
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: user.email,
+      subject: 'Reset Password Akun Internal',
+      html: `
+        <h3>Reset Password Akun</h3>
+        <p>Halo ${user.nama_lengkap || 'Pengguna'},</p>
+        <p>Kami menerima permintaan untuk mereset password Anda.</p>
+        <p>Silakan klik link berikut untuk mengatur ulang password Anda:</p>
+        <a href="${resetURL}">${resetURL}</a>
+        <br><br>
+        <p>Link ini berlaku selama 1 hari.</p>
+        <p>Jika Anda tidak merasa melakukan permintaan ini, abaikan email ini.</p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ success: true, message: 'Link reset password telah dikirim ke email.' });
+
+  } catch (error) {
+    console.error('❌ Error forgotPasswordInternal:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan saat memproses permintaan.' });
+  }
+};
+
+// halaman unutk liat data tim internal
+export const HalamanUserInternal = async (req, res) => {
+  try {
+    const query = `
+      SELECT * FROM users 
+      WHERE role != 'klien'
+    `;
+
+    const result = await pool.query(query);
+    console.table(result.rows);
+    res.render('dashAdmin/dashboardAdmin', { 
+      data: result.rows,
+      role: req.user.role,
+      partial: 'dataTimInternal',
+      error: ""
+    });
+  } catch (error) {
+    console.error("❌ Gagal mengambil data user internal:", error);
+    res.status(500).send("Terjadi kesalahan saat mengambil data user internal.");
+  }
+};
+
+
+
+// Laporan analitik
+export const LaporanAnalitikUSer = async (req, res) => {
+  try {
+    const today = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(today.getMonth() - 5);
+
+ const query = `
+  WITH bulan_range AS (
+    SELECT generate_series(
+      DATE_TRUNC('month', $1::timestamp),
+      DATE_TRUNC('month', $2::timestamp),
+      interval '1 month'
+    ) AS bulan
+  ),
+  baru AS (
+    SELECT DATE_TRUNC('month', dibuat_tanggal) AS bulan, COUNT(*) AS jumlah_baru
+    FROM users
+    WHERE role = 'klien'
+    GROUP BY 1
+  ),
+  total AS (
+    SELECT b.bulan,
+          (SELECT COUNT(*) 
+           FROM users 
+           WHERE role = 'klien' 
+             AND dibuat_tanggal <= (b.bulan + interval '1 month - 1 day')) AS jumlah_total
+    FROM bulan_range b
+  )
+  SELECT 
+    TO_CHAR(bulan_range.bulan, 'Month YYYY') AS label_bulan,
+    COALESCE(baru.jumlah_baru, 0) AS jumlah_baru,
+    COALESCE(total.jumlah_total, 0) AS jumlah_total
+  FROM bulan_range
+  LEFT JOIN baru ON bulan_range.bulan = baru.bulan
+  LEFT JOIN total ON bulan_range.bulan = total.bulan
+  ORDER BY bulan_range.bulan;
+`;
+
+    const { rows } = await pool.query(query, [sixMonthsAgo, today]);
+
+    const labels = rows.map(r => r.label_bulan.trim());
+    const dataBaru = rows.map(r => parseInt(r.jumlah_baru));
+    const dataTotal = rows.map(r => parseInt(r.jumlah_total));
+
+    res.render("dashAdmin/dashboardAdmin", {
+      role: req.user.role,
+      partial: "./laporan/grafik_user",
+      chartLabels: JSON.stringify(labels),
+      chartDataBaru: JSON.stringify(dataBaru),
+      chartDataTotal: JSON.stringify(dataTotal)
+    });
+  } catch (error) {
+    console.error("Gagal mengambil halaman analitik user:", error);
+    res.render("dashAdmin/dashboardAdmin", {
+      role: req.user.role,
+      partial: "./laporan/grafik_user",
+      chartLabels: "[]",
+      chartDataBaru: "[]",
+      chartDataTotal: "[]",
+      error: "Gagal mengambil Halaman Analitik User."
+    });
+  }
+};
 

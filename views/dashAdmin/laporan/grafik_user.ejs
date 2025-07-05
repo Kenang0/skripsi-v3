@@ -1,0 +1,126 @@
+<!-- CDN Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mt-4">
+  <div class="card shadow-sm rounded">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Analitik Aktivitas</h5>
+      <button class="btn btn-outline-primary btn-sm" id="btnExport">Export Analitik</button>
+    </div>
+    <div class="card-body">
+      <div class="row mb-3 align-items-center">
+        <div class="col-md-8 d-flex align-items-center">
+          <label class="me-2">Rentang:</label>
+          <input type="date" id="startDate" class="form-control form-control-sm me-1" style="max-width: 150px;">
+          <span class="me-1">-</span>
+          <input type="date" id="endDate" class="form-control form-control-sm me-2" style="max-width: 150px;">
+          <button class="btn btn-primary btn-sm" id="btnFilter">Tampilkan</button>
+        </div>
+      </div>
+
+      <canvas id="chartKlienBaru" height="90"></canvas>
+
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <strong>Total Klien Baru:</strong> <span id="totalKlien">0</span>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <strong>Rentang Waktu:</strong> <span id="rentangWaktu">-</span>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <strong>Keterangan:</strong>
+        <span class="ms-3"><span style="color:#0d6efd;">■</span> Baru</span>
+        <span class="ms-3"><span style="color:#333;">■</span> Total</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const initialLabels = JSON.parse('<%- chartLabels %>');
+  const initialDataBaru = JSON.parse('<%- chartDataBaru %>');
+  const initialDataTotal = JSON.parse('<%- chartDataTotal %>');
+</script>
+
+<script>
+  const ctx = document.getElementById('chartKlienBaru').getContext('2d');
+  let chart;
+
+  function buatChart(labels, dataBaru, dataTotal) {
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Klien Baru',
+            backgroundColor: '#0d6efd',
+            borderRadius: 5,
+            data: dataBaru
+          },
+          {
+            label: 'Total Klien',
+            backgroundColor: '#333',
+            borderRadius: 5,
+            data: dataTotal
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => `Jumlah: ${ctx.parsed.y}`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0,
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+
+    updateKeterangan(labels, dataBaru);
+  }
+
+  function updateKeterangan(labels, dataBaru) {
+    const total = dataBaru.reduce((acc, val) => acc + val, 0);
+    document.getElementById('totalKlien').innerText = total;
+    if (labels.length > 0) {
+      document.getElementById('rentangWaktu').innerText = `${labels[0]} - ${labels[labels.length - 1]}`;
+    } else {
+      document.getElementById('rentangWaktu').innerText = "-";
+    }
+  }
+
+  // Render awal
+  buatChart(initialLabels, initialDataBaru, initialDataTotal);
+
+  // Filter tanggal
+  document.getElementById('btnFilter').addEventListener('click', async () => {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    if (!start || !end) return alert("Pilih rentang tanggal");
+
+    try {
+      const res = await fetch(`/analitik/klien?start=${start}&end=${end}`);
+      const result = await res.json();
+      buatChart(result.labels, result.dataBaru, result.dataTotal);
+    } catch (err) {
+      console.error("Gagal ambil data filter:", err);
+    }
+  });
+</script>

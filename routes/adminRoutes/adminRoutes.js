@@ -7,7 +7,7 @@ import {  loginUser,getLoginPage, getDashHome,
           getPengecekanPKSPage,deletePKS, uploadPKSdariView,PKSdiSetujui,getPembuatanAkunVendor,
           pembuatanakunUserInternal,simpanAkunVendor, getPKSSelesai,tolakPKS,cekEmailInternal,vertifikasi, 
           getHalamanTambahAkunInternal,vertifikasiVendor,updatePasswordVendor,updatePasswordInternal,getHalamanPengaturan,
-          updateProfil,updatePassword,updateFoto} from "../../controllers/dashAdminController/authAdmin.js";
+          updateProfil,updatePassword,updateFoto,LaporanAnalitikUSer,HalamanUserInternal,forgotPasswordInternal} from "../../controllers/dashAdminController/authAdmin.js";
 
 
 const router = express.Router();
@@ -55,6 +55,7 @@ router.get('/dashboardAdmin/pks-selesai/:pks_id', authenticateRoleDashAdmin(["ad
 router.get("/dashboardAdmin/penambahan-akun", authenticateRoleDashAdmin(["admin", "project lead"]), getHalamanTambahAkunInternal)
 router.post("/dashboarAdmin/tambah-akun", pembuatanakunUserInternal);
 router.post("/cek-email",cekEmailInternal);
+router.get("/dashboardAdmin/tim-internal",authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), HalamanUserInternal);
 
 // ambil halaman view tabel data PKS
 router.get ("/dashboardAdmin/PKS", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), getDashAdminPKS);
@@ -63,6 +64,9 @@ router.get("/dashboardAdmin/upload-pks/:pks_id", authenticateRoleDashAdmin(["adm
 router.put('/dashboardAdmin/approve-pks/:pks_id', authenticateRoleDashAdmin(['admin', 'project lead']), PKSdiSetujui);
 router.get("/dashboardAdmin/pembuatan-akun-vendor/:pks_id", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),  getPembuatanAkunVendor);
 router.put('/dashboardAdmin/tolak-pks/:pksId', authenticateRoleDashAdmin(["admin", "project lead"]),tolakPKS);
+
+// laporan analitik
+router.get("/dashboardAdmin/aporan-analitik-user", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),  LaporanAnalitikUSer);
 
 // pengaturan akun
 router.get("/dashboardAdmin/pengaturan-akun", authenticateRoleDashAdmin(["admin", "project lead"]), getHalamanPengaturan);
@@ -78,5 +82,7 @@ router.get("/verifikasi", vertifikasi);
 router.post("/setpasswordinternal",updatePasswordInternal);
 router.get("/verifikasivendor", vertifikasiVendor);
 router.post("/setpasswordvendor",updatePasswordVendor);
+router.post("/forgot-password",forgotPasswordInternal);
+router.get("/reset-password", vertifikasi);
 
 export default router;

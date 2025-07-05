@@ -42,12 +42,12 @@ export const authenticateVendor = (req, res, next) => {
   }
 };
 
-// untuk admin
+// untuk web
 export const authenticateRoleWeb = (roles) => {
   return (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
-      return res.redirect("/login");
+      return res.redirect("/login-user");
     }
 
     try {
@@ -59,7 +59,7 @@ export const authenticateRoleWeb = (roles) => {
       next();
     } catch (err) {
       res.clearCookie("token");
-      res.redirect("/login");
+      res.redirect("/login-user");
     }
   };
 };

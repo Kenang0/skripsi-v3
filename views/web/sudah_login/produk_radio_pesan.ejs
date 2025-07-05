@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ngiklan Murah</title>
+
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    .navbar {
+      transition: background-color 0.3s;
+      background-color: transparent;
+    }
+
+    .navbar.scrolled {
+      background-color: rgb(255, 255, 255);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+
+    .navbar a {
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    /* Hover untuk nav menu dan ikon */
+    .navbar a:hover {
+      color: #0d6efd !important;
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+
+
+    .navbar i {
+      transition: transform 0.3s ease;
+    }
+
+    .navbar i:hover {
+      transform: scale(1.2);
+    }
+
+    /* Hover untuk tombol */
+    .navbar .btn:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .kategori-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .kategori-item:hover {
+      transform: scale(1.05);
+    }
+
+    .kategori-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .kategori-icon img {
+      width: 60%;
+      height: auto;
+    }
+
+    /* Scrollbar styling opsional */
+    .scroll-horizontal::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .scroll-horizontal::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+
+     #jadwalCalendar {
+            max-width: 100%;
+            margin: 20px 0;
+        }
+
+        .fc-timegrid-axis-cushion {
+            font-weight: 600;
+            font-size: 13px;
+            color: #000;
+        }
+
+        .fc-day-today {
+            background-color: transparent !important;
+        }
+
+        .fc-col-header-cell-cushion {
+            font-size: 14px;
+            color: black;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .fc-toolbar-title {
+            font-size: 16px !important;
+        }
+
+        .fc .fc-button {
+            font-size: 12px !important;
+            /* Ukuran teks */
+            padding: 4px 8px !important;
+            /* Padding lebih kecil */
+            height: auto !important;
+            /* Biarkan menyesuaikan tinggi */
+        }
+
+@media (max-width: 768px) {
+  .card {
+    max-width: 100% !important;
+    margin: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .card {
+    padding: 1rem !important;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid px-4">
+      <!-- Logo -->
+      <img src="/foto/logo_ngiklanmurah.png" alt="Logo" style="height: 20px; padding-right: 5px;">
+      <a href="/home-page" class="navbar-brand fs-5">NGIKLAN MURAH</a>
+
+      <div class="d-flex align-items-center ms-auto">
+        <!-- Toggler -->
+        <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Profil User Khusus Mobile -->
+        <% if (dataUser) { %>
+          <div class="d-block d-lg-none d-flex align-items-center">
+            <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+              style="width: 32px; height: 32px; object-fit: cover;">
+          </div>
+          <% } %>
+      </div>
+
+      <!-- Isi Navbar -->
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <!-- Menu Tengah -->
+        <ul class="navbar-nav mx-auto mb-3 mb-lg-0 text-center">
+          <li class="nav-item"><a class="nav-link text-dark" href="/home-page">Home</a></li>
+          <li class="nav-item"><a class="nav-link text-dark" href="#">Kategori</a></li>
+          <li class="nav-item"><a class="nav-link text-dark" href="#">Tentang Kami</a></li>
+        </ul>
+
+        <!-- Ikon dan Button -->
+        <div class="d-flex flex-column flex-lg-row align-items-center gap-3 text-center">
+          <!-- ICON -->
+          <div class="d-flex flex-row flex-wrap justify-content-center gap-3">
+            <div class="d-flex flex-column align-items-center">
+              <a href="#" class="text-dark fs-6"><i class="bi bi-cart3"></i></a>
+              <small>Keranjang</small>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+              <a href="#" class="text-dark fs-6"><i class="bi bi-opencollective"></i></a>
+              <small>Riwayat</small>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+              <a href="/dalam-progress" class="text-dark fs-6"><i class="bi bi-clipboard-check-fill"></i></a>
+              <small>Progress</small>
+            </div>
+          </div>
+
+          <!-- Button -->
+          <!-- Jika user sudah login -->
+          <div class="user-profile d-none d-lg-block ms-3">
+            <a href="/pengaturan-akun">
+              <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+                style="width: 32px; height: 32px; object-fit: cover;"></a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </nav>
+  <% function formatJam12(jam) { const [h, m]=jam.slice(0,5).split(":").map(Number); const period=h>= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    return `${hour12.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${period}`;
+    }
+    %>
+    <!-- Form Pemesanan Radio -->
+    <main style="padding-top: 50px;">
+      <div class="container mt-5">
+        <div class="card shadow p-4 mx-auto w-100" >
+
+          <form action="/produk-radio/pesan/<%= produk.id_produk_iklan %>" method="POST" enctype="multipart/form-data">
+            <div class="d-flex flex-column flex-md-row">
+              <!-- KIRI: Form input -->
+                <div class="flex-grow-1 pe-md-4">
+                <!-- Info Toko -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                  <img src="/uploads/profile_pic/<%= produk.photo_vendor %>" class="rounded-circle" width="40"
+                    height="40" style="object-fit: cover;">
+                  <h5 class="mb-0 fw-semibold">
+                    <%= produk.nama_toko_vendor %>
+                  </h5>
+                  <span class="badge bg-dark">
+                    <%= produk.kota %>
+                  </span>
+                </div>
+
+                <!-- Gambar & Info Produk -->
+<div class="d-flex flex-column flex-lg-row align-items-start gap-3 mb-3">
+  <img src="/uploads/produk_img/<%= produk.photo_produk %>" class="img-thumbnail"
+       style="max-width: 100%; max-width: 220px;" alt="Foto Produk">
+
+  <div class="flex-grow-1">
+    <h5 class="fw-bold mb-1"><%= produk.nama_produk %></h5>
+    <p class="mb-1">Hari Tayang: <%= produk.hari %></p>
+    <p class="mb-1">Jam: <%= formatJam12(produk.jam_mulai) %> - </p>
+    <p class="mb-1">Harga: <strong>Rp <%= produk.harga.toLocaleString("id-ID") %></strong></p>
+  </div>
+</div>
+
+
+                <!-- Inputan Form -->
+                <div class="mb-4">
+                  <label for="jadwalCalendar" class="form-label fw-bold">Pilih Slot Tayang</label>
+                  <div id="jadwalCalendar"
+                    style="max-width: 100%; border: 1px solid #ccc; padding: 5px; border-radius: 5px;"></div>
+                </div>  
+
+                <div id="hiddenSlotInput"></div>
+            
+                <div class="mb-3">
+                  <label class="form-label">Jenis File yang Ingin Dikirim:<span class="text-danger">*</span></label><br>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="cekScript" onchange="toggleFileInputs()">
+                    <label class="form-check-label" for="cekScript">Script (PDF)</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="cekAudio" onchange="toggleFileInputs()">
+                    <label class="form-check-label" for="cekAudio">Audio (MP3)</label>
+                  </div>
+                  <div class="invalid-feedback" id="feedbackJenisFile">Jenis file harus dipilih minimal 1.</div>
+                </div>
+
+                <div class="mb-3" id="uploadScript" style="display: none;">
+                  <label class="form-label">Upload Script Iklan (PDF):</label>
+                  <input type="file" name="file_script" class="form-control" accept="application/pdf">
+                  <div class="invalid-feedback">file harus diisi.</div>
+                </div>
+
+                <div class="mb-3" id="uploadAudio" style="display: none;">
+                  <label class="form-label">Upload Audio Iklan (MP3):</label>
+                  <input type="file" name="file_audio" class="form-control" accept="audio/*">
+                  <div class="invalid-feedback">file harus diisi.</div>
+                </div>
+
+
+
+                <div class="mb-3">
+                  <label class="form-label">Catatan Tambahan:</label>
+                  <textarea class="form-control" name="catatan" rows="3"
+                    placeholder="Contoh: Tolong tayangkan di awal acara."></textarea>
+                </div>
+              </div>
+
+              <!-- KANAN: Jumlah -->
+              <div class="col-md-5 text-center">
+  <div class="mb-3">
+    <label class="form-label">Jumlah Pemesanan:</label>
+    <div class="input-group justify-content-center mx-auto" style="max-width: 100%; width: 150px;">
+      <button class="btn btn-outline-secondary btn-sm" type="button" onclick="ubahJumlah(-1)">-</button>
+      <input type="number" class="form-control form-control-sm text-center" name="jumlah_pemesanan" id="jumlah_pemesanan" min="1" value="1">
+      <button class="btn btn-outline-secondary btn-sm" type="button" onclick="ubahJumlah(1)">+</button>
+    </div>
+  </div>
+</div>
+
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary mt-3">Ajukan Pemesanan</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-dark text-white mt-5 pt-4 pb-3">
+      <div class="container">
+        <div class="row text-center text-md-start">
+          <!-- Brand dan Deskripsi -->
+          <div class="col-md-4 mb-4">
+            <h5 class="fw-bold">NGIKLAN MURAH</h5>
+            <p class="small">Solusi mudah dan terjangkau untuk semua kebutuhan iklan Anda. Billboard, Radio, SMS
+              dan
+              lainnya.</p>
+          </div>
+
+          <!-- Navigasi -->
+          <div class="col-md-4 mb-4">
+            <h6 class="fw-bold">Navigasi</h6>
+            <ul class="list-unstyled">
+              <li><a href="#" class="text-white text-decoration-none small">Home</a></li>
+              <li><a href="#" class="text-white text-decoration-none small">Fitur</a></li>
+              <li><a href="#" class="text-white text-decoration-none small">Harga</a></li>
+            </ul>
+          </div>
+
+          <!-- Kontak -->
+          <div class="col-md-4 mb-4">
+            <h6 class="fw-bold">Kontak</h6>
+            <p class="small mb-1"><i class="bi bi-envelope me-2"></i>support@ngiklanmurah.com</p>
+            <p class="small"><i class="bi bi-telephone me-2"></i>+62 812-3456-7890</p>
+          </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center border-top pt-3 small">
+          © 2025 NgiklanMurah. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+    <script>
+
+  let calendar;
+  let selectedSlots = [];
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('jadwalCalendar');
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'timeGridWeek',
+      locale: 'id',
+      selectable: true,
+      selectMirror: true,
+      selectOverlap: false,
+      selectLongPressDelay: 999999,
+      longPressDelay: 999999,
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'timeGridWeek,timeGridDay'
+      },
+      allDaySlot: false,
+      slotMinTime: '<%= produk.jam_mulai %>',
+      slotMaxTime: '<%= produk.jam_selesai %>',
+      slotDuration: `00:<%= produk.slot_penayangan %>:00`,
+      slotLabelInterval: `00:<%= produk.slot_penayangan %>:00`,
+      events: <%- jadwalEvents %>,
+      height: 'auto',
+
+      eventDidMount: function (info) {
+        const hariBoleh = "<%= produk.hari %>".toLowerCase().split(",").map(h => h.trim());
+        const startDate = new Date(info.event.start);
+        const hariIndo = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
+        const namaHari = hariIndo[startDate.getDay()];
+
+        if (!hariBoleh.includes(namaHari)) {
+          info.el.style.backgroundColor = "#f8d7da";
+          info.el.style.color = "#842029";
+          info.el.style.border = "1px solid #dc3545";
+        }
+      },
+
+      select: function (info) {
+        const max = parseInt(document.getElementById("jumlah_pemesanan").value);
+        const slotDuration = parseInt("<%= produk.slot_penayangan %>");
+        const hariBoleh = "<%= produk.hari %>".toLowerCase().split(",").map(h => h.trim());
+
+        const start = new Date(info.start);
+        const end = new Date(info.end);
+        const durasiDipilih = (end - start) / 1000 / 60;
+        const hariIndo = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
+        const namaHari = hariIndo[start.getDay()];
+
+        if (!hariBoleh.includes(namaHari)) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Hari tidak tersedia',
+            text: `Slot pada hari ${namaHari.charAt(0).toUpperCase() + namaHari.slice(1)} tidak tersedia untuk produk ini.`,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Mengerti'
+          });
+          calendar.unselect();
+          return;
+        }
+
+        if (durasiDipilih > slotDuration) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Slot tidak valid',
+            text: `Pilih hanya 1 slot sesuai durasi yang tersedia (${slotDuration} menit). Jangan drag.`,
+            confirmButtonText: 'Oke',
+            confirmButtonColor: '#3085d6'
+          });
+          calendar.unselect();
+          return;
+        }
+
+        if (selectedSlots.length >= max) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Maksimum slot tercapai',
+            text: `Jumlah slot tayang yang dapat dipilih harus sama dengan jumlah pemesanan Anda (${max} slot).`,
+            confirmButtonText: 'Oke',
+            confirmButtonColor: '#3085d6'
+          });
+          calendar.unselect();
+          return;
+        }
+
+        const slot = { start: info.startStr, end: info.endStr };
+        selectedSlots.push(slot);
+        tambahHiddenInput(slot);
+
+        calendar.addEvent({
+          start: info.startStr,
+          end: info.endStr,
+          title: 'Dipilih',
+          color: '#0d6efd'
+        });
+      }
+    });
+
+    calendar.render();
+  });
+
+  // Reset slot ketika jumlah pemesanan diubah
+  document.getElementById("jumlah_pemesanan").addEventListener("input", function () {
+    calendar.batchRendering(() => {
+      selectedSlots = [];
+      document.getElementById("hiddenSlotInput").innerHTML = "";
+      calendar.getEvents().forEach(ev => {
+        if (ev.title === "Dipilih") ev.remove();
+      });
+      calendar.unselect();
+    });
+  });
+
+  // Fungsi tambah input hidden
+  function tambahHiddenInput(slot) {
+    const container = document.getElementById("hiddenSlotInput");
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "slot_dipilih[]";
+    input.value = JSON.stringify(slot);
+    container.appendChild(input);
+  }
+
+  // Fungsi tombol + -
+  function ubahJumlah(delta) {
+    const input = document.getElementById('jumlah_pemesanan');
+    let val = parseInt(input.value);
+    if (!isNaN(val)) {
+      val += delta;
+      if (val < 1) val = 1;
+      input.value = val;
+
+      // ⏱️ Trigger input event agar slot reset
+      input.dispatchEvent(new Event('input'));
+    }
+  }
+
+
+
+      // 🎧 Tampilkan upload file
+      function toggleFileInputs() {
+        const showScript = document.getElementById("cekScript").checked;
+        const showAudio = document.getElementById("cekAudio").checked;
+        document.getElementById("uploadScript").style.display = showScript ? "block" : "none";
+        document.getElementById("uploadAudio").style.display = showAudio ? "block" : "none";
+      }
+
+      // 🚀 Saat halaman dimuat
+      document.addEventListener("DOMContentLoaded", function () {
+        const hariBoleh = "<%= produk.hari %>".toLowerCase().split(",").map(h => h.trim());
+        const inputTanggal = document.querySelector('input[name="tanggal_tayang"]');
+        const jumlah = parseInt(document.getElementById("jumlah_pemesanan")?.value) || 1;
+
+        toggleFileInputs();
+        ubahJumlah(0);
+
+        const today = new Date();
+        today.setDate(today.getDate() + 2);
+        inputTanggal.min = today.toISOString().split("T")[0];
+
+        // 🔁 Set hari dari tanggal awal jika ada
+        if (inputTanggal.value) {
+          setTimeout(() => {
+            setCheckboxHariDariTanggal(inputTanggal.value, hariBoleh);
+          }, 50);
+        }
+
+        // 📅 Tanggal berubah
+        inputTanggal.addEventListener("change", function () {
+          const selectedDate = new Date(this.value);
+          const hariIndo = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
+          const namaHari = hariIndo[selectedDate.getDay()];
+
+          if (!hariBoleh.includes(namaHari)) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Hari tidak valid',
+              text: 'Silakan pilih hari tayang yang tersedia: ' + hariBoleh.map(h => h.charAt(0).toUpperCase() + h.slice(1)).join(', '),
+              confirmButtonColor: '#3085d6',
+              confirmButtonText: 'Oke'
+            });
+            this.value = "";
+
+            document.querySelectorAll('input[name="hari_dipilih[]"]').forEach(cb => {
+              cb.disabled = false;
+              if (cb.dataset.autoChecked === "true") {
+                cb.checked = false;
+                delete cb.dataset.autoChecked;
+              }
+            });
+          } else {
+            setTimeout(() => {
+              setCheckboxHariDariTanggal(this.value, hariBoleh);
+            }, 50);
+          }
+        });
+      });
+
+// Validasi lengkap saat submit
+document.querySelector("form").addEventListener("submit", function (e) {
+  let valid = true;
+  const jumlah = parseInt(document.getElementById("jumlah_pemesanan").value);
+  const cekScript = document.getElementById("cekScript");
+  const cekAudio = document.getElementById("cekAudio");
+  const inputScript = document.querySelector('input[name="file_script"]');
+  const inputAudio = document.querySelector('input[name="file_audio"]');
+
+  // Reset error
+  document.querySelectorAll('.invalid-feedback').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.form-control').forEach(el => el.classList.remove('is-invalid'));
+
+  // ❗ Validasi slot kalender
+  if (selectedSlots.length !== jumlah) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'warning',
+      title: 'Slot belum dipilih',
+      text: `Anda harus memilih ${jumlah} slot tayang di kalender.`
+    });
+    return;
+  }
+
+  // ❗ Minimal harus salah satu file dipilih
+if (!cekScript.checked && !cekAudio.checked) {
+  e.preventDefault();
+
+  // ❌ Tampilkan feedback manual
+  document.getElementById("feedbackJenisFile").style.display = "block";
+
+  Swal.fire({
+    icon: 'warning',
+    title: 'Jenis file belum dipilih',
+    text: 'Silakan pilih jenis file yang ingin dikirim (Script atau Audio).'
+  });
+
+  valid = false;
+  return;
+}
+
+  // ❗ Validasi file Script jika dicek
+  if (cekScript.checked) {
+    const file = inputScript.files[0];
+    if (!file || !file.name.endsWith(".pdf")) {
+      inputScript.classList.add("is-invalid");
+      inputScript.nextElementSibling.style.display = "block";
+      valid = false;
+    }
+  }
+
+  // ❗ Validasi file Audio jika dicek
+  if (cekAudio.checked) {
+    const file = inputAudio.files[0];
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav'];
+    if (!file || !allowedTypes.includes(file.type)) {
+      inputAudio.classList.add("is-invalid");
+      inputAudio.nextElementSibling.style.display = "block";
+      valid = false;
+    }
+  }
+
+  if (!valid) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'error',
+      title: 'Form belum lengkap atau file salah',
+      text: 'Silakan periksa kembali semua input yang diperlukan.'
+    });
+  }
+});
+
+console.log("📅 Data jadwalEvents:", <%- jadwalEvents %>);
+
+</script>
+</body>
+
+</html>

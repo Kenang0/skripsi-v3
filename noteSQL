@@ -6,9 +6,9 @@ CREATE TABLE users (
     role VARCHAR (255) ,
     full_name VARCHAR (255),
     nomor_tlp VARCHAR (255),
-    alamat_user text,
+    alamat text,
     status_users TEXT DEFAULT 'aktif',
-    Dibuat_tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    dibuat_tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     photo_user VARCHAR (255),
     vertifikasi_user VARCHAR (255)
 );
@@ -70,7 +70,8 @@ CREATE TABLE jadwal_produk_radio (
     produk_id INTEGER REFERENCES produk_iklan(id_penayangan_radio),
     hari TEXT 
     jam_mulai TIME,
-    jam_selesai TIME
+    jam_selesai TIME,
+    slot_penayangan INTEGER
 );
 
 CREATE TABLE detail_produk_sms (
@@ -116,11 +117,15 @@ CREATE TABLE detail_pemesanan_sms (
 CREATE TABLE detail_pemesanan_radio (
     id_detail_radio SERIAL PRIMARY KEY,
     id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
-    tanggal_tayang_pemesanan_radio DATE NOT NULL,
-    jam_tayang_pemesanan_radio TIME NOT NULL, -- harus disesuaikan dengan jam yang tersedia
-    script_audio TEXT, -- bisa berupa isi langsung atau nama file
-    file_script TEXT, -- bisa file teks / dokumen
-    foto_produk TEXT -- opsional
+    tanggal_tayang_pemesanan_radio DATE ,
+    jam_tayang_pemesanan_radio TIME , -- harus disesuaikan dengan jam yang tersedia
+);
+
+CREATE TABLE file_pemesanan_radio (
+    id_file_radio SERIAL PRIMARY KEY,
+    id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
+    file_script TEXT,  -- path atau nama file script (PDF)
+    file_audio TEXT    -- path atau nama file audio (MP3/WAV)
 );
 
 
@@ -131,3 +136,158 @@ CREATE TABLE bukti_tayang (
     file_path TEXT NOT NULL,
     keterangan_tayang TEXT
 );
+
+CREATE TABLE pembayaran (
+    id_pembayaran SERIAL PRIMARY KEY,
+    id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
+    -- kode_invoice TEXT UNIQUE, -- dari Tripay
+    -- metode_pembayaran TEXT,   -- misal: BNI VA
+    jumlah_bayar INTEGER,
+    status_pembayaran TEXT DEFAULT 'menunggu pengecekan', -- pending, paid, expired, failed
+    -- waktu_dibuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    waktu_dibayar TIMESTAMP,
+    -- tripay_reference TEXT     -- kode unik dari Tripay untuk tracking
+);
+
+
+DB DIagram . io
+-- Table users {
+--   id SERIAL [not null, pk]
+--   email VARCHAR(255)
+--   password VARCHAR(255)
+--   role VARCHAR(255)
+--   full_name VARCHAR(255)
+--   nomor_tlp VARCHAR(255)
+--   alamat text
+--   status_users TEXT [default: 'aktif']
+--   dibuat_tanggal TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+--   photo_user VARCHAR(255)
+--   vertifikasi_user VARCHAR(255)
+-- }
+
+-- Table pks {
+--   pks_id SERIAL [pk]
+--   nomor_pks VARCHAR(255)
+--   user_id INTEGER [not null, ref: > users.id]
+--   pt_mitra TEXT
+--   kota VARCHAR(255)
+--   alamat_pks text
+--   nik VARCHAR(255)
+--   nama_perwakilan VARCHAR(255)
+--   perwakilan_jabatan VARCHAR(255)
+--   nama_dari_pdf VARCHAR(255)
+--   status TEXT [default: 'menunggu tanda tangan']
+--   pembuatan_pks TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+--   keterangan VARCHAR(255)
+-- }
+
+-- Table users_vendor {
+--   id_vendor SERIAL [pk]
+--   pks_id INTEGER [not null, unique, ref: - pks.pks_id]
+--   email TEXT [unique]
+--   password TEXT
+--   nama_toko_vendor TEXT
+--   no_telepon_vendor TEXT
+--   photo_vendor VARCHAR(255)
+--   status TEXT [default: 'aktif']
+--   vendor_dibuat_tanggal TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+--   vertifikasi_vendor VARCHAR(255)
+-- }
+
+-- Table kategori {
+--   kategori_id SERIAL [pk]
+--   tipe_kategori VARCHAR(255)
+-- }
+
+-- Table produk_iklan {
+--   id_produk_iklan SERIAL [pk]
+--   vendor_id INTEGER [not null, ref: > users_vendor.id_vendor]
+--   kategori_id INTEGER [not null, ref: > kategori.kategori_id]
+--   nama_produk TEXT
+--   deskripsi_produk TEXT
+--   harga INTEGER
+--   produk_iklan_dibuat TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+--   status_produk TEXT
+--   photo_produk TEXT
+-- }
+
+-- Table jadwal_produk_radio {
+--   id_jadwal_produk_radio SERIAL [pk]
+--   produk_id INTEGER [unique, not null,ref: - produk_iklan.id_produk_iklan]
+--   hari TEXT
+--   jam_mulai TIME
+--   jam_selesai TIME
+--   slot_penayangan INTEGER
+-- }
+
+-- Table detail_produk_sms {
+--   id_detail_sms SERIAL [pk]
+--   produk_id INTEGER [not null,ref: - produk_iklan.id_produk_iklan]
+--   provider_yang_di_layani TEXT
+--   jenis_target VARCHAR(100)
+-- }
+
+-- Table pemesanan {
+--   id_pemesanan SERIAL [PK]
+--   user_id INTEGER [not null, ref: > users.id]
+--   produk_id INTEGER [unique ,not null,ref: - produk_iklan.id_produk_iklan]
+--   jumlah_pemesanan INTEGER
+--   tanggal_pemesanan TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+--   status_pemesanan TEXT [default: 'menunggu verifikasi']
+--   note_pemesanan_user TEXT
+--   note_pemesanan_vendor TEXT
+-- }
+
+-- Table detail_pemesanan_sms {
+--   id_detail_sms SERIAL [pk]
+--   id_pemesanan INTEGER [not null,unique, ref: - pemesanan.id_pemesanan]
+--   nomor_penerima_bukti_tayang TEXT
+--   masking VARCHAR(50)
+--   target_umur VARCHAR(50)
+--   tipe_device_penerima TEXT
+--   tanggal_pengiriman_start DATE
+--   tanggal_pengiriman_end DATE
+--   jam_pengiriman TIME
+--   teks_iklan_sms TEXT
+--   sumber_nomor VARCHAR(50)
+--   file_foto_mms TEXT
+--   file_nomor_sms_pdf TEXT
+--   alamat_target_sms TEXT
+--   dps_latitude TEXT
+--   dps_longitude TEXT
+-- }
+
+-- // Tabel Detail Pemesanan Radio
+-- Table detail_pemesanan_radio {
+--   id_detail_radio SERIAL [pk]
+--   id_pemesanan INTEGER [not null,ref: > pemesanan.id_pemesanan]
+--   tanggal_tayang_pemesanan_radio DATE
+--   jam_tayang_pemesanan_radio TIME
+-- }
+
+-- Table file_pemesanan_radio {
+--   id_file_radio SERIAL [pk]
+--   id_pemesanan INTEGER [not null, unique, ref: - pemesanan.id_pemesanan]
+--   file_script TEXT
+--   file_audio TEXT
+-- }
+
+-- Table pembayaran {
+--   id_pembayaran SERIAL [pk]
+--   id_pemesanan INTEGER [not null,ref: - pemesanan.id_pemesanan]
+--   // kode_invoice TEXT [unique]
+--   // metode_pembayaran TEXT
+--   jumlah_bayar INTEGER
+--   status_pembayaran TEXT [default: 'menunggu pengecekan']
+--   // waktu_dibuat TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+--   waktu_dibayar TIMESTAMP
+--   // tripay_reference TEXT
+-- }
+
+-- Table bukti_tayang {
+--   id_bukti SERIAL [pk]
+--   id_pembayaran INTEGER [not null,ref: - pembayaran.id_pembayaran]
+--   tipe_file TEXT
+--   file_path TEXT
+--   keterangan_tayang TEXT
+-- }

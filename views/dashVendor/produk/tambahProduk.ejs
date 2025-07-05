@@ -202,6 +202,15 @@
       </div>
     </div>
 
+    <div>
+  <label>Slot Penayangan Per: <span style="color:red">* </span></label>
+  <select name="slot_penayangan">
+    <option value="">-- Pilih --</option>
+    <option value="30">30 Menit</option>
+    <option value="60">60 Menit</option>
+  </select>
+</div>
+
   </div>
 
   <!-- Form SMS -->
@@ -321,6 +330,7 @@
         showError("#form-radio input[name='harga']", "Wajib diisi");
         showError("#form-radio input[name='jam_mulai']", "Wajib diisi");
         showError("#form-radio input[name='jam_selesai']", "Wajib diisi");
+        showError("#form-radio select[name='slot_penayangan']", "Wajib dipilih");
 
         const hariDipilih = form.querySelectorAll("#form-radio input[name='hari_tayang[]']:checked");
         if (hariDipilih.length === 0) {
