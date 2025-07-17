@@ -1,12 +1,13 @@
 import express from "express";
-import { authenticateRoleWeb } from "../../middleware/authMiddleware.js";
+import { authenticateRoleWeb,authenticatePembayaranHybrid } from "../../middleware/authMiddleware.js";
 import { authenticateRoleDashAdmin } from "../../middleware/authMiddleware.js";
 // sebelum login
-import { ambilhome_belomlogin, detailProdukSms,registerUser,vertifikasi,forgotPasswordUser } from "../../controllers/webController/web.js";
+import { ambilhome_belomlogin, detailProdukSms,registerUser,vertifikasi,forgotPasswordUser,register_akun } from "../../controllers/webController/web.js";
 // sesudah login
 import {
     getLoginPageWeb, loginUserWeb, getHomeweb, getpengaturan, loginDetailProdukSms, loginFormPesanProdukSms, handlePesanSMS, getOnProgress,
-    getbuktiPemesananBy,batalPemesanan,loginDetailProdukRadio,loginFormPesanProdukRadio,handlePesanRadio
+    getbuktiPemesananBy,batalPemesanan,loginDetailProdukRadio,loginFormPesanProdukRadio,handlePesanRadio,
+    halamanPembayaran,uploadBuktiPembayaran,verifyPembayaranToken,selesaikanPemesanan,halamanPenyesuaianSMS
 } from "../../controllers/webController/web.js";
 
 const router = express.Router();
@@ -16,6 +17,7 @@ const router = express.Router();
 router.get("/", ambilhome_belomlogin);
 router.get("/produk-sms/:id", detailProdukSms);
 router.post('/register', registerUser);
+router.get("/register",register_akun);
 router.post("/forgot-password",forgotPasswordUser);
 router.get("/reset-password", vertifikasi);
 //login web
@@ -45,6 +47,14 @@ router.get('/bukti-pemesanan/:id_pemesanan',authenticateRoleWeb(["klien", "admin
 
 router.get("/batal-pemesanan/:id",authenticateRoleWeb(["klien", "admin", "partnership", "project lead", "Finance"]), batalPemesanan);
 
+router.get("/pembayaran/:id_pemesanan",authenticateRoleWeb(["klien", "admin", "partnership", "project lead", "Finance"]), halamanPembayaran);
 
+router.post("/upload-bukti",authenticatePembayaranHybrid, uploadBuktiPembayaran);
+
+router.get("/pembayaran/:id_pemesanan/email", verifyPembayaranToken, halamanPembayaran);
+
+router.post('/selesaikan-pemesanan', authenticateRoleWeb(["klien", "admin", "partnership", "project lead", "Finance"]), selesaikanPemesanan);
+
+router.get('/penyesuaian/:id_pemesanan', authenticateRoleWeb(["klien"]),halamanPenyesuaianSMS);
 
 export default router;

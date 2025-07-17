@@ -40,10 +40,15 @@
         white-space: nowrap;
         /* Biar teks tidak turun ke bawah */
     }
+
+      .tabel-data-tim {
+    padding: 0 30px;
+    margin-top: 20px;
+  }
 </style>
 
 
-<div class="tabel-pks-selesaiAtautolak">
+<div class="tabel-data-tim">
     <div class="kotak-tabel">
         <div class="kotak-header">
             <h5>PKS Selesai / Di Tolak </h5>
@@ -55,6 +60,7 @@
                     <tr>
                         <th>No</th>
                         <th>Nama</th>
+                        <th>Email</th>
                         <th>No Telepon</th>
                         <th>Alamat</th>
                         <th>Hak Akes</th>
@@ -64,8 +70,84 @@
                 </thead>
                 <tbody>
 
+                    <% if (data.length===0) { %>
+                        <tr>
+                            <td colspan="8" style="text-align:center;">Belum ada data tim internal.</td>
+                        </tr>
+                        <% } else { %>
+                            <% data.forEach((item,index)=> { %>
+                                <tr>
+                                    <td>
+                                        <%= index + 1 %>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center;">
+                                            <img src="/foto/<%= item.photo_user %>" alt="foto<%= item.full_name %>"
+                                                style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 10px;">
+                                            <%= item.full_name %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <%= item.email %>
+                                    </td>
+                                    <td>
+                                        <%= item.nomor_tlp %>
+                                    </td>
+                                    <td>
+                                        <%= item.alamat %>
+                                    </td>
+                                    <td>
+                                        <%= item.role %>
+                                    </td>
+                                    <td>
+                                        <%= item.status_users %>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal"
+                                            data-bs-target="#modalEditStatus-<%= item.id %>">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="hapusUser('<%= item.id %>')">
+                                            <i class="bi bi-trash"></i>Delete
+                                        </button>
+                                    </td>
+
+
+                                </tr>
+                                <% }) %>
+                                    <% } %>
+
                 </tbody>
-        </table>
+            </table>
+
+<% data.forEach((item, index) => { %>
+  <!-- Modal Edit Status -->
+  <div class="modal fade" id="modalEditStatus-<%= item.id %>" tabindex="-1" aria-labelledby="modalLabel<%= item.id %>" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <form action="/admin/internal/update-status/<%= item.id %>" method="POST">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel<%= item.id %>">Edit Status Akun</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="status<%= item.id %>" class="form-label">Status</label>
+              <select class="form-select" id="status<%= item.id %>" name="status_users" required>
+                <option value="aktif" <%= item.status_users === 'aktif' ? 'selected' : '' %>>Aktif</option>
+                <option value="tidak aktif" <%= item.status_users === 'tidak aktif' ? 'selected' : '' %>>Tidak Aktif</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary btn-sm">Simpan</button>
+            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<% }) %>
         </div>
     </div>
 </div>
@@ -74,3 +156,34 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function hapusUser(id) {
+    Swal.fire({
+      title: 'Yakin ingin menghapus?',
+      text: "Aksi ini tidak bisa dibatalkan!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Ya, hapus!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`/admin/internal/delete-user/${id}`, {
+          method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success').then(() => {
+              location.reload();
+            });
+          } else {
+            Swal.fire('Gagal!', 'Terjadi kesalahan saat menghapus.', 'error');
+          }
+        });
+      }
+    });
+  }
+</script>
+

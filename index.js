@@ -6,6 +6,7 @@ import adminRoutes from "./routes/adminRoutes/adminRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes/vendorRoutes.js";
 import webRoutes from "./routes/webRoutes/webRoutes.js"
 import tampilan from "./routes/cektampilanRoutes/cekTampilan.js"
+import "./controllers/corn/corn.js";
 
 dotenv.config();
 

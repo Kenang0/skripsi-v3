@@ -244,7 +244,7 @@
   <div class="flex-grow-1">
     <h5 class="fw-bold mb-1"><%= produk.nama_produk %></h5>
     <p class="mb-1">Hari Tayang: <%= produk.hari %></p>
-    <p class="mb-1">Jam: <%= formatJam12(produk.jam_mulai) %> - </p>
+    <p class="mb-1">Jam: <%= formatJam12(produk.jam_mulai) %> s/d <%= formatJam12(produk.jam_selesai) %></p>
     <p class="mb-1">Harga: <strong>Rp <%= produk.harga.toLocaleString("id-ID") %></strong></p>
   </div>
 </div>
@@ -385,17 +385,58 @@
       events: <%- jadwalEvents %>,
       height: 'auto',
 
-      eventDidMount: function (info) {
-        const hariBoleh = "<%= produk.hari %>".toLowerCase().split(",").map(h => h.trim());
-        const startDate = new Date(info.event.start);
-        const hariIndo = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
-        const namaHari = hariIndo[startDate.getDay()];
+  eventDidMount: function (info) {
+  const hariBoleh = "<%= produk.hari %>".toLowerCase().split(",").map(h => h.trim());
+  const startDate = new Date(info.event.start);
+  startDate.setHours(0, 0, 0, 0);
+  const hariIndo = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
+  const namaHari = hariIndo[startDate.getDay()];
 
-        if (!hariBoleh.includes(namaHari)) {
-          info.el.style.backgroundColor = "#f8d7da";
-          info.el.style.color = "#842029";
-          info.el.style.border = "1px solid #dc3545";
+  // Hari tidak tersedia
+  if (!hariBoleh.includes(namaHari)) {
+    info.el.style.backgroundColor = "#f8d7da";
+    info.el.style.color = "#842029";
+    info.el.style.border = "1px solid #dc3545";
+    info.el.title = "Hari tidak tersedia";
+  }
+
+  // Tanggal terlalu dekat (hari ini sampai 2 hari ke depan)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const minDate = new Date(today);
+  minDate.setDate(today.getDate() + 3);
+
+  if (startDate < minDate) {
+   info.el.style.backgroundColor = "#f8d7da";
+    info.el.style.color = "#842029";
+    info.el.style.border = "1px solid #dc3545";
+    info.el.style.opacity = 1;
+    info.el.title = "Tidak bisa dipilih, minimal 3 hari ke depan";
+  }
+
+    // 🖱️ Tambahkan handler double click
+  if (info.event.title === "Dipilih") {
+    info.el.addEventListener("dblclick", function () {
+      // Hapus event dari kalender
+      info.event.remove();
+
+      // Hapus dari selectedSlots
+      selectedSlots = selectedSlots.filter(s => s.start !== info.event.startStr || s.end !== info.event.endStr);
+
+      // Hapus dari hidden input
+      const hiddenInputs = document.querySelectorAll("input[name='slot_dipilih[]']");
+      hiddenInputs.forEach(input => {
+        const val = JSON.parse(input.value);
+        if (val.start === info.event.startStr && val.end === info.event.endStr) {
+          input.remove();
         }
+      });
+    });
+  }
+},
+
+      eventContent: function(arg) {
+      return { html: `<div style="text-align:center;">Dipilih </div>` };
       },
 
       select: function (info) {
@@ -409,13 +450,48 @@
         const hariIndo = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
         const namaHari = hariIndo[start.getDay()];
 
-        if (!hariBoleh.includes(namaHari)) {
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const limitDate = new Date(today);
+limitDate.setDate(today.getDate() + 2);
+const pickedDate = new Date(info.start);
+pickedDate.setHours(0, 0, 0, 0);
+
+if (!hariBoleh.includes(namaHari) || pickedDate <= limitDate) {
+  let pesan = "";
+
+  if (!hariBoleh.includes(namaHari)) {
+    pesan = `Hari ${namaHari.charAt(0).toUpperCase() + namaHari.slice(1)} tidak tersedia untuk produk ini.`;
+  } else {
+    const tanggalBoleh = new Date(today);
+    tanggalBoleh.setDate(today.getDate() + 3);
+
+    const tanggalBolehString = tanggalBoleh.toLocaleDateString("id-ID", {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    pesan = `Anda hanya bisa memilih slot mulai dari ${tanggalBolehString}.`;
+  }
+
+  Swal.fire({
+    icon: 'warning',
+    title: 'Tanggal tidak valid',
+    text: pesan,
+    confirmButtonText: 'Oke',
+    confirmButtonColor: '#3085d6'
+  });
+  calendar.unselect();
+  return;
+}
+
+
+
+          if (pickedDate <= limitDate) {
           Swal.fire({
-            icon: 'error',
-            title: 'Hari tidak tersedia',
-            text: `Slot pada hari ${namaHari.charAt(0).toUpperCase() + namaHari.slice(1)} tidak tersedia untuk produk ini.`,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Mengerti'
+          icon: 'warning',
+          title: 'Tanggal tidak valid',
+          text: 'Anda hanya bisa memilih tanggal mulai dari 3 hari ke depan.',
+          confirmButtonText: 'Oke',
+          confirmButtonColor: '#3085d6'
           });
           calendar.unselect();
           return;
@@ -425,7 +501,7 @@
           Swal.fire({
             icon: 'warning',
             title: 'Slot tidak valid',
-            text: `Pilih hanya 1 slot sesuai durasi yang tersedia (${slotDuration} menit). Jangan drag.`,
+            text: `Silakan klik 1 kali pada slot waktu yang diinginkan. Jangan klik dan seret (drag).`,
             confirmButtonText: 'Oke',
             confirmButtonColor: '#3085d6'
           });
@@ -436,8 +512,8 @@
         if (selectedSlots.length >= max) {
           Swal.fire({
             icon: 'warning',
-            title: 'Maksimum slot tercapai',
-            text: `Jumlah slot tayang yang dapat dipilih harus sama dengan jumlah pemesanan Anda (${max} slot).`,
+            title: 'Maksimum slot tercapai pemesanan',
+            text: `Anda sudah memilih ${max} slot tayang. Jika ingin menambah slot, silakan tambahkan jumlah pemesanan terlebih dahulu.`,
             confirmButtonText: 'Oke',
             confirmButtonColor: '#3085d6'
           });
@@ -459,18 +535,19 @@
     });
 
     calendar.render();
+
   });
 
   // Reset slot ketika jumlah pemesanan diubah
   document.getElementById("jumlah_pemesanan").addEventListener("input", function () {
-    calendar.batchRendering(() => {
-      selectedSlots = [];
-      document.getElementById("hiddenSlotInput").innerHTML = "";
-      calendar.getEvents().forEach(ev => {
-        if (ev.title === "Dipilih") ev.remove();
-      });
-      calendar.unselect();
-    });
+    // calendar.batchRendering(() => {
+    //   selectedSlots = [];
+    //   document.getElementById("hiddenSlotInput").innerHTML = "";
+    //   calendar.getEvents().forEach(ev => {
+    //     if (ev.title === "Dipilih") ev.remove();
+    //   });
+    //   calendar.unselect();
+    // });
   });
 
   // Fungsi tambah input hidden
@@ -576,7 +653,7 @@ document.querySelector("form").addEventListener("submit", function (e) {
     e.preventDefault();
     Swal.fire({
       icon: 'warning',
-      title: 'Slot belum dipilih',
+      title: 'Tolong pilih slot sesuai dengan jumlah pemesanan',
       text: `Anda harus memilih ${jumlah} slot tayang di kalender.`
     });
     return;

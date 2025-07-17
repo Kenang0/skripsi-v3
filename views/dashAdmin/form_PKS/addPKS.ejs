@@ -384,9 +384,14 @@
 
         const data = await response.json();
         if (data.error) {
-            alert(data.error);
-            return;
-        }
+        Swal.fire({
+        icon: "error",
+        title: "Gagal Membuat PKS",
+        text: data.error || "Terjadi kesalahan saat membuat dokumen.",
+        confirmButtonColor: '#d33'
+    });
+    return;
+}
 
         if (data.pdfPath) {
             document.getElementById("pdfPreview").src = data.pdfPath + "#toolbar=0";

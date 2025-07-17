@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Ngiklan Murah</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<style>
+  /* Scrollbar styling opsional */
+  .scroll-horizontal::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .scroll-horizontal::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+</style>
+
+<body>
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid px-4">
+      <!-- Logo -->
+      <img src="/foto/logo_ngiklanmurah.png" alt="Logo" style="height: 20px; padding-right: 5px;">
+      <a href="/home-page" class="navbar-brand fs-5">NGIKLAN MURAH</a>
+
+      <div class="d-flex align-items-center ms-auto">
+        <!-- Toggler -->
+        <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Profil User Khusus Mobile -->
+        <% if (dataUser) { %>
+          <div class="d-block d-lg-none d-flex align-items-center">
+            <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+              style="width: 32px; height: 32px; object-fit: cover;">
+          </div>
+          <% } %>
+      </div>
+
+      <!-- Isi Navbar -->
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <!-- Menu Tengah -->
+        <ul class="navbar-nav mx-auto mb-3 mb-lg-0 text-center">
+          <li class="nav-item"><a class="nav-link text-dark" href="/home-page">Home</a></li>
+          <li class="nav-item"><a class="nav-link text-dark" href="#">Kategori</a></li>
+          <li class="nav-item"><a class="nav-link text-dark" href="#">Tentang Kami</a></li>
+        </ul>
+
+        <!-- Ikon dan Button -->
+        <div class="d-flex flex-column flex-lg-row align-items-center gap-3 text-center">
+          <!-- ICON -->
+          <div class="d-flex flex-row flex-wrap justify-content-center gap-3">
+            <div class="d-flex flex-column align-items-center">
+              <a href="#" class="text-dark fs-6"><i class="bi bi-cart3"></i></a>
+              <small>Keranjang</small>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+              <a href="#" class="text-dark fs-6"><i class="bi bi-opencollective"></i></a>
+              <small>Riwayat</small>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+              <a href="/dalam-progress" class="text-dark fs-6"><i class="bi bi-clipboard-check-fill"></i></a>
+              <small>Progress</small>
+            </div>
+          </div>
+
+          <!-- Button -->
+          <!-- Jika user sudah login -->
+          <div class="user-profile d-none d-lg-block ms-3">
+            <a href="/pengaturan-akun">
+              <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
+                style="width: 32px; height: 32px; object-fit: cover;"></a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mt-5 mb-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+
+        <h2 class="mb-4">Pembayaran</h2>
+
+        <!-- 📷 Logo / Foto Bank -->
+        <img src="/images/bank_placeholder.png" alt="Bank" width="150"><br>
+        <strong>Transfer ke: 1030007752344 (Mandiri a.n. PANDAWA SAKTI DIGITA)</strong><br><br>
+
+        <!-- 🖼️ Foto Produk -->
+        <img src="/uploads/produk_img/<%= produk.photo_produk %>" alt="Foto Produk" width="200"><br>
+
+        <!-- 📦 Nama Produk -->
+        <p><strong>Nama Produk:</strong>
+          <%= produk.nama_produk %>
+        </p>
+
+        <!-- 💸 Harga per unit -->
+        <p><strong>Harga per Unit:</strong> Rp <%= produk.harga.toLocaleString('id-ID') %>
+        </p>
+
+        <!-- 📅 Jadwal Tayang -->
+        <p><strong>Jadwal Tayang:</strong><br>
+          <%- produk.jadwal %>
+        </p>
+
+        <!-- 🔢 Jumlah -->
+        <p><strong>Jumlah Pemesanan:</strong>
+          <%= produk.jumlah %>
+        </p>
+
+        <!-- 💰 Total -->
+        <p><strong>Total Harga Produk:</strong> Rp <%= produk.total_harga.toLocaleString('id-ID') %>
+        </p>
+
+        <% if (pembayaranSebelumnya.length> 0) { %>
+          <hr>
+          <h5>Riwayat Pembayaran Sebelumnya</h5>
+<ul>
+  <% pembayaranSebelumnya.forEach((p, i) => { %>
+    <li>
+      Pembayaran ke-<%= i + 1 %> sebesar Rp <%= p.jumlah_ditampilkan.toLocaleString("id-ID") %>
+      <% if (p.kekurangan) { %>
+        (kekurangan: Rp <%= p.kekurangan.toLocaleString("id-ID") %>)
+      <% } %>
+      pada <%= new Date(p.waktu_dibayar).toLocaleString("id-ID") %>
+    </li>
+  <% }) %>
+</ul>
+
+          <p><strong>Sisa Tagihan:</strong> Rp <%= sisa_tagihan.toLocaleString('id-ID') %>
+          </p>
+          <% } else { %>
+            <p><strong>Tagihan Saat Ini:</strong> Rp <%= produk.total_harga.toLocaleString('id-ID') %>
+            </p>
+            <% } %>
+
+              <!-- 📤 Upload Bukti -->
+              <form action="/upload-bukti<%= token ? ('?token=' + token) : '' %>" method="POST"
+                enctype="multipart/form-data">
+                <input type="hidden" name="id_pemesanan" value="<%= id_pemesanan %>">
+                <% if (token) { %>
+                  <input type="hidden" name="token" value="<%= token %>">
+                  <% } %>
+
+                    <label for="bukti_pembayaran" class="form-label">Upload Foto Bukti Pembayaran (jpg/png):</label><br>
+                    <input type="file" id="bukti_pembayaran" name="bukti_pembayaran" accept=".jpg,.jpeg,.png"
+                      class="form-control mb-1" aria-describedby="error-msg">
+                    <div id="error-msg" class="invalid-feedback d-block"></div>
+
+                    <button type="submit" class="btn btn-primary">Kirim</button>
+              </form>
+
+      </div>
+    </div>
+  </main>
+
+
+
+
+  <footer class="bg-dark text-white mt-5 pt-4 pb-3">
+    <div class="container">
+      <div class="row text-center text-md-start">
+        <!-- Brand dan Deskripsi -->
+        <div class="col-md-4 mb-4">
+          <h5 class="fw-bold">NGIKLAN MURAH</h5>
+          <p class="small">Solusi mudah dan terjangkau untuk semua kebutuhan iklan Anda. Billboard, Radio, SMS dan
+            lainnya.</p>
+        </div>
+
+        <!-- Navigasi -->
+        <div class="col-md-4 mb-4">
+          <h6 class="fw-bold">Navigasi</h6>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-white text-decoration-none small">Home</a></li>
+            <li><a href="#" class="text-white text-decoration-none small">Fitur</a></li>
+            <li><a href="#" class="text-white text-decoration-none small">Harga</a></li>
+          </ul>
+        </div>
+
+        <!-- Kontak -->
+        <div class="col-md-4 mb-4">
+          <h6 class="fw-bold">Kontak</h6>
+          <p class="small mb-1"><i class="bi bi-envelope me-2"></i>support@ngiklanmurah.com</p>
+          <p class="small"><i class="bi bi-telephone me-2"></i>+62 812-3456-7890</p>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="text-center border-top pt-3 small">
+        © 2025 NgiklanMurah. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    //    efek scroll navbar
+    window.addEventListener('scroll', function () {
+      const navbar = document.querySelector('.navbar');
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    function scrollProduk(type, direction) {
+      const containerId = type === 'radio' ? 'radio-container' : 'sms-container';
+      const container = document.getElementById(containerId);
+      const scrollAmount = 240; // sesuaikan jika ukuran kartu berubah
+      container.scrollBy({
+        left: direction * scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+
+  </script>
+
+  <script>
+    document.getElementById("formPembayaran").addEventListener("submit", function (e) {
+      const input = document.getElementById("bukti_pembayaran");
+      const file = input.files[0];
+      const errorMsg = document.getElementById("error-msg");
+
+      // reset styling dulu
+      input.classList.remove("is-invalid");
+
+      if (!file) {
+        e.preventDefault();
+        input.classList.add("is-invalid");
+        errorMsg.style.display = "block";
+        errorMsg.textContent = " File bukti pembayaran wajib diunggah.";
+        return;
+      }
+
+      const allowedTypes = ['image/jpeg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        e.preventDefault();
+        input.classList.add("is-invalid");
+        errorMsg.style.display = "block";
+        errorMsg.textContent = " Format file tidak valid. Hanya boleh .jpg atau .png.";
+        return;
+      }
+
+      errorMsg.style.display = "none";
+      input.classList.remove("is-invalid");
+    });
+  </script>
+
+
+
+</body>
+
+</html>

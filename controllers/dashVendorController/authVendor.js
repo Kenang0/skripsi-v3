@@ -121,7 +121,7 @@ export const postTambahProduk = async (req, res) => {
 
       // === KATEGORI: RADIO ===
       if (kategori_id === "1") {
-        const { jam_mulai, jam_selesai, hari_tayang,slot_penayangan } = req.body;
+        const { jam_mulai, jam_selesai, hari_tayang, slot_penayangan } = req.body;
 
         // Gabungkan semua hari menjadi satu string dipisah koma
         const hariGabung = Array.isArray(hari_tayang) ? hari_tayang.join(",") : hari_tayang;
@@ -130,7 +130,7 @@ export const postTambahProduk = async (req, res) => {
         await pool.query(
           `INSERT INTO jadwal_produk_radio (produk_id, hari, jam_mulai, jam_selesai,slot_penayangan)
            VALUES ($1, $2, $3, $4,$5)`,
-          [produkIdBaru, hariGabung, jam_mulai, jam_selesai,slot_penayangan]
+          [produkIdBaru, hariGabung, jam_mulai, jam_selesai, slot_penayangan]
         );
 
       }
@@ -346,7 +346,7 @@ export const updateProduk = async (req, res) => {
           `UPDATE jadwal_produk_radio 
            SET hari = $1, jam_mulai = $2, jam_selesai = $3 ,slot_penayangan = $4 
            WHERE produk_id = $5`,
-          [hariGabung, jam_mulai, jam_selesai,slot_penayangan ,id]
+          [hariGabung, jam_mulai, jam_selesai, slot_penayangan, id]
         );
       } else {
         const providerGabung = providerArray.join(",");
@@ -425,7 +425,7 @@ export const getOnProgressVendor = async (req, res) => {
   LEFT JOIN file_pemesanan_radio fpr ON fpr.id_pemesanan = p.id_pemesanan
 
   WHERE prod.vendor_id = $1
-    AND LOWER(p.status_pemesanan) != 'dibatalkan'
+    AND LOWER(p.status_pemesanan) NOT IN ('dibatalkan', 'selesai')
   ORDER BY p.tanggal_pemesanan DESC
 `, [vendorId]);
 
@@ -439,23 +439,23 @@ export const getOnProgressVendor = async (req, res) => {
       tanggal: p.tanggal_pemesanan,
     })));
 
-hasil.rows.forEach((p, index) => {
-  if (p.slot_penayangan_radio && Array.isArray(p.slot_penayangan_radio)) {
-    console.log(`📅 Pemesanan ID ${p.id_pemesanan} - Slot Penayangan:`);
+    hasil.rows.forEach((p, index) => {
+      if (p.slot_penayangan_radio && Array.isArray(p.slot_penayangan_radio)) {
+        console.log(`📅 Pemesanan ID ${p.id_pemesanan} - Slot Penayangan:`);
 
-    p.slot_penayangan = p.slot_penayangan_radio.map((item) => {
-      const jam = item.jam?.substring(0, 5); // "01:53"
-      console.log(`- Tanggal: ${item.tanggal}, Jam: ${jam}`);
-      return {
-        title: `${jam} Tayang`,
-        start: item.tanggal
-      };
+        p.slot_penayangan = p.slot_penayangan_radio.map((item) => {
+          const jam = item.jam?.substring(0, 5); // "01:53"
+          console.log(`- Tanggal: ${item.tanggal}, Jam: ${jam}`);
+          return {
+            title: `${jam} Tayang`,
+            start: item.tanggal
+          };
+        });
+      } else {
+        console.log(`⚠️ Pemesanan ID ${p.id_pemesanan} tidak punya data slot penayangan`);
+        p.slot_penayangan = [];
+      }
     });
-  } else {
-    console.log(`⚠️ Pemesanan ID ${p.id_pemesanan} tidak punya data slot penayangan`);
-    p.slot_penayangan = [];
-  }
-});
     res.render("dashVendor/dashboardVendor", {
       data: hasil.rows,
       partial: "dalam_progress",
@@ -474,10 +474,6 @@ export const updateStatusPemesanan = async (req, res) => {
   const { id } = req.params;
   const { status, note } = req.body;
 
-  console.log("📥 ID:", id);
-  console.log("📥 Status:", status);
-  console.log("📥 Note:", note);
-
   try {
     const validStatus = ["Menunggu Pembayaran", "Menunggu Penyesuaian", "Ditolak"];
     if (!validStatus.includes(status)) {
@@ -493,6 +489,96 @@ export const updateStatusPemesanan = async (req, res) => {
         `UPDATE pemesanan SET status_pemesanan = $1, note_pemesanan_vendor = $2 WHERE id_pemesanan = $3`,
         [status, note, id]
       );
+
+    } else if (status === "Menunggu Pembayaran") {
+      // 1. Ambil data user, kategori, produk
+      const result = await pool.query(`
+        SELECT u.email, u.full_name, u.id as user_id,
+               pi.nama_produk, k.tipe_kategori
+        FROM pemesanan p
+        JOIN users u ON u.id = p.user_id
+        JOIN produk_iklan pi ON pi.id_produk_iklan = p.produk_id
+        JOIN kategori k ON k.kategori_id = p.kategori_id
+        WHERE p.id_pemesanan = $1
+      `, [id]);
+
+      const user = result.rows[0];
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User tidak ditemukan." });
+      }
+
+      let jadwalText = "";
+
+      if (user.tipe_kategori.toLowerCase() === "messaging") {
+        // Ambil data jadwal SMS
+        const smsResult = await pool.query(`
+          SELECT tanggal_pengiriman_start, tanggal_pengiriman_end, jam_pengiriman
+          FROM detail_pemesanan_sms
+          WHERE id_pemesanan = $1
+        `, [id]);
+
+        const sms = smsResult.rows[0];
+        const start = new Date(sms.tanggal_pengiriman_start).toLocaleDateString("id-ID");
+        const end = new Date(sms.tanggal_pengiriman_end).toLocaleDateString("id-ID");
+        const jam = sms.jam_pengiriman.slice(0, 5); // hh:mm
+
+        jadwalText = (start === end)
+          ? `${start} pukul ${jam}`
+          : `${start} s/d ${end} pukul ${jam}`;
+
+      } else if (user.tipe_kategori.toLowerCase() === "radio") {
+        console.log("🔍 Deteksi kategori radio, id_pemesanan:", id);
+
+        const radioResult = await pool.query(`
+        SELECT tanggal_tayang_pemesanan_radio, jam_tayang_pemesanan_radio
+        FROM detail_pemesanan_radio
+        WHERE id_pemesanan = $1
+        ORDER BY tanggal_tayang_pemesanan_radio ASC, jam_tayang_pemesanan_radio ASC
+        `, [id]);
+
+        console.log("📦 Hasil query radio (detail_pemesanan_radio):", radioResult.rows);
+
+        const jadwalList = radioResult.rows.map(r => {
+          const tanggal = new Date(r.tanggal_tayang_pemesanan_radio).toLocaleDateString("id-ID");
+          const jam = r.jam_tayang_pemesanan_radio?.slice(0, 5); // format ke "HH:mm"
+          return `${tanggal} pukul ${jam}`;
+        });
+
+        jadwalText = jadwalList.length > 0 ? jadwalList.join("<br>") : "-";
+      }
+
+      // 2. Update status dan tanggal_disetujui
+      await pool.query(`
+        UPDATE pemesanan 
+        SET status_pemesanan = $1, tanggal_disetujui = NOW()
+        WHERE id_pemesanan = $2
+      `, [status, id]);
+
+      // 3. Buat token untuk akses link pembayaran
+      const token = jwt.sign(
+        { user_id: user.user_id, id_pemesanan: id, role: "klien" },
+        process.env.JWT_SECRET,
+        { expiresIn: "24h" }
+      );
+
+      const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+      const paymentLink = `${baseUrl}/pembayaran/${id}/email?token=${token}`;
+
+      // 4. Kirim email ke user
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM,
+        to: user.email,
+        subject: 'Pemesanan Anda Disetujui - Silakan Lakukan Pembayaran',
+        html: `
+          <p>Halo ${user.full_name},</p>
+          <p>Pemesanan Anda untuk produk <b>${user.nama_produk}</b> telah disetujui oleh vendor.</p>
+          <p><b>Jadwal tayang:</b> ${jadwalText}</p>
+          <p>Silakan melakukan pembayaran dalam waktu <b>24 jam</b> melalui link berikut:</p>
+          <p><a href="${paymentLink}">${paymentLink}</a></p>
+          <p>Terima kasih.</p>
+        `
+      });
+
     } else {
       await pool.query(
         `UPDATE pemesanan SET status_pemesanan = $1 WHERE id_pemesanan = $2`,
@@ -505,6 +591,7 @@ export const updateStatusPemesanan = async (req, res) => {
       message: `Status berhasil diubah menjadi "${status}".`,
       updatedStatus: status,
     });
+
   } catch (error) {
     console.error("❌ Gagal update status pemesanan:", error);
     return res.status(500).json({ success: false, message: "Gagal update status" });
@@ -619,11 +706,11 @@ export const forgotPasswordVendor = async (req, res) => {
 
     const user = result.rows[0];
 
-   const token = jwt.sign(
-  { id: user.id_vendor, email: user.email_vendor }, 
-  process.env.JWT_SECRET,
-  { expiresIn: '1d' }
-)
+    const token = jwt.sign(
+      { id: user.id_vendor, email: user.email_vendor },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    )
 
     const resetURL = `http://localhost:3000/vendor/reset-password?token=${token}`; // ganti saat hosting
 
@@ -687,3 +774,73 @@ export const vertifikasi_vendor = async (req, res) => {
     res.status(400).send("❌ Link tidak valid atau sudah kadaluarsa.");
   }
 };
+
+// upload bukti tayang start
+const storageBT = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = 'public/uploads/bukti_tayang/';
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + unique + ext);
+  }
+});
+
+const uploadBT = multer({
+  storage: storageBT,
+  // limits: { fileSize: 10 * 1024 * 1024 }, // max 10MB per file
+});
+
+export const uploadBuktiTayangMiddleware = uploadBT.fields([
+  { name: 'dokumen_radio', maxCount: 10 },
+  { name: 'audio_radio', maxCount: 10 },
+  { name: 'dokumen_sms', maxCount: 10 }
+]);
+
+export const handleUploadBuktiTayang = (req, res) => {
+  uploadBuktiTayangMiddleware(req, res, async function (err) {
+    const { id_pemesanan } = req.params;
+
+    if (err) {
+      console.error("❌ Upload error:", err);
+      return res.status(400).send("❌ Gagal mengunggah file.");
+    }
+
+    const allFiles = [
+      ...(req.files?.['dokumen_radio'] || []),
+      ...(req.files?.['audio_radio'] || []),
+      ...(req.files?.['dokumen_sms'] || [])
+    ];
+
+    if (allFiles.length === 0) {
+      return res.status(400).send("❌ Tidak ada file yang diunggah.");
+    }
+
+    try {
+      // Simpan file ke tabel bukti_tayang
+      for (let file of allFiles) {
+        await pool.query(
+          "INSERT INTO bukti_tayang (id_pemesanan, file_bukti_tayang) VALUES ($1, $2)",
+          [id_pemesanan, file.filename]
+        );
+      }
+
+      // Ubah status_pemesanan ke "Menunggu Konfirmasi Klien"
+      await pool.query(
+        "UPDATE pemesanan SET status_pemesanan = 'Menunggu Konfirmasi Klien' WHERE id_pemesanan = $1",
+        [id_pemesanan]
+      );
+
+      console.log(`✅ ${allFiles.length} file berhasil diunggah untuk pemesanan ${id_pemesanan}`);
+      res.redirect("/vendor/ongoing");
+    } catch (err) {
+      console.error("❌ Gagal simpan ke database:", err);
+      res.status(500).send("Terjadi kesalahan saat menyimpan ke database.");
+    }
+  });
+};
+
+

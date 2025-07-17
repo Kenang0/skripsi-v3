@@ -193,9 +193,11 @@ export const preview_PDF_PKS = async (req, res) => {
 
     //  Cek apakah nomor_pks sudah ada di database
     const checkPKS = await pool.query("SELECT * FROM pks WHERE nomor_pks = $1", [nomor_pks]);
-    if (checkPKS.rows.length > 0) {
-      return res.json({ error: "Nomor PKS sudah ada di database." });
-    }
+   if (checkPKS.rows.length > 0) {
+  return res.status(400).json({
+    error: "Nomor PKS sudah ada di database. Silakan gunakan nomor lain."
+  });
+}
     const namaBulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const bulanText = namaBulan[parseInt(bulan)] || "";
 
@@ -387,6 +389,12 @@ export const uploadPKS = [
 
       if (!file) {
         return res.status(400).send('Tidak ada file yang diupload.');
+      }
+
+      if (file.mimetype !== 'application/pdf') {
+      // Hapus file yang salah upload
+      fs.unlinkSync(file.path);
+      return res.status(400).send('File harus berformat PDF.');
       }
 
       // 🔍 Ambil nama file final dari database
@@ -757,9 +765,9 @@ export const tolakPKS = async (req, res) => {
   const { pksId } = req.params;
   const { keterangan } = req.body;
 
-  // Pastikan data user tersedia
-  const { role, full_name } = req.user; // kamu wajib pastikan ini ada dari auth middleware
-  console.log("🔐 req.user:", req.user); // Tambahkan ini
+  
+  const { role, full_name } = req.user; 
+  console.log("🔐 req.user:", req.user); 
   if (!keterangan || keterangan.trim() === '') {
     return res.status(400).json({ error: 'Keterangan tidak boleh kosong.' });
   }
@@ -1219,3 +1227,254 @@ export const LaporanAnalitikUSer = async (req, res) => {
   }
 };
 
+
+export const getHalamanPengecekanPembayaran = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        ps.id_pemesanan,
+        u.full_name AS pemesan,
+        pi.nama_produk,
+        pi.harga,
+        k.tipe_kategori AS kategori,
+        pi.photo_produk,
+        uv.nama_toko_vendor AS pemilik_produk,
+        ps.jumlah_pemesanan,
+        ps.status_pemesanan,
+
+        -- Info pembayaran terakhir
+        p.id_pembayaran,
+        p.jumlah_bayar,
+        p.sisa_tagihan,
+        p.waktu_dibayar,
+        p.bukti_pembayaran,
+        p.status_pembayaran,
+
+        -- Total harga produk = harga satuan * jumlah
+        (ps.jumlah_pemesanan * pi.harga) AS total_harga_produk,
+
+        -- Ekspektasi pembayaran awal (harga * jumlah)
+        (ps.jumlah_pemesanan * pi.harga) AS total_ekspektasi_pembayaran,
+
+        -- Total dibayar (jumlah_bayar - sisa_tagihan jika status tidak sesuai)
+        COALESCE((
+          SELECT CASE 
+            WHEN sisa_tagihan IS NOT NULL THEN jumlah_bayar - sisa_tagihan
+            ELSE jumlah_bayar
+          END
+          FROM pembayaran
+          WHERE id_pemesanan = ps.id_pemesanan
+            AND status_pembayaran = 'jumlah pembayaran tidak sesuai'
+          ORDER BY waktu_dibayar ASC
+          LIMIT 1
+        ), 0) AS total_dibayar,
+
+       COALESCE((
+  SELECT sisa_tagihan
+  FROM pembayaran
+  WHERE id_pemesanan = ps.id_pemesanan
+    AND status_pembayaran = 'jumlah pembayaran tidak sesuai'
+  ORDER BY waktu_dibayar DESC
+  LIMIT 1
+), 0) AS sisa_tagihan_terhitung
+
+      FROM pembayaran p
+      JOIN (
+        SELECT id_pemesanan, MAX(waktu_dibayar) AS waktu_terakhir
+        FROM pembayaran
+        GROUP BY id_pemesanan
+      ) AS latest 
+        ON p.id_pemesanan = latest.id_pemesanan 
+        AND p.waktu_dibayar = latest.waktu_terakhir
+
+      LEFT JOIN pemesanan ps ON p.id_pemesanan = ps.id_pemesanan
+      LEFT JOIN produk_iklan pi ON pi.id_produk_iklan = ps.produk_id
+      LEFT JOIN kategori k ON k.kategori_id = ps.kategori_id
+      LEFT JOIN users u ON u.id = ps.user_id
+      LEFT JOIN users_vendor uv ON uv.id_vendor = pi.vendor_id
+
+      WHERE ps.status_pemesanan = 'menunggu verifikasi pembayaran'
+      ORDER BY p.waktu_dibayar DESC
+    `;
+
+    const result = await pool.query(query);
+
+    console.log("📦 Jumlah data ditemukan:", result.rowCount);
+    result.rows.forEach((r, i) => {
+      console.log(`📦 #${i + 1} PEMESANAN ${r.id_pemesanan}`);
+      console.log(`- Produk: ${r.nama_produk} (${r.kategori})`);
+      console.log(`- Harga: Rp ${r.harga}`);
+      console.log(`- Jumlah: ${r.jumlah_pemesanan}`);
+      console.log(`- Total Harga Produk: Rp ${r.total_harga_produk}`);
+      console.log(`- Ekspektasi Bayar: Rp ${r.total_ekspektasi_pembayaran}`);
+      console.log(`- Total Dibayar: Rp ${r.total_dibayar}`);
+      console.log(`- Sisa Tagihan: Rp ${r.sisa_tagihan_terhitung}`);
+      console.log(`- Status: ${r.status_pembayaran}`);
+      console.log(`- Bukti: ${r.bukti_pembayaran}`);
+      console.log("---------------------------------------------------");
+    });
+
+    res.render("dashAdmin/dashboardAdmin", {
+      data: result.rows,
+      role: req.user.role,
+      partial: "cek-pembayaran",
+      error: ""
+    });
+  } catch (error) {
+    console.error("❌ Gagal mengambil data pengecekan pembayaran:", error);
+    res.status(500).send("Terjadi kesalahan saat memuat data pembayaran.");
+  }
+};
+
+
+// Update status user
+export const UpdateTimInternal = async (req, res) => {
+  const { id } = req.params;
+  const { status_users } = req.body;
+  await pool.query('UPDATE users SET status_users = $1 WHERE id = $2', [status_users, id]);
+  res.redirect('back');
+};
+
+// Delete user
+export const deleteTimInternal = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ success: false });
+  }
+};
+
+export const setujuiPembayaran = async (req, res) => {
+  const { id_pembayaran } = req.params;
+
+  try {
+    // 1. Ambil id_pemesanan dari pembayaran
+    const result = await pool.query(
+      `SELECT id_pemesanan FROM pembayaran WHERE id_pembayaran = $1`,
+      [id_pembayaran]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send("❌ Pembayaran tidak ditemukan.");
+    }
+
+    const id_pemesanan = result.rows[0].id_pemesanan;
+
+    // 2. Update status di tabel pembayaran
+    await pool.query(
+      `UPDATE pembayaran SET status_pembayaran = 'dibayar' WHERE id_pembayaran = $1`,
+      [id_pembayaran]
+    );
+
+    // 3. Update status di tabel pemesanan
+    await pool.query(
+      `UPDATE pemesanan SET status_pemesanan = 'Menunggu Bukti Tayang' WHERE id_pemesanan = $1`,
+      [id_pemesanan]
+    );
+
+    console.log(`✅ Pembayaran #${id_pembayaran} disetujui. Pemesanan #${id_pemesanan} menunggu bukti tayang.`);
+
+    res.redirect("/admin/dashboardAdmin/cek-pembayaran");
+  } catch (err) {
+    console.error("❌ Gagal menyetujui pembayaran:", err);
+    res.status(500).send("Terjadi kesalahan saat menyetujui pembayaran.");
+  }
+};
+
+export const handlePembayaranKurang = async (req, res) => {
+  const { id_pembayaran } = req.params;
+  const { sisa_tagihan } = req.body;
+
+  try {
+    // 1. Ambil id_pemesanan berdasarkan id_pembayaran
+    const { rows } = await pool.query(
+      `SELECT id_pemesanan FROM pembayaran WHERE id_pembayaran = $1`,
+      [id_pembayaran]
+    );
+    const id_pemesanan = rows[0]?.id_pemesanan;
+
+    if (!id_pemesanan) return res.status(404).send("ID Pemesanan tidak ditemukan.");
+
+    // 2. TETAPKAN entri pembayaran lama sebagai "jumlah tidak sesuai"
+    await pool.query(`
+      UPDATE pembayaran
+      SET status_pembayaran = 'jumlah pembayaran tidak sesuai', sisa_tagihan = $1
+      WHERE id_pembayaran = $2
+    `, [sisa_tagihan,id_pembayaran]);
+
+
+
+    // 4. Update status pemesanan
+    await pool.query(`
+      UPDATE pemesanan
+      SET status_pemesanan = 'jumlah pembayaran tidak sesuai',
+          tanggal_disetujui = CURRENT_TIMESTAMP
+      WHERE id_pemesanan = $1
+    `, [id_pemesanan]);
+
+    // 5. Kirim email ke pemesan
+    await kirimEmailKekurangan(id_pemesanan, sisa_tagihan);
+
+    console.log(`❗ Kekurangan pembayaran Rp${sisa_tagihan} untuk pemesanan ${id_pemesanan}`);
+    res.redirect("/admin/dashboardAdmin/cek-pembayaran");
+  } catch (err) {
+    console.error("❌ Gagal proses kekurangan pembayaran:", err);
+    res.status(500).send("Terjadi kesalahan pada sistem.");
+  }
+};
+
+const kirimEmailKekurangan = async (id_pemesanan, sisa_tagihan) => {
+  try {
+    // 1. Ambil info user & produk
+    const { rows } = await pool.query(`
+      SELECT u.email, u.full_name, u.id AS user_id, pi.nama_produk
+      FROM pemesanan p
+      JOIN users u ON u.id = p.user_id
+      JOIN produk_iklan pi ON pi.id_produk_iklan = p.produk_id
+      WHERE p.id_pemesanan = $1
+    `, [id_pemesanan]);
+
+    if (rows.length === 0) {
+      console.warn("⚠️ Tidak ditemukan data untuk email pelunasan.");
+      return;
+    }
+
+    const { email, full_name, user_id, nama_produk } = rows[0];
+
+    // 2. Buat JWT token
+    const token = jwt.sign(
+      { user_id, id_pemesanan, role: "klien" },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    // 3. Buat link pembayaran
+    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+    const paymentLink = `${baseUrl}/pembayaran/${id_pemesanan}/email?token=${token}`;
+
+    // 4. Kirim email
+    const mailOptions = {
+      from: `"Ngiklan Murah" <${process.env.EMAIL_USER}>`, // black magic
+      to: email,
+      subject: "Pelunasan Pembayaran Diperlukan",
+      html: `
+        <p>Halo <strong>${full_name}</strong>,</p>
+        <p>Terima kasih atas pesanan Anda untuk produk <strong>${nama_produk}</strong>.</p>
+        <p>Namun, kami mendeteksi adanya kekurangan pembayaran sebesar:</p>
+        <h3>Rp ${Number(sisa_tagihan).toLocaleString("id-ID")}</h3>
+        <p>Silakan segera melakukan pelunasan melalui link berikut (berlaku 24 jam dari email ini di kirim):</p>
+        <p><a href="${paymentLink}">${paymentLink}</a></p>
+        <br/>
+        <p>Terima kasih atas kerjasamanya.</p>
+        <p><strong>Tim Ngiklan Murah</strong></p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`📧 Email pelunasan terkirim ke ${email}`);
+  } catch (err) {
+    console.error("❌ Gagal mengirim email pelunasan:", err);
+  }
+};

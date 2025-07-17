@@ -1,0 +1,24 @@
+<div class="modal fade" id="formPenyesuaianModal-<%= d.id_pemesanan %>" tabindex="-1" aria-labelledby="formPenyesuaianLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" action="/lengkapi-form-penyesuaian/<%= d.id_pemesanan %>" method="POST">
+      <div class="modal-header">
+        <h5 class="modal-title" id="formPenyesuaianLabel">Form Penyesuaian</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="catatan" class="form-label">Catatan Penyesuaian dari vendor</label>
+          <textarea class="form-control" id="catatan" name="catatan" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="file_pendukung" class="form-label">Upload File Pendukung (opsional)</label>
+          <input type="file" class="form-control" name="file_pendukung" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-outline-primary">Kirim</button>
+      </div>
+    </form>
+  </div>
+</div>

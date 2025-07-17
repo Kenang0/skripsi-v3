@@ -169,6 +169,7 @@
       masking: p.masking || "-",
       tglStart: new Date(p.tanggal_pengiriman_start).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
       tglEnd: new Date(p.tanggal_pengiriman_end).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
+       slot_penayangan_radio: p.slot_penayangan_radio, 
       jam: p.jam_pengiriman || "-",
       teks: p.teks_iklan_sms || "-",
       nomor_penerima_bukti_tayang: p.nomor_penerima_bukti_tayang || "-",
@@ -497,6 +498,7 @@
 
                 </div>
               </div>
+              <% if (p.status_pemesanan === 'menunggu verifikasi') { %>
               <div class="modal-footer d-flex justify-content-between align-items-center flex-wrap">
                 <div class="fw-semibold text-muted">Aksi:</div>
                 <div class="d-flex gap-2 flex-wrap">
@@ -511,6 +513,7 @@
                   </button>
                 </div>
               </div>
+              <% } %>
             </div>
           </div>
 
@@ -523,115 +526,113 @@
           <!-- Bootstrap Icons -->
           <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-          <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initMap"></script>
+      
 
           <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
           <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
 
 
-          <!-- detail Mesangging -->
-          <script>
-            document.addEventListener("DOMContentLoaded", function () {
-              const detailBox = document.getElementById("detailPemesananKanan");
-              const kontenBox = document.getElementById("konten-detail-kanan");
+ <!-- preview pemesanan -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const detailBox = document.getElementById("detailPemesananKanan");
+    const kontenBox = document.getElementById("konten-detail-kanan");
 
-              document.querySelectorAll(".baris-pemesanan").forEach(row => {
-                row.addEventListener("click", function () {
-                  // Hapus status 'active' dari semua baris
-                  document.querySelectorAll(".baris-pemesanan").forEach(r => r.classList.remove("active"));
-                  this.classList.add("active");
+    document.querySelectorAll(".baris-pemesanan").forEach(row => {
+      row.addEventListener("click", function () {
+        // Hapus status 'active' dari semua baris
+        document.querySelectorAll(".baris-pemesanan").forEach(r => r.classList.remove("active"));
+        this.classList.add("active");
 
-                  const data = JSON.parse(this.dataset.detail);
+        const data = JSON.parse(this.dataset.detail);
 
-                  // Format tanggal pengiriman
-                  const labelTanggal = (data.tglStart === data.tglEnd)
-                    ? data.tglStart
-                    : `${data.tglStart} s/d ${data.tglEnd}`;
+        // Format tanggal pengiriman
+        const labelTanggal = (data.tglStart === data.tglEnd)
+          ? data.tglStart
+          : `${data.tglStart} s/d ${data.tglEnd}`;
 
-                  // Isi detail HTML
-                  const tipe = data.tipe_kategori?.toLowerCase();
+        // Isi detail HTML
+        const tipe = data.tipe_kategori?.toLowerCase();
 
-                  let isiHTML = `
-  <img src="/uploads/produk_img/${data.foto}" class="img-fluid rounded mb-3" style="max-width: 100%;">
-`;
+        let isiHTML = `
+          <img src="/uploads/produk_img/${data.foto}" class="img-fluid rounded mb-3" style="max-width: 100%;">
+        `;
 
-                  if (tipe === 'radio') {
-                    isiHTML += `
-    <div class="table-responsive">
-      <table class="table table-bordered small mb-0">
-        <tbody>
-          <tr><th scope="row">Tanggal Tayang pertama</th><td>${data.tglStart}</td></tr>
-          <tr><th scope="row">Jam Tayang</th><td>${data.jam}</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="d-flex justify-content-between gap-2 mt-3">
-    <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
-      <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
-    </a>
-    ${data.status === 'menunggu bukti tayang' ? `
-      <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
-        <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
-      </a>
-    ` : ''}
-  </div>
-  `;
-                  } else {
-                    const labelTanggal = (data.tglStart === data.tglEnd) ? data.tglStart : `${data.tglStart} s/d ${data.tglEnd}`;
-                    isiHTML += `
-    <div class="table-responsive">
-      <table class="table table-bordered small mb-0">
-        <tbody>
-          <tr><th scope="row">Masking</th><td>${data.masking}</td></tr>
-          <tr><th scope="row">No Penerima Bukti Tayang</th><td>${data.nomor_penerima_bukti_tayang || "-"}</td></tr>
-          <tr><th scope="row">Tanggal Pengiriman</th><td>${labelTanggal}</td></tr>
-          <tr><th scope="row">Jam Pengiriman</th><td>${data.jam}</td></tr>
-          <tr><th scope="row">Teks Iklan</th><td>${data.teks}</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="d-flex justify-content-between gap-2 mt-3">
-    <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
-      <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
-    </a>
-    ${data.status === 'menunggu bukti tayang' ? `
-      <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
-        <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
-      </a>
-    ` : ''}
-  </div>
-  `;
-                  }
+        if (tipe === 'radio') {
+          let jadwalHTML = '';
 
-                  // <a href="/upload-bukti/${data.id}" class="btn btn-outline-success btn-sm w-100">
-                  //             <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
-                  //           </a>
+          if (Array.isArray(data.slot_penayangan_radio) && data.slot_penayangan_radio.length > 0) {
+            jadwalHTML = `
+              <div class="table-responsive">
+                <table class="table table-bordered small mb-0">
+                  <thead class="table-light">
+                    <tr><th>Tanggal</th><th>Jam Tayang</th></tr>
+                  </thead>
+                  <tbody>
+                    ${data.slot_penayangan_radio.map(slot => `
+                      <tr>
+                        <td>${new Date(slot.tanggal).toLocaleDateString('id-ID', {
+                          day: 'numeric', month: 'short', year: 'numeric'
+                        })}</td>
+                        <td>${slot.jam.substring(0, 5)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          } else {
+            jadwalHTML = `<p class="text-muted">Tidak ada jadwal tayang.</p>`;
+          }
 
-                  kontenBox.innerHTML = isiHTML;
-                  detailBox.classList.remove("d-none");
-                });
-              });
-            });
-          </script>
+          isiHTML += `
+            <h6 class="fw-semibold">Jadwal Penayangan</h6>
+            ${jadwalHTML}
+            <div class="d-flex justify-content-between gap-2 mt-3">
+              <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
+                <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
+              </a>
+${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
+  <a href="#" class="btn btn-outline-success btn-sm w-100"
+  data-bs-toggle="modal" data-bs-target="#modalUploadBuktiTayang-${data.id}">
+  <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
+  </a>
+` : ''}
+            </div>
+          `
+        } else {
+          isiHTML += `
+            <div class="table-responsive">
+              <table class="table table-bordered small mb-0">
+                <tbody>
+                  <tr><th scope="row">Masking</th><td>${data.masking}</td></tr>
+                  <tr><th scope="row">No Penerima Bukti Tayang</th><td>${data.nomor_penerima_bukti_tayang || "-"}</td></tr>
+                  <tr><th scope="row">Tanggal Pengiriman</th><td>${labelTanggal}</td></tr>
+                  <tr><th scope="row">Jam Pengiriman</th><td>${data.jam}</td></tr>
+                  <tr><th scope="row">Teks Iklan</th><td>${data.teks}</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between gap-2 mt-3">
+              <a href="#" class="btn btn-outline-secondary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuktiPemesanan-${data.id}">
+                <i class="bi bi-file-earmark-text me-1"></i> Lihat Bukti Pemesanan
+              </a>
+${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
+  <a href="#" class="btn btn-outline-success btn-sm w-100"
+  data-bs-toggle="modal" data-bs-target="#modalUploadBuktiTayang-${data.id}">
+  <i class="bi bi-upload me-1"></i> Upload Bukti Tayang
+  </a>
+` : ''}
+            </div>
+          `;
+        }
 
-          <script>
-            function initMap() {
-              document.querySelectorAll('[id^="map-"]').forEach(mapEl => {
-                const lat = parseFloat(mapEl.dataset.lat);
-                const lng = parseFloat(mapEl.dataset.lng);
-                const lokasi = { lat, lng };
-
-                const map = new google.maps.Map(mapEl, {
-                  zoom: 17,
-                  center: lokasi
-                });
-
-                new google.maps.Marker({ position: lokasi, map });
-              });
-            }
-          </script>
-
+        kontenBox.innerHTML = isiHTML;
+        detailBox.classList.remove("d-none");
+      });
+    });
+  });
+</script>
           <script>
             function updateStatus(id, status, note = "", callback) {
               const payload = { status };
@@ -705,5 +706,141 @@
             }
           </script>
 
+<% data.forEach(p => { %>
+<div class="modal fade" id="modalUploadBuktiTayang-<%= p.id_pemesanan %>" tabindex="-1" aria-labelledby="uploadLabel-<%= p.id_pemesanan %>" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form action="/vendor/upload-bukti-tayang/<%= p.id_pemesanan %>" method="POST" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadLabel-<%= p.id_pemesanan %>">Upload Bukti Tayang</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
 
+        <div class="modal-body">
+          <% if (p.tipe_kategori.toLowerCase() === 'radio') { %>
+            <!-- PDF -->
+            <div id="dokumenContainer-<%= p.id_pemesanan %>">
+              <label class="form-label">Upload Dokumen (PDF)</label>
+              <div class="input-group mb-2">
+                <input type="file" name="dokumen_radio" class="form-control" accept=".pdf">
+                <button type="button" class="btn btn-outline-primary btn-tambah-dokumen" data-id="<%= p.id_pemesanan %>">+</button>
+              </div>
+            </div>
+
+            <!-- Audio -->
+            <div id="audioContainer-<%= p.id_pemesanan %>">
+              <label class="form-label">Upload File Audio (MP3/WAV)</label>
+              <div class="input-group mb-2">
+                <input type="file" name="audio_radio" class="form-control" accept="audio/*">
+                <button type="button" class="btn btn-outline-primary btn-tambah-audio" data-id="<%= p.id_pemesanan %>">+</button>
+              </div>
+            </div>
+
+          <% } else if (p.tipe_kategori.toLowerCase() === 'messaging') { %>
+            <!-- PDF saja untuk SMS -->
+            <div id="dokumenSMSContainer-<%= p.id_pemesanan %>">
+              <label class="form-label">Upload Dokumen (PDF)</label>
+              <div class="input-group mb-2">
+                <input type="file" name="dokumen_sms" class="form-control" accept=".pdf">
+                <button type="button" class="btn btn-outline-primary btn-tambah-dokumen-sms" data-id="<%= p.id_pemesanan %>">+</button>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Upload</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% }) %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Tambah dokumen radio
+    document.querySelectorAll('.btn-tambah-dokumen').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const id = this.dataset.id;
+        const container = document.getElementById(`dokumenContainer-${id}`);
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group mb-2';
+        inputGroup.innerHTML = `
+          <input type="file" name="dokumen_radio" class="form-control" accept=".pdf">
+          <button type="button" class="btn btn-outline-danger btn-hapus-input">×</button>
+        `;
+        container.appendChild(inputGroup);
+      });
+    });
+
+    // Tambah audio radio
+    document.querySelectorAll('.btn-tambah-audio').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const id = this.dataset.id;
+        const container = document.getElementById(`audioContainer-${id}`);
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group mb-2';
+        inputGroup.innerHTML = `
+          <input type="file" name="audio_radio" class="form-control" accept="audio/*">
+          <button type="button" class="btn btn-outline-danger btn-hapus-input">×</button>
+        `;
+        container.appendChild(inputGroup);
+      });
+    });
+
+    // Tambah dokumen SMS
+    document.querySelectorAll('.btn-tambah-dokumen-sms').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const id = this.dataset.id;
+        const container = document.getElementById(`dokumenSMSContainer-${id}`);
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group mb-2';
+        inputGroup.innerHTML = `
+          <input type="file" name="dokumen_sms" class="form-control" accept=".pdf">
+          <button type="button" class="btn btn-outline-danger btn-hapus-input">×</button>
+        `;
+        container.appendChild(inputGroup);
+      });
+    });
+
+    // Hapus input file
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('btn-hapus-input')) {
+        e.target.closest('.input-group').remove();
+      }
+    });
+  });
+</script>
+<script>
+  function initMap() {
+    const maps = document.querySelectorAll('[id^="map-"]'); 
+    maps.forEach(mapDiv => {
+      const lat = parseFloat(mapDiv.dataset.lat);
+      const lng = parseFloat(mapDiv.dataset.lng);
+
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      const lokasi = { lat, lng };
+
+      const map = new google.maps.Map(mapDiv, {
+        zoom: 17,
+        center: lokasi,
+        mapTypeId: 'roadmap',
+        fullscreenControl: false,
+        mapTypeControl: false,
+        streetViewControl: false,
+        zoomControl: true
+      });
+
+      new google.maps.Marker({
+        position: lokasi,
+        map: map
+      });
+    });
+  }
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initMap"></script>
 </body>

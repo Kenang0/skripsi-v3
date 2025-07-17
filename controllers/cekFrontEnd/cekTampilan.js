@@ -30,10 +30,6 @@ export const pengaturan_akun = (req, res) => {
   });
 };
 
-export const register_akun = (req, res) => {
-  res.render("register_user", {
-  });
-};
 
 export const Produk_radio = (req, res) => {
   res.render("web/sudah_login/view_detail_produk_radio", {

@@ -187,45 +187,128 @@ main {
                 </span><br>
                 <a href="/bukti-pemesanan/<%= d.id_pemesanan %>" class="btn btn-link p-0">Bukti Pemesanan</a><br>
 
+                <% if (d.status_pemesanan.toLowerCase() === 'menunggu konfirmasi klien') { %>
+                <button class="btn btn-outline-success btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#modalBuktiTayang-<%= d.id_pemesanan %>"> Lihat Bukti Tayang </button>
+                <% } %>
 
-           <% if (p.status_pemesanan.toLowerCase() === 'menunggu penyesuaian') { %>
-  <button class="btn btn-warning btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#penyesuaianModal-<%= p.id_pemesanan %>">
-    Lengkapi Form
-  </button>
+                <% if (d.status_pemesanan.toLowerCase() === 'menunggu penyesuaian') { %>
+                  <a href="/penyesuaian/<%= d.id_pemesanan %>" class="btn btn-sm btn-outline-primary mt-1">
+                    Lakukan Penyesuaian
+                  </a>
+                <% } %>
+
+<!-- Modal Lihat Bukti Tayang -->
+<div class="modal fade" id="modalBuktiTayang-<%= d.id_pemesanan %>" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Bukti Tayang - <%= d.nama_produk %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Info Pemesanan -->
+        <p><strong>ID Pemesanan:</strong> <%= d.id_pemesanan %></p>
+
+        <% if (d.tipe_kategori.toLowerCase() === 'radio') { %>
+          <!-- Dokumen -->
+          <h6 class="mb-2"><i class="bi bi-file-earmark-pdf"></i> Dokumen (PDF):</h6>
+          <% if (d.dokumen_radio.length > 0) { %>
+            <div class="mb-3">
+              <% d.dokumen_radio.forEach((file, i) => { %>
+                <div>
+                  <a href="/uploads/bukti_tayang/<%= file %>" target="_blank">Dokumen <%= i + 1 %></a>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p><em>Tidak ada dokumen radio.</em></p>
+          <% } %>
+
+          <!-- Audio -->
+          <h6 class="mb-2"><i class="bi bi-volume-up"></i> Audio:</h6>
+          <% if (d.audio_radio.length > 0) { %>
+            <% d.audio_radio.forEach((audio, i) => { %>
+              <p>Audio <%= i + 1 %>:</p>
+              <audio controls class="w-100 mb-3">
+                <source src="/uploads/bukti_tayang/<%= audio %>" type="audio/mpeg">
+                Browser tidak mendukung audio.
+              </audio>
+            <% }) %>
+          <% } else { %>
+            <p><em>Tidak ada file audio.</em></p>
+          <% } %>
+
+        <% } else if (d.tipe_kategori.toLowerCase() === 'messaging') { %>
+          <!-- Dokumen SMS -->
+          <h6 class="mb-2"><i class="bi bi-file-earmark-pdf"></i> Dokumen (PDF):</h6>
+          <% if (d.dokumen_sms.length > 0) { %>
+            <div class="mb-3">
+              <% d.dokumen_sms.forEach((file, i) => { %>
+                <div>
+                  <a href="/uploads/bukti_tayang/<%= file %>" target="_blank">Dokumen <%= i + 1 %></a>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p><em>Tidak ada dokumen SMS.</em></p>
+          <% } %>
+        <% } else { %>
+          <p><em>Tidak ada bukti tayang tersedia.</em></p>
+        <% } %>
+      </div>
+
+      <!-- Tombol Aksi -->
+ <% if (d.status_pemesanan.toLowerCase() === 'menunggu konfirmasi klien') { %>
+  <div class="modal-footer d-flex justify-content-end">
+    <button class="btn btn-success" onclick="markSelesai(<%= d.id_pemesanan %>)">Selesai</button>
+  </div>
+<% } %>
+
+    </div>
+  </div>
+</div>
+
    <!-- Tombol untuk membuka modal -->
                   <!-- <button class="btn btn-sm btn-outline-warning mt-2 " data-bs-toggle="modal"
                     data-bs-target="#formPenyesuaianModal-<%= d.id_pemesanan %>">
                     Lengkapi Form
                   </button> -->
 
+
   <!-- Modal -->
-  <div class="modal fade" id="penyesuaianModal-<%= p.id_pemesanan %>" tabindex="-1" aria-hidden="true">
+
+  <!-- <div class="modal fade" id="penyesuaianModal-<%= d.id_pemesanan %>" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Form Penyesuaian - <%= p.nama_produk %></h5>
+          <h5 class="modal-title">Form Penyesuaian - <%= d.nama_produk %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <% if (p.tipe_kategori === 'radio') { %>
-            <% include partials/form_radio_penyesuaian %>
-          <% } else if (p.tipe_kategori === 'messaging') { %>
-            <% if (p.sms_jenis_target === 'MMS') { %>
-              <% include partials/form_sms_mms_penyesuaian %>
-            <% } else if (p.sms_jenis_target === 'LBA') { %>
-              <% include partials/form_sms_lba_penyesuaian %>
+          <% if (d.tipe_kategori === 'radio') { %>
+            <%- include('partials/form_radio_penyesuaian') %>
+          <% } else if (d.tipe_kategori === 'messaging') { %>
+            <% if (d.sms_jenis_target === 'MMS') { %>
+              <%- include('partials/form_sms_mms_penyesuaian') %>
+            <% } else if (d.sms_jenis_target === 'LBA') { %>
+              <%- include('partials/form_sms_lba_penyesuaian') %>
             <% } else { %>
-              <% include partials/form_sms_biasa_penyesuaian %>
+              <%- include('partials/form_sms_biasa_penyesuaian') %>
             <% } %>
           <% } %>
         </div>
       </div>
     </div>
-  </div>
-<% } %>
+  </div> -->
 
-                  <% const status=(d.status_pemesanan || '' ).trim().toLowerCase(); 
-                  if (status==='menunggu verifikasi'|| status==='menunggu penyesuaian' ) { %>
+
+                  <% const status=(d.status_pemesanan || '' ).trim().toLowerCase(); %>
+
+                     <%  if (status ==='menunggu pembayaran' || status === 'jumlah pembayaran tidak sesuai') { %>
+                    <a href="/pembayaran/<%= d.id_pemesanan %>"
+                      class="btn btn-sm btn-outline-primary mt-1">Lakukan Pembayaran</a>
+                    <% } %>
+                 <% if (status==='menunggu verifikasi'|| status==='menunggu penyesuaian' || status ==='menunggu pembayaran') { %>
                     <a href="/batal-pemesanan/<%= d.id_pemesanan %>"
                       class="btn btn-sm btn-outline-danger mt-1">Batalkan</a>
                     <% } %>
@@ -319,6 +402,50 @@ main {
 
 
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  async function markSelesai(idPemesanan) {
+    try {
+      const res = await fetch('/selesaikan-pemesanan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id_pemesanan: idPemesanan })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        await Swal.fire({
+          title: '✅ Berhasil!',
+          text: result.message,
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        location.reload(); // refresh halaman
+      } else {
+        Swal.fire({
+          title: '❌ Gagal',
+          text: result.message,
+          icon: 'error'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        title: '❌ Error',
+        text: 'Terjadi kesalahan pada sistem.',
+        icon: 'error'
+      });
+    }
+  }
+</script>
+
+
 
 </body>
 

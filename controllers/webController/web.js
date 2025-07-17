@@ -12,6 +12,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // register
 
+export const register_akun = (req, res) => {
+  res.render("register_user", {
+  });
+};
+
+
 export const registerUser = async (req, res) => {
   try {
     const { email, password, namaLengkap, telepon } = req.body;
@@ -402,6 +408,23 @@ export const loginDetailProdukRadio = async (req, res) => {
 
     console.log("📅 Jadwal dari DB (jadwal_produk_radio):", jadwalResult.rows);
 
+    // Ambil hari yang tersedia dari semua jadwal
+    const hariTersedia = jadwalResult.rows
+      .map(j => j.hari.split(','))
+      .flat()
+      .map(h => h.trim().toLowerCase());
+
+    // Daftar semua hari
+    const semuaHari = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'];
+    // Cari hari yang tidak termasuk jadwal
+    const hariTidakAktif = semuaHari.filter(h => !hariTersedia.includes(h));
+
+    // Peta hari ke angka versi FullCalendar (0 = Minggu)
+    const mapHari = {
+      'minggu': 0, 'senin': 1, 'selasa': 2, 'rabu': 3, 'kamis': 4, 'jumat': 5, 'sabtu': 6
+    };
+
+    const hariDisable = hariTidakAktif.map(h => mapHari[h]);
 
 
     const mappingHari = {
@@ -432,21 +455,47 @@ export const loginDetailProdukRadio = async (req, res) => {
         const startDate = new Date(targetDate);
         const endDate = new Date(targetDate);
 
-        const [jamMulai, menitMulai] = row.jam_mulai.split(':');
-        const [jamSelesai, menitSelesai] = row.jam_selesai.split(':');
-        startDate.setHours(jamMulai, menitMulai);
-        endDate.setHours(jamSelesai, menitSelesai);
+        const [jamMulai, menitMulai] = row.jam_mulai.split(':').map(Number);
+        const [jamSelesai, menitSelesai] = row.jam_selesai.split(':').map(Number);
 
-        jadwalEvents.push({
-          title: 'Slot Ditawarkan Vendor',
-          start: startDate.toISOString(),
-          end: endDate.toISOString()
-        });
+        startDate.setHours(jamMulai, menitMulai, 0, 0);
+        endDate.setHours(jamSelesai, menitSelesai, 0, 0);
+
+        // if (endDate <= startDate) {
+        //   const endOfDay = new Date(startDate);
+        //   endOfDay.setHours(23, 59, 59, 999);
+        //   jadwalEvents.push({
+        //     title: 'Slot Ditawarkan Vendor',
+        //     start: startDate.toISOString(),
+        //     end: endOfDay.toISOString()
+        //   });
+
+        //   const nextStart = new Date(startDate);
+        //   nextStart.setDate(nextStart.getDate() + 1);
+        //   nextStart.setHours(0, 0, 0, 0);
+
+        //   const finalEnd = new Date(startDate);
+        //   finalEnd.setDate(finalEnd.getDate() + 1);
+        //   finalEnd.setHours(jamSelesai, menitSelesai, 0, 0);
+
+        //   jadwalEvents.push({
+        //     title: 'Slot Ditawarkan Vendor',
+        //     start: nextStart.toISOString(),
+        //     end: finalEnd.toISOString()
+        //   });
+        // } else {
+        //   jadwalEvents.push({
+        //     title: 'Slot Ditawarkan Vendor',
+        //     start: startDate.toISOString(),
+        //     end: endDate.toISOString()
+        //   });
+        // }
       }
     }
 
     console.log("📦 Jadwal Events Final (untuk preview):", jadwalEvents);
-
+    console.log("🎯 Semua hari dari DB:", hariTersedia);
+    console.log("⛔ hariDisable dari server:", hariDisable);
     // Produk terkait
     const produkTerkait = await pool.query(`
       SELECT 
@@ -459,12 +508,20 @@ export const loginDetailProdukRadio = async (req, res) => {
       LIMIT 8
     `, [produk.vendor_id, id]);
 
+    if (jadwalResult.rows.length === 0) {
+      console.log("❌ Jadwal tidak ditemukan untuk produk ini.");
+      return res.status(404).send("Jadwal penayangan belum diatur oleh vendor.");
+    }
+
+
+
     res.render("web/sudah_login/view_detail_produk_radio", {
       produk,
       jadwalResult: jadwalResult.rows[0],
       produkTerkait: produkTerkait.rows,
       dataUser: user.rows[0],
-      jadwalEvents: JSON.stringify(jadwalEvents)
+      jadwalEvents: JSON.stringify(jadwalEvents),
+      hariDisable
     });
   } catch (err) {
     console.error("❌ Gagal ambil detail produk RADIO:", err);
@@ -738,19 +795,72 @@ export const getOnProgress = async (req, res) => {
         prod.photo_produk,
         u.nama_toko_vendor,
         u.photo_vendor,
-        us.photo_user
+        us.photo_user,
+        k.tipe_kategori
       FROM pemesanan p
       JOIN produk_iklan prod ON prod.id_produk_iklan = p.produk_id
       JOIN users_vendor u ON u.id_vendor = prod.vendor_id
       JOIN users us ON us.id = p.user_id
+      JOIN kategori k ON k.kategori_id = p.kategori_id
       WHERE p.user_id = $1
-        AND LOWER(p.status_pemesanan) != 'dibatalkan'
+          AND LOWER(p.status_pemesanan) NOT IN ('dibatalkan', 'selesai')
       ORDER BY p.tanggal_pemesanan DESC
     `, [userId]);
 
     const userPhoto = await pool.query("SELECT photo_user FROM users WHERE id = $1", [userId]);
+    const idList = hasil.rows.map(row => row.id_pemesanan);
+    const buktiTayangQuery = await pool.query(`
+    SELECT id_pemesanan, file_bukti_tayang
+    FROM bukti_tayang
+    WHERE id_pemesanan = ANY($1)
+    `, [idList]);
 
+const buktiMap = {};
+buktiTayangQuery.rows.forEach(row => {
+  const ext = row.file_bukti_tayang.split('.').pop().toLowerCase();
 
+  if (!buktiMap[row.id_pemesanan]) {
+    buktiMap[row.id_pemesanan] = {
+      dokumen: [], // satu array dulu, nanti dipecah di bawah sesuai kategori
+      audio: []
+    };
+  }
+
+  if (ext === 'pdf') {
+    buktiMap[row.id_pemesanan].dokumen.push(row.file_bukti_tayang);
+  } else if (['mp3', 'wav', 'ogg'].includes(ext)) {
+    buktiMap[row.id_pemesanan].audio.push(row.file_bukti_tayang);
+  }
+})
+
+    // merge ke hasil.rows
+hasil.rows.forEach(row => {
+  const bukti = buktiMap[row.id_pemesanan] || {};
+  const dokumen = Array.isArray(bukti.dokumen) ? bukti.dokumen : [];
+  const audio = Array.isArray(bukti.audio) ? bukti.audio : [];
+ 
+  console.log(`🧠 ID ${row.id_pemesanan} kategori:`, row.tipe_kategori);
+  row.audio_radio = audio;
+
+  if (row.tipe_kategori === 'Radio') {
+    row.dokumen_radio = dokumen;
+    row.dokumen_sms = [];
+  } else if (row.tipe_kategori === 'Messaging') {
+    row.dokumen_sms = dokumen;
+    row.dokumen_radio = [];
+  } else {
+    row.dokumen_sms = [];
+    row.dokumen_radio = [];
+  }
+});
+
+console.log("📦 Hasil data onProgress:");
+hasil.rows.forEach(row => {
+  console.log(`🧾 Pemesanan ${row.id_pemesanan}`);
+  console.log(`   📄 dokumen_radio:`, row.dokumen_radio);
+  console.log(`   🔊 audio_radio:`, row.audio_radio);
+  console.log(`   📄 dokumen_sms :`, row.dokumen_sms);
+});
     res.render("web/sudah_login/onProgress", {
       data: hasil.rows,
       user: userPhoto.rows[0]
@@ -818,20 +928,20 @@ export const getbuktiPemesananBy = async (req, res) => {
 
       detailRadio = detailRadioQuery.rows;
 
-slotTayang = detailRadio.map(slot => {
-  const tanggal = new Date(slot.tanggal_tayang_pemesanan_radio);
-  const yyyy = tanggal.getFullYear();
-  const mm = String(tanggal.getMonth() + 1).padStart(2, '0');
-  const dd = String(tanggal.getDate()).padStart(2, '0');
-  const tanggalFormatted = `${yyyy}-${mm}-${dd}`;
+      slotTayang = detailRadio.map(slot => {
+        const tanggal = new Date(slot.tanggal_tayang_pemesanan_radio);
+        const yyyy = tanggal.getFullYear();
+        const mm = String(tanggal.getMonth() + 1).padStart(2, '0');
+        const dd = String(tanggal.getDate()).padStart(2, '0');
+        const tanggalFormatted = `${yyyy}-${mm}-${dd}`;
 
-  const jamFormatted = slot.jam_tayang_pemesanan_radio.slice(0, 5); // 02:23
+        const jamFormatted = slot.jam_tayang_pemesanan_radio.slice(0, 5); // 02:23
 
-  return {
-    title: "Tayang",
-    start: `${tanggalFormatted}T${jamFormatted}`
-  };
-});
+        return {
+          title: "Tayang",
+          start: `${tanggalFormatted}T${jamFormatted}`
+        };
+      });
 
       const hariIndo = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
       const hariBoleh = (pemesanan.hari_tayang || "")
@@ -893,6 +1003,32 @@ export const batalPemesanan = async (req, res) => {
     res.status(500).send("Gagal membatalkan pemesanan.");
   }
 };
+
+export const selesaikanPemesanan = async (req, res) => {
+  const { id_pemesanan } = req.body;
+
+  try {
+    // Validasi awal
+    if (!id_pemesanan) {
+      return res.status(400).json({ message: "ID pemesanan tidak valid." });
+    }
+
+    // Update status
+    await pool.query(`
+      UPDATE pemesanan
+      SET status_pemesanan = 'selesai'
+      WHERE id_pemesanan = $1
+    `, [id_pemesanan]);
+
+    console.log(`✅ Pemesanan ${id_pemesanan} berhasil diupdate ke 'selesai'`);
+
+    res.json({ message: "Pemesanan berhasil diselesaikan." });
+  } catch (err) {
+    console.error("❌ Gagal menyelesaikan pemesanan:", err);
+    res.status(500).json({ message: "Terjadi kesalahan pada server." });
+  }
+};
+
 
 // 🔧 Setup folder upload untuk RADIO
 const folderRadio = "./public/uploads/radio_files/";
@@ -992,6 +1128,340 @@ export const handlePesanRadio = (req, res) => {
   });
 };
 
+
+export const halamanPembayaran = async (req, res) => {
+  const { id_pemesanan } = req.params;
+  console.log("📦 ID Pemesanan:", id_pemesanan);
+  const userId = req.user.id;
+  const user = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
+  try {
+    // 1. Ambil info dasar produk dan kategori
+    const result = await pool.query(`
+      SELECT 
+        p.id_pemesanan,
+        pi.nama_produk,
+        pi.photo_produk,
+        pi.harga,
+        p.jumlah_pemesanan,
+        k.tipe_kategori,
+        (pi.harga * p.jumlah_pemesanan) AS total_harga
+      FROM pemesanan p
+      LEFT JOIN  produk_iklan pi ON pi.id_produk_iklan = p.produk_id
+      JOIN kategori k ON k.kategori_id = p.kategori_id
+      WHERE p.id_pemesanan = $1
+    `, [id_pemesanan]);
+
+    console.log("🔍 Hasil query produk:", result.rows);
+
+    if (result.rowCount === 0) {
+      console.warn("⚠️ Tidak ditemukan data pemesanan.");
+      return res.status(404).send("Data pemesanan tidak ditemukan.");
+    }
+
+    const produk = result.rows[0];
+    console.log("✅ Produk ditemukan:", produk);
+
+    // 2. Ambil jadwal sesuai kategori
+    let jadwal = '';
+
+    if (produk.tipe_kategori.toLowerCase() === 'messaging') {
+      console.log("📨 Kategori: Messaging");
+      const sms = await pool.query(`
+        SELECT tanggal_pengiriman_start, tanggal_pengiriman_end, jam_pengiriman
+        FROM detail_pemesanan_sms
+        WHERE id_pemesanan = $1
+      `, [id_pemesanan]);
+
+      console.log("📅 Jadwal SMS:", sms.rows);
+
+      if (sms.rowCount > 0) {
+        const d = sms.rows[0];
+        jadwal = `${d.tanggal_pengiriman_start.toLocaleDateString('id-ID')} s/d ${d.tanggal_pengiriman_end.toLocaleDateString('id-ID')} pukul ${d.jam_pengiriman}`;
+      }
+
+    } else if (produk.tipe_kategori.toLowerCase() === 'radio') {
+      console.log("📻 Kategori: Radio");
+      const radio = await pool.query(`
+        SELECT tanggal_tayang_pemesanan_radio, jam_tayang_pemesanan_radio
+        FROM detail_pemesanan_radio
+        WHERE id_pemesanan = $1
+        ORDER BY tanggal_tayang_pemesanan_radio ASC, jam_tayang_pemesanan_radio ASC
+      `, [id_pemesanan]);
+
+      console.log("📅 Jadwal Radio:", radio.rows);
+
+      if (radio.rowCount > 0) {
+        jadwal = radio.rows.map(r => {
+          const tgl = r.tanggal_tayang_pemesanan_radio.toLocaleDateString('id-ID');
+          const jam = r.jam_tayang_pemesanan_radio;
+          return `- ${tgl} pukul ${jam}`;
+        }).join('<br>');
+      }
+    }
+
+    const total_harga = produk.harga * produk.jumlah_pemesanan;
+
+// Ambil semua pembayaran sebelumnya (jika ada)
+const pembayaranResult = await pool.query(`
+  SELECT jumlah_bayar, waktu_dibayar, bukti_pembayaran, status_pembayaran, sisa_tagihan
+  FROM pembayaran
+  WHERE id_pemesanan = $1
+  ORDER BY waktu_dibayar ASC
+`, [id_pemesanan]);
+
+let pembayaranSebelumnya = [];
+
+pembayaranResult.rows.forEach((p) => {
+  let jumlah_ditampilkan = p.jumlah_bayar;
+
+  // Jika ada sisa_tagihan, kurangi dari total bayar untuk tampilkan hanya yang dianggap "benar dibayar"
+  if (p.status_pembayaran === 'jumlah pembayaran tidak sesuai' && p.sisa_tagihan) {
+    jumlah_ditampilkan = p.jumlah_bayar - p.sisa_tagihan;
+  }
+
+  pembayaranSebelumnya.push({
+    jumlah_ditampilkan,
+    waktu_dibayar: p.waktu_dibayar,
+    kekurangan: p.sisa_tagihan || null
+  });
+});
+
+
+    // 3. Siapkan data untuk EJS
+    console.log("📤 Data yang dikirim ke EJS:", {
+      id_pemesanan,
+      produk: {
+        ...produk,
+        jadwal: jadwal,
+        jumlah: produk.jumlah_pemesanan
+      }
+    });
+
+    res.render('web/sudah_login/pembayaran', {
+      id_pemesanan,
+      dataUser: user.rows[0],
+      token: req.query.token || "",
+      produk: {
+        ...produk,
+        jadwal: jadwal,
+        jumlah: produk.jumlah_pemesanan
+      },
+      pembayaranSebelumnya,
+      sisa_tagihan: total_harga - pembayaranSebelumnya.reduce((acc, p) => acc + p.jumlah_ditampilkan, 0)
+    });
+
+  } catch (error) {
+    console.error("❌ Gagal mengambil data pembayaran:", error);
+    res.status(500).send("Terjadi kesalahan saat menampilkan halaman pembayaran.");
+  }
+};
+
+
+const storageBuktiPembayaran = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = "public/uploads/bukti_pembayaran";
+    fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const unique = Math.floor(1000 + Math.random() * 9000); // 4 digit acak
+    const filename = `bukti_${Date.now()}_${unique}${ext}`;
+    cb(null, filename);
+  },
+});
+
+const fileFilterBuktiPembayaran = (req, file, cb) => {
+  const allowedMime = ['image/jpeg', 'image/png'];
+  if (allowedMime.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("❌ Format file tidak valid. Hanya .jpg dan .png"), false);
+  }
+};
+
+const uploadPembayaran = multer({
+  storage: storageBuktiPembayaran,
+  fileFilter: fileFilterBuktiPembayaran
+}).single("bukti_pembayaran");
+
+
+// 🚀 Controller upload dan simpan bukti
+export const uploadBuktiPembayaran = (req, res) => {
+  uploadPembayaran(req, res, async function (err) {
+    const { id_pemesanan, token } = req.body;
+
+    if (err) return res.status(400).send(err.message);
+    if (!req.file) return res.status(400).send("❌ File bukti pembayaran tidak ditemukan.");
+
+    // ✅ Cek identitas user (login biasa vs token dari email)
+    if (!req.user) {
+      if (token) {
+        try {
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          req.user = {
+            id: decoded.user_id,
+            role: decoded.role,
+          };
+
+          if (decoded.id_pemesanan != id_pemesanan) {
+            return res.status(403).send("❌ Token tidak cocok dengan ID pemesanan.");
+          }
+        } catch (err) {
+          console.warn("❌ Token pembayaran tidak valid:", err);
+          return res.status(403).send("❌ Token pembayaran tidak valid atau kadaluarsa.");
+        }
+      } else {
+        return res.status(401).send("❌ Akses tidak diizinkan. Login atau gunakan link email.");
+      }
+    }
+
+    const fileName = req.file.filename;
+    const waktuBayar = new Date();
+
+    try {
+      // ✅ Ambil total harga pemesanan
+      const pemesananQuery = await pool.query(`
+        SELECT jumlah_pemesanan, pi.harga
+        FROM pemesanan p
+        JOIN produk_iklan pi ON pi.id_produk_iklan = p.produk_id
+        WHERE p.id_pemesanan = $1
+      `, [id_pemesanan]);
+
+      if (pemesananQuery.rowCount === 0) {
+        return res.status(404).send("❌ Data pemesanan tidak ditemukan.");
+      }
+
+      const { jumlah_pemesanan, harga } = pemesananQuery.rows[0];
+      const total_harga = jumlah_pemesanan * harga;
+
+      // ✅ Hitung total yang valid sudah dibayar sebelumnya
+      const bayarSebelumnya = await pool.query(`
+        SELECT 
+          COALESCE(SUM(
+            CASE 
+              WHEN status_pembayaran = 'jumlah pembayaran tidak sesuai' AND sisa_tagihan IS NOT NULL
+                THEN jumlah_bayar - sisa_tagihan
+              ELSE jumlah_bayar
+            END
+          ), 0) AS total_dibayar
+        FROM pembayaran
+        WHERE id_pemesanan = $1
+      `, [id_pemesanan]);
+
+      const total_dibayar = parseInt(bayarSebelumnya.rows[0].total_dibayar);
+
+      // ✅ Hitung jumlah yang harus dibayar (sisa)
+      const jumlah_bayar = total_harga - total_dibayar;
+
+      // 💾 Simpan ke tabel pembayaran dengan status default "menunggu pengecekan"
+      await pool.query(`
+        INSERT INTO pembayaran (id_pemesanan, jumlah_bayar, waktu_dibayar, bukti_pembayaran, status_pembayaran)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [id_pemesanan, jumlah_bayar, waktuBayar, fileName, "menunggu pengecekan"]);
+
+      // 🔁 Update status pemesanan
+      await pool.query(`
+        UPDATE pemesanan
+        SET status_pemesanan = 'menunggu verifikasi pembayaran'
+        WHERE id_pemesanan = $1
+      `, [id_pemesanan]);
+
+      if (req.cookies.token) {
+        // User login biasa
+        return res.redirect("/dalam-progress");
+      } else {
+        // ✅ Dari email token – kirim HTML + SweetAlert
+        return res.send(`
+          <html>
+            <head>
+              <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            </head>
+            <body>
+              <script>
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Pembayaran berhasil!',
+                  text: 'Silakan login untuk melanjutkan.',
+                  confirmButtonText: 'Login',
+                }).then(() => {
+                  window.location.href = '/login-user';
+                });
+              </script>
+            </body>
+          </html>
+        `);
+      }
+    } catch (error) {
+      console.error("❌ Gagal proses bukti pembayaran:", error);
+      res.status(500).send("Terjadi kesalahan saat menyimpan data pembayaran.");
+    }
+  });
+};
+
+export const verifyPembayaranToken = (req, res, next) => {
+  const token = req.query.token;
+  if (!token) {
+    return res.status(401).send("❌ Akses tidak diizinkan. Token tidak ditemukan.");
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Set user manual ke req.user agar bisa dipakai di controller pembayaran
+    req.user = {
+      id: decoded.user_id,
+      role: decoded.role,
+    };
+
+    next();
+  } catch (err) {
+    console.error("❌ Token tidak valid:", err);
+    return res.status(403).send("❌ Token tidak valid atau kadaluarsa.");
+  }
+};
+
+
+export const halamanPenyesuaianSMS = async (req, res) => {
+  const { id_pemesanan } = req.params;
+  try {
+    const result = await pool.query(`
+      SELECT p.*, 
+             dps.*, 
+             pi.nama_produk, 
+             pi.photo_produk,
+             pi.harga, 
+             k.tipe_kategori,
+             s.jenis_target AS sms_jenis_target,
+             v.nama_toko_vendor,
+             v.photo_vendor,
+             s.provider_yang_di_layani,
+             pk.kota
+      FROM pemesanan p
+      LEFT JOIN detail_pemesanan_sms dps ON dps.id_pemesanan = p.id_pemesanan
+      LEFT JOIN produk_iklan pi ON p.produk_id = pi.id_produk_iklan
+      LEFT JOIN kategori k ON p.kategori_id = k.kategori_id
+      LEFT JOIN detail_produk_sms s ON pi.id_produk_iklan = s.produk_id
+      JOIN users_vendor v ON pi.vendor_id = v.id_vendor
+      LEFT JOIN pks pk ON v.pks_id = pk.pks_id
+      WHERE p.id_pemesanan = $1
+    `, [id_pemesanan]);
+
+    if (result.rows.length === 0) return res.status(404).send("Pemesanan tidak ditemukan.");
+
+    const data = result.rows[0];
+
+    res.render('web/sudah_login/penyesuain_pesanan_sms', { 
+      produk: data, 
+      dataUser: req.user, 
+      googleMapsApiKey: process.env.Maps_API
+    });
+
+  } catch (err) {
+    console.error("❌ Gagal ambil data penyesuaian:", err);
+    res.status(500).send("Terjadi kesalahan saat memuat halaman penyesuaian.");
+  }
+};
 
 
 // login end 

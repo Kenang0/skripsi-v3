@@ -246,6 +246,8 @@
 
         #jadwalCalendar {
             max-width: 100%;
+            height: auto;
+
             margin: 20px 0;
         }
 
@@ -299,7 +301,7 @@
                 <!-- Profil User Khusus Mobile -->
 
                 <div class="d-block d-lg-none d-flex align-items-center">
-                    <img src="/uploads/profile_pic/" alt="User" class="rounded-circle"
+                    <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
                         style="width: 32px; height: 32px; object-fit: cover;">
                 </div>
 
@@ -337,7 +339,7 @@
                     <!-- Jika user sudah login -->
                     <div class="user-profile d-none d-lg-block ms-3">
                         <a href="/pengaturan-akun">
-                            <img src="/uploads/profile_pic/" alt="User" class="rounded-circle"
+                            <img src="/uploads/profile_pic/<%= dataUser.photo_user %>" alt="User" class="rounded-circle"
                                 style="width: 32px; height: 32px; object-fit: cover;"></a>
                     </div>
 
@@ -482,18 +484,32 @@
             const calendarEl = document.getElementById('jadwalCalendar');
             // const slotSelector = document.getElementById('slotSelector');
             // const slotControl = document.getElementById('slotControl');
+    // 💡 Tambahkan logika EJS di awal sebelum FullCalendar
+  <%
+  const jamMulai = jadwalResult.jam_mulai;
+  const jamSelesai = jadwalResult.jam_selesai;
+  const crossDay = jamMulai > jamSelesai;
 
-            function renderCalendar(durationMinutes = 10) {
+  const minTime = (jamMulai.length === 5 ? jamMulai + ":00" : jamMulai);
+  // jika crossDay, set maxTime jadi 03:15 + 24 jam = "27:15:00"
+  const maxTime = crossDay 
+    ? (parseInt(jamSelesai.split(':')[0]) + 24) + ':' + jamSelesai.split(':')[1] + ':00'
+    : (jamSelesai.length === 5 ? jamSelesai + ":00" : jamSelesai);
+%>
+
+            function renderCalendar(durationMinutes = 30) {
                 const duration = `00:${durationMinutes}:00`;
                 if (calendar) calendar.destroy();
 
                 calendar = new FullCalendar.Calendar(calendarEl, {
                     locale: 'id',
                     initialView: 'timeGridWeek',
+                    nextDayThreshold: "00:00:00",
                     slotDuration: duration,
                     slotLabelInterval: duration,
-                    slotMinTime: '<%= jadwalResult.jam_mulai %>',     // e.g. '20:00:00'
-                    slotMaxTime: '<%= jadwalResult.jam_selesai %>',   // e.g. '22:00:00'
+                     slotMinTime: "<%= minTime %>",
+                        slotMaxTime: "<%= maxTime %>",
+
                     allDaySlot: false,
                     height: 'auto',
                     slotLabelFormat: {
@@ -513,6 +529,26 @@
                         week: 'Minggu',
                         day: 'Hari'
                     },
+              dayCellDidMount: function(info) {
+  const hariDisable = <%- JSON.stringify(hariDisable) %>;
+  const dayIndex = info.date.getDay();
+  const today = new Date();
+
+  if (hariDisable.includes(dayIndex)) {
+    // tandai warna merah
+    info.el.style.setProperty("background-color", "#f8d7da", "important");
+    info.el.style.opacity = 0.4;
+    info.el.title = "Tidak tersedia";
+
+    // hilangkan class default hari ini agar warna merah muncul
+    const isToday = info.date.toDateString() === today.toDateString();
+    if (isToday) {
+      info.el.classList.remove("fc-day-today");
+    }
+  }
+},
+
+
 
                     // datesSet: (arg) => {
                     //     const currentView = calendar.view.type;
@@ -526,9 +562,15 @@
                     //         el.style.display = 'none';
                     //     });
                     // }
+
+                     events: <%- jadwalEvents %>
                 });
 
                 calendar.render();
+                console.log("slotMinTime:", "<%= jadwalResult.jam_mulai %>");
+console.log("slotMaxTime:", "<%= jadwalResult.jam_selesai %>");
+console.log("slotPenayangan (interval):", "<%= jadwalResult.slot_penayangan %>");
+
             }
             // renderCalendar(60);
             renderCalendar(<%= jadwalResult.slot_penayangan %>);

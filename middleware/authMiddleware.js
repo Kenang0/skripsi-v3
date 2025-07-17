@@ -53,7 +53,7 @@ export const authenticateRoleWeb = (roles) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       if (!roles.includes(decoded.role)) {
-        return res.status(403).send("silahkan register");
+        return res.redirect("/register");
       }
       req.user = decoded; // Simpan data user ke req
       next();
@@ -63,6 +63,41 @@ export const authenticateRoleWeb = (roles) => {
     }
   };
 };
+
+export const authenticatePembayaranHybrid = (req, res, next) => {
+  const tokenCookie = req.cookies.token;
+  const tokenQueryOrBody = req.body.token || req.query.token;
+
+  // 🔐 Kalau ada token dari login (cookie)
+  if (tokenCookie) {
+    try {
+      const decoded = jwt.verify(tokenCookie, process.env.JWT_SECRET);
+      req.user = decoded;
+      return next(); // ✅ Lolos dari login biasa
+    } catch (err) {
+      console.warn("❌ Token login tidak valid:", err);
+      // lanjut cek token dari email
+    }
+  }
+
+  // 📩 Cek token dari email
+  if (tokenQueryOrBody) {
+    try {
+      const decoded = jwt.verify(tokenQueryOrBody, process.env.JWT_SECRET);
+      req.user = {
+        id: decoded.user_id,
+        role: decoded.role,
+      };
+      return next(); // ✅ Lolos dari token email
+    } catch (err) {
+      return res.status(403).send("❌ Token dari email tidak valid atau kadaluarsa");
+    }
+  }
+
+  // ❌ Tidak ada token sama sekali
+  return res.status(401).send("❌ Tidak ada akses");
+};
+
 
 // untuk vendor masih belom di pakai dan perlu di sesuaikan
 // export const authenticateRoleDashVendor = (roles) => {

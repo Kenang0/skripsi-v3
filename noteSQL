@@ -91,7 +91,8 @@ CREATE TABLE pemesanan (
     tanggal_pemesanan TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status_pemesanan TEXT DEFAULT 'menunggu verifikasi', -- dibatalkan, menunggu perbaikan, menunggu pembayaran/pemesanan diterima, menunggu pengecekan pembayaran, menunggu bukti tayang
     note_pemesanan_user TEXT,    -- catatan dari sisi user
-    note_pemesanan_vendor TEXT   -- catatan dari sisi vendor (misalnya alasan tolak atau minta revisi)
+    note_pemesanan_vendor TEXT,   -- catatan dari sisi vendor (misalnya alasan tolak atau minta revisi)
+    tanggal_disetujui TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE detail_pemesanan_sms (
@@ -132,9 +133,7 @@ CREATE TABLE file_pemesanan_radio (
 CREATE TABLE bukti_tayang (
     id_bukti SERIAL PRIMARY KEY,
     id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
-    tipe_file TEXT 
-    file_path TEXT NOT NULL,
-    keterangan_tayang TEXT
+    file_bukti_tayang TEXT
 );
 
 CREATE TABLE pembayaran (
@@ -146,6 +145,8 @@ CREATE TABLE pembayaran (
     status_pembayaran TEXT DEFAULT 'menunggu pengecekan', -- pending, paid, expired, failed
     -- waktu_dibuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     waktu_dibayar TIMESTAMP,
+    bukti_pembayaran TEXT,
+    sisa_tagihan INTEGER
     -- tripay_reference TEXT     -- kode unik dari Tripay untuk tracking
 );
 

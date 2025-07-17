@@ -7,7 +7,8 @@ import {  loginUser,getLoginPage, getDashHome,
           getPengecekanPKSPage,deletePKS, uploadPKSdariView,PKSdiSetujui,getPembuatanAkunVendor,
           pembuatanakunUserInternal,simpanAkunVendor, getPKSSelesai,tolakPKS,cekEmailInternal,vertifikasi, 
           getHalamanTambahAkunInternal,vertifikasiVendor,updatePasswordVendor,updatePasswordInternal,getHalamanPengaturan,
-          updateProfil,updatePassword,updateFoto,LaporanAnalitikUSer,HalamanUserInternal,forgotPasswordInternal} from "../../controllers/dashAdminController/authAdmin.js";
+          updateProfil,updatePassword,updateFoto,LaporanAnalitikUSer,HalamanUserInternal,
+          forgotPasswordInternal,getHalamanPengecekanPembayaran,deleteTimInternal,UpdateTimInternal,setujuiPembayaran,handlePembayaranKurang} from "../../controllers/dashAdminController/authAdmin.js";
 
 
 const router = express.Router();
@@ -74,9 +75,10 @@ router.post("/internal/update-password",authenticateRoleDashAdmin(["admin", "par
 router.post("/internal/update-profil",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance", "klien"]),updateProfil);
 router.post("/internal/update-foto",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance", "klien"]),updateFoto);
 
+// CRUD tim internal
 
-
-
+router.delete("/internal/delete-user/:id",authenticateRoleDashAdmin(["admin", "project lead"]),deleteTimInternal);
+router.post("/internal/update-status/:id",authenticateRoleDashAdmin(["admin", "project lead"]),UpdateTimInternal);
 // halaman untuk vertifikasi dan set password untuk vendor dan internal
 router.get("/verifikasi", vertifikasi);
 router.post("/setpasswordinternal",updatePasswordInternal);
@@ -85,4 +87,9 @@ router.post("/setpasswordvendor",updatePasswordVendor);
 router.post("/forgot-password",forgotPasswordInternal);
 router.get("/reset-password", vertifikasi);
 
+
+// halaman cek-pembayaran
+router.get("/dashboardAdmin/cek-pembayaran",authenticateRoleDashAdmin(["admin", "partnership", "project lead", "Finance"]), getHalamanPengecekanPembayaran);
+router.post("/pembayaran/:id_pembayaran/setujui", authenticateRoleDashAdmin(["admin", "Finance"]), setujuiPembayaran);
+router.post("/pembayaran/:id_pembayaran/kurang", authenticateRoleDashAdmin(["admin", "Finance"]), handlePembayaranKurang);
 export default router;
