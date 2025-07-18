@@ -13,20 +13,6 @@ CREATE TABLE users (
     vertifikasi_user VARCHAR (255)
 );
 
--- Tabel vendor resmi, hanya dibuat setelah PKS selesai ✔️
-CREATE TABLE users_vendor (
-    id_vendor SERIAL PRIMARY KEY,
-    pks_id INTEGER REFERENCES pks(pks_id),
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    nama_toko_vendor TEXT,
-    no_telepon_vendor TEXT,
-    photo_vendor VARCHAR (255),
-    status TEXT DEFAULT 'aktif',
-    vendor_dibuat_tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    vertifikasi_vendor VARCHAR (255)
-);
-
 -- PKS: Perjanjian kerja sama dengan vendor ✔️
 CREATE TABLE pks (
     pks_id SERIAL PRIMARY KEY,
@@ -41,8 +27,24 @@ CREATE TABLE pks (
     nama_dari_pdf VARCHAR (255),
     status TEXT DEFAULT 'menunggu tanda tangan',
     pembuatan_pks TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    keterangan VARCHAR (255),
+    keterangan VARCHAR (255)
 );
+
+-- Tabel vendor resmi, hanya dibuat setelah PKS selesai ✔️
+CREATE TABLE users_vendor (
+    id_vendor SERIAL PRIMARY KEY,
+    pks_id INTEGER REFERENCES pks(pks_id),
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    nama_toko_vendor TEXT,
+    no_telepon_vendor TEXT,
+    photo_vendor VARCHAR (255),
+    status TEXT DEFAULT 'aktif',
+    vendor_dibuat_tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    vertifikasi_vendor VARCHAR (255)
+);
+
+
 
 -- Kategori produk (radio, sms, tv, dll) ✔️
 CREATE TABLE kategori (
@@ -54,7 +56,7 @@ CREATE TABLE kategori (
 CREATE TABLE produk_iklan (
     id_produk_iklan SERIAL PRIMARY KEY,
     vendor_id INTEGER REFERENCES users_vendor(id_vendor),
-    kategori_id INTEGER REFERENCES kategori(id_kategori),
+    kategori_id INTEGER REFERENCES kategori(kategori_id ),
     nama_produk TEXT NOT NULL,
     deskripsi_produk TEXT,
     harga INTEGER,
@@ -67,8 +69,8 @@ CREATE TABLE produk_iklan (
 -- Jadwal tayang mingguan untuk radio // masih belom fix dan bingung
 CREATE TABLE jadwal_produk_radio (
     id_jadwal_produk_radio SERIAL PRIMARY KEY,
-    produk_id INTEGER REFERENCES produk_iklan(id_penayangan_radio),
-    hari TEXT 
+    produk_id INTEGER REFERENCES produk_iklan(id_produk_iklan),
+    hari TEXT ,
     jam_mulai TIME,
     jam_selesai TIME,
     slot_penayangan INTEGER
@@ -111,7 +113,7 @@ CREATE TABLE detail_pemesanan_sms (
     file_nomor_sms_pdf TEXT, -- hanya wajib jika sumber_nomor = 'user'
     alamat_target_sms TEXT, -- untuk SMS LBA
     dps_latitude text,
-    dps_longitude text,
+    dps_longitude text
     
 );
 
@@ -119,7 +121,7 @@ CREATE TABLE detail_pemesanan_radio (
     id_detail_radio SERIAL PRIMARY KEY,
     id_pemesanan INTEGER REFERENCES pemesanan(id_pemesanan),
     tanggal_tayang_pemesanan_radio DATE ,
-    jam_tayang_pemesanan_radio TIME , -- harus disesuaikan dengan jam yang tersedia
+    jam_tayang_pemesanan_radio TIME  -- harus disesuaikan dengan jam yang tersedia
 );
 
 CREATE TABLE file_pemesanan_radio (

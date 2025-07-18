@@ -260,7 +260,7 @@
 
   <button type="submit">Simpan Produk</button>
 </form>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 
   function tampilkanFormKategori() {
@@ -345,10 +345,31 @@
           isValid = false;
         }
 
-        const fileInput = form.querySelector("#form-radio input[name='photo_produk']");
-        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-          showError("#form-radio input[name='photo_produk']", "Wajib upload foto");
-        }
+const fileInput = form.querySelector("#form-radio input[name='photo_produk']");
+if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+  showError("#form-radio input[name='photo_produk']", "Wajib upload foto");
+  isValid = false;
+} else {
+  const file = fileInput.files[0];
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+  const fileType = file.type;
+  const fileName = file.name.toLowerCase();
+
+  const isTypeAllowed = allowedTypes.includes(fileType);
+  const isExtAllowed = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+  if (!isTypeAllowed || !isExtAllowed) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Tipe File Tidak Valid',
+      text: 'Hanya file gambar dengan format JPG, PNG, atau WebP yang diperbolehkan.',
+    });
+    fileInput.value = "";
+    isValid = false;
+  }
+}
+
 
       } else if (kategori === "2") {
         // SMS
@@ -370,15 +391,50 @@
           isValid = false;
         }
 
-        const fileInput = form.querySelector("#form-sms input[name='photo_produk']");
-        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-          showError("#form-sms input[name='photo_produk']", "Wajib upload foto");
-        }
+const fileInput = form.querySelector("#form-sms input[name='photo_produk']");
+if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+  showError("#form-sms input[name='photo_produk']", "Wajib upload foto");
+  isValid = false;
+} else {
+  const file = fileInput.files[0];
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+  const fileType = file.type;
+  const fileName = file.name.toLowerCase();
+
+  const isTypeAllowed = allowedTypes.includes(fileType);
+  const isExtAllowed = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+  if (!isTypeAllowed || !isExtAllowed) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Tipe File Tidak Valid',
+      text: 'Hanya file gambar dengan format JPG, PNG, atau WebP yang diperbolehkan.',
+    });
+    fileInput.value = "";
+    isValid = false;
+  }
+}
+
       }
 
       if (!isValid) {
         e.preventDefault(); // Jangan submit kalau masih ada error
-      }
+      }else {
+  e.preventDefault(); // Hentikan submit sebentar untuk SweetAlert
+  Swal.fire({
+    icon: 'success',
+    title: ' Produk Berhasil Di Tambahkan !',
+    showConfirmButton: false,
+    timer: 2000
+  });
+
+  setTimeout(() => {
+    form.submit(); // Submit form manual setelah 2 detik
+  }, 2000);
+}
     });
   });
 </script>
+
+

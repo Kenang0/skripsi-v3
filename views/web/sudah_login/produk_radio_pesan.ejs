@@ -275,13 +275,13 @@
                 <div class="mb-3" id="uploadScript" style="display: none;">
                   <label class="form-label">Upload Script Iklan (PDF):</label>
                   <input type="file" name="file_script" class="form-control" accept="application/pdf">
-                  <div class="invalid-feedback">file harus diisi.</div>
+                  <div class="invalid-feedback"></div>
                 </div>
 
                 <div class="mb-3" id="uploadAudio" style="display: none;">
                   <label class="form-label">Upload Audio Iklan (MP3):</label>
                   <input type="file" name="file_audio" class="form-control" accept="audio/*">
-                  <div class="invalid-feedback">file harus diisi.</div>
+                  <div class="invalid-feedback"></div>
                 </div>
 
 
@@ -512,7 +512,7 @@ if (!hariBoleh.includes(namaHari) || pickedDate <= limitDate) {
         if (selectedSlots.length >= max) {
           Swal.fire({
             icon: 'warning',
-            title: 'Maksimum slot tercapai pemesanan',
+            title: 'Maksimum slot pemesanan tercapai ',
             text: `Anda sudah memilih ${max} slot tayang. Jika ingin menambah slot, silakan tambahkan jumlah pemesanan terlebih dahulu.`,
             confirmButtonText: 'Oke',
             confirmButtonColor: '#3085d6'
@@ -676,26 +676,39 @@ if (!cekScript.checked && !cekAudio.checked) {
   return;
 }
 
-  // ❗ Validasi file Script jika dicek
-  if (cekScript.checked) {
-    const file = inputScript.files[0];
-    if (!file || !file.name.endsWith(".pdf")) {
-      inputScript.classList.add("is-invalid");
-      inputScript.nextElementSibling.style.display = "block";
-      valid = false;
-    }
-  }
+let errorMessages = [];
 
-  // ❗ Validasi file Audio jika dicek
-  if (cekAudio.checked) {
-    const file = inputAudio.files[0];
-    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav'];
-    if (!file || !allowedTypes.includes(file.type)) {
-      inputAudio.classList.add("is-invalid");
-      inputAudio.nextElementSibling.style.display = "block";
-      valid = false;
-    }
+// File Script
+if (cekScript.checked) {
+  const file = inputScript.files[0];
+  if (!file || !file.name.toLowerCase().endsWith(".pdf")) {
+    inputScript.classList.add("is-invalid");
+    inputScript.nextElementSibling.style.display = "block";
+    valid = false;
+    errorMessages.push("Script iklan harus berupa file PDF.");
   }
+}
+
+// File Audio
+if (cekAudio.checked) {
+  const file = inputAudio.files[0];
+  const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav'];
+  if (!file || !allowedTypes.includes(file.type)) {
+    inputAudio.classList.add("is-invalid");
+    inputAudio.nextElementSibling.style.display = "block";
+    valid = false;
+    errorMessages.push("Audio harus berupa file MP3 atau WAV.");
+  }
+}
+
+// Tampilkan error jika ada
+if (errorMessages.length > 0) {
+  Swal.fire({
+    icon: 'error',
+    title: 'Validasi Gagal',
+    html: errorMessages.map(msg => `<p>${msg}</p>`).join(""),
+  });
+}
 
   if (!valid) {
     e.preventDefault();

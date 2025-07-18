@@ -352,13 +352,13 @@
                     </span>
                 </div>
 
-                <!-- Deskripsi Produk -->
-                <div class="mb-3">
-                    <span class="fw-semibold">Deskripsi:</span>
-                    <p class="text-muted">
-                        <%= produk.deskripsi_produk %>
-                    </p>
-                </div>
+           <!-- Deskripsi Produk -->
+<div class="mb-3">
+  <span class="fw-semibold">Deskripsi:</span>
+  <pre class="text-muted" style="white-space:pre-wrap; font-family:inherit; background:none; border:none; padding:0;">
+  <%= produk.deskripsi_produk.replace(/•/g, '') %>
+</pre>
+</div>
 
                 <!-- Tombol Aksi Sampingan -->
                 <div class="d-flex gap-2 mb-3">

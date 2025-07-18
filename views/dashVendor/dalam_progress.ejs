@@ -662,23 +662,28 @@ ${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
             }
 
 
-            function handleSetujui(id) {
-              if (confirm("Yakin ingin menyetujui pemesanan ini?")) {
-                updateStatus(id, "Menunggu Pembayaran", "", () => {
-                  const row = document.querySelector(`.baris-pemesanan.active`);
-                  if (!row) return;
-
-                  const detail = JSON.parse(row.dataset.detail);
-
-
-
-                  // (Opsional) reload halaman setelah delay
-                  setTimeout(() => {
-                    location.reload();
-                  }, 3000);
-                });
-              }
-            }
+         function handleSetujui(id) {
+  Swal.fire({
+    title: 'Yakin ingin menyetujui pemesanan ini?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Setujui',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      updateStatus(id, "Menunggu Pembayaran", "", () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Status berhasil diubah menjadi "Menunggu Pembayaran"',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        setTimeout(() => location.reload(), 2500);
+      });
+    }
+  });
+}
 
 
 
@@ -695,15 +700,30 @@ ${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
               }
             }
 
-            function handleTolak(id) {
-              if (confirm("Yakin ingin menolak pemesanan ini?")) {
-                updateStatus(id, "Ditolak", "", () => {
-                  // Aksi setelah tolak berhasil
-                  alert("Pemesanan berhasil ditolak.");
-                  location.reload();
-                });
-              }
-            }
+        function handleTolak(id) {
+  Swal.fire({
+    title: 'Tolak Pemesanan?',
+    text: "Yakin ingin menolak pemesanan ini?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Tolak',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      updateStatus(id, "Ditolak", "", () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Ditolak',
+          text: 'Pemesanan berhasil ditolak.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        setTimeout(() => location.reload(), 2500);
+      });
+    }
+  });
+}
+
           </script>
 
 <% data.forEach(p => { %>
@@ -814,6 +834,60 @@ ${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
   });
 </script>
 <script>
+  document.querySelectorAll('form[action^="/vendor/upload-bukti-tayang"]').forEach(form => {
+    form.addEventListener('submit', function (e) {
+      const dokumenInputs = form.querySelectorAll('input[name="dokumen_radio"], input[name="dokumen_sms"]');
+      const audioInputs = form.querySelectorAll('input[name="audio_radio"]');
+
+      let errorMsg = "";
+
+      // Cek dokumen PDF
+      for (let input of dokumenInputs) {
+        if (input.offsetParent !== null) { // hanya validasi elemen yang terlihat (aktif)
+          const file = input.files[0];
+          if (!file) {
+            errorMsg = "Semua dokumen PDF wajib diunggah.";
+            break;
+          }
+          if (!file.type.includes("pdf")) {
+            errorMsg = "Dokumen harus berformat PDF.";
+            break;
+          }
+        }
+      }
+
+      // Cek audio (jika belum ada error dari PDF)
+      if (!errorMsg) {
+        for (let input of audioInputs) {
+          if (input.offsetParent !== null) {
+            const file = input.files[0];
+            if (!file) {
+              errorMsg = "Semua file audio wajib diunggah.";
+              break;
+            }
+            const validTypes = ['audio/mpeg', 'audio/wav'];
+            if (!validTypes.includes(file.type)) {
+              errorMsg = "Audio harus berformat MP3 atau WAV.";
+              break;
+            }
+          }
+        }
+      }
+
+      // Kalau ada error
+      if (errorMsg) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'error',
+          title: 'Upload Gagal',
+          text: errorMsg
+        });
+      }
+    });
+  });
+</script>
+
+<script>
   function initMap() {
     const maps = document.querySelectorAll('[id^="map-"]'); 
     maps.forEach(mapDiv => {
@@ -841,6 +915,6 @@ ${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
     });
   }
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initMap"></script>
 </body>

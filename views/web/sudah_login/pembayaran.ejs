@@ -89,7 +89,7 @@
         <h2 class="mb-4">Pembayaran</h2>
 
         <!-- 📷 Logo / Foto Bank -->
-        <img src="/images/bank_placeholder.png" alt="Bank" width="150"><br>
+        <img src="/foto/mandiri.png" alt="Bank" width="150"><br>
         <strong>Transfer ke: 1030007752344 (Mandiri a.n. PANDAWA SAKTI DIGITA)</strong><br><br>
 
         <!-- 🖼️ Foto Produk -->
@@ -248,7 +248,55 @@
     });
   </script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.querySelector("form").addEventListener("submit", function (e) {
+    const input = document.getElementById("bukti_pembayaran");
+    const file = input.files[0];
 
+    if (!file) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: 'File bukti pembayaran wajib diunggah.'
+      });
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'error',
+        title: 'Tipe file tidak valid',
+        text: 'Hanya file .jpg dan .png yang diperbolehkan.'
+      });
+      return;
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const uploadSuccess = urlParams.get("upload");
+
+    if (uploadSuccess === "success") {
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Bukti pembayaran berhasil diunggah.',
+        timer: 3000,
+        showConfirmButton: false
+      }).then(() => {
+        // Bersihkan query param biar nggak muncul terus
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      });
+    }
+  });
+</script>
 
 </body>
 

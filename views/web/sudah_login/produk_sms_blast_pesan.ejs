@@ -162,7 +162,7 @@
             <div class="card shadow p-4 mx-auto" style="max-width: 900px;">
 
                 <!-- FORM mulai dari sini, membungkus seluruh row -->
-                <form action="/produk-sms/pesan/<%= produk.id_produk_iklan %>" method="POST"
+                <form id="formPemesanan" action="/produk-sms/pesan/<%= produk.id_produk_iklan %>" method="POST"
                     enctype="multipart/form-data">
 
                     <div class="row">
@@ -202,6 +202,7 @@
                             <div class="mb-2">
                                 <label class="form-label">Masking Sender:<span style="color:red">* </span></label>
                                 <input type="text" class="form-control" name="masking_sender">
+                                <div class="invalid-feedback">Masking sender wajib diisi.</div>
                             </div>
 
                             <div class="mb-2">
@@ -513,6 +514,111 @@
 
                 window.initMap = initMap;
             </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("formPemesanan");
+  const jenisTarget = "<%= produk.jenis_target.toLowerCase() %>";
+
+  form.addEventListener("submit", function (e) {
+    let isValid = true;
+    let errorMessages = [];
+
+    // Reset invalid state
+    form.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+
+    // Masking
+    const masking = form.querySelector("input[name='masking_sender']");
+    if (!masking.value.trim()) {
+      masking.classList.add("is-invalid");
+      isValid = false;
+      errorMessages.push("Masking Sender wajib diisi.");
+    }
+
+    // Target umur
+    const umur = form.querySelector("input[name='target_umur']");
+    if (!umur.value.trim()) {
+      umur.classList.add("is-invalid");
+      isValid = false;
+      errorMessages.push("Target Umur wajib diisi.");
+    }
+
+    // Tipe device
+    const deviceSelected = form.querySelectorAll("input[name='tipe_device']:checked");
+    if (deviceSelected.length === 0) {
+      errorMessages.push("Pilih minimal satu tipe device.");
+      isValid = false;
+    }
+
+    // Tanggal kirim
+    const tanggal = form.querySelector("input[name='tanggal_kirim'], input[name='tanggal_kirim_start']");
+    if (!tanggal || !tanggal.value) {
+      tanggal?.classList.add("is-invalid");
+      isValid = false;
+      errorMessages.push("Tanggal pengiriman wajib diisi.");
+    }
+
+    // Jam kirim
+    const jam = form.querySelector("input[name='jam_kirim']");
+    if (!jam.value.trim()) {
+      jam.classList.add("is-invalid");
+      isValid = false;
+      errorMessages.push("Jam pengiriman wajib diisi.");
+    }
+
+    // Teks iklan
+    const teks = form.querySelector("textarea[name='teks_iklan_sms']");
+    if (!teks.value.trim()) {
+      teks.classList.add("is-invalid");
+      isValid = false;
+      errorMessages.push("Teks iklan wajib diisi.");
+    }
+
+    // Nomor bukti tayang
+    const noBukti = form.querySelector("input[name='nomor_penerima_bukti_tayang']");
+    if (!noBukti.value.trim()) {
+      noBukti.classList.add("is-invalid");
+      isValid = false;
+      errorMessages.push("Nomor penerima bukti tayang wajib diisi.");
+    }
+
+    // Validasi untuk MMS: upload gambar
+    if (jenisTarget.includes("mms")) {
+      const file = form.querySelector("input[name='file_foto_mms']");
+      if (!file || file.files.length === 0) {
+        file.classList.add("is-invalid");
+        isValid = false;
+        errorMessages.push("File gambar wajib diunggah untuk MMS.");
+      }
+    }
+
+    // Validasi untuk LBA: peta dan alamat
+    if (jenisTarget.includes("lba")) {
+      const alamat = form.querySelector("input[name='alamat_target_sms']");
+      const lat = form.querySelector("input[name='latitude']");
+      const lng = form.querySelector("input[name='longitude']");
+      if (!alamat.value.trim() || !lat.value.trim() || !lng.value.trim()) {
+        isValid = false;
+        errorMessages.push("Lokasi harus dipilih di peta (LBA).");
+      }
+    }
+
+    if (!isValid) {
+      e.preventDefault();
+      Swal.fire({
+        icon: "error",
+        title: "Form Belum Lengkap",
+        html: errorMessages.map(msg => `<div>${msg}</div>`).join(""),
+      });
+    }
+  });
+});
+</script>
+
+
+
 
 </body>
 

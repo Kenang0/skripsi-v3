@@ -102,7 +102,7 @@
 }
 
 </style>
-<h1>Register Akun Internal</h1>
+<h1>Pembuatan Akun Internal</h1>
 
 <form id="formRegister" action="/admin/dashboarAdmin/tambah-akun" method="POST">
 
@@ -156,7 +156,7 @@
 </form>
 
 
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("formRegister");
@@ -233,7 +233,13 @@
 
       // 🚀 Kirim form kalau semua lolos
       e.target.submit();
-      alert("Panambahan akun Berhasil");
+      Swal.fire({
+  icon: 'success',
+  title: 'Berhasil',
+  text: 'Penambahan akun berhasil dilakukan!',
+}).then(() => {
+  window.location.href = "/admin/dashboardAdmin";
+});
     });
   });
 </script>
