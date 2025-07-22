@@ -25,60 +25,60 @@ router.get("/logout", (req, res) => {
   });
 
 // ambil halaaman home
-router.get("/dashboardAdmin", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), getDashHome);
+router.get("/dashboardAdmin", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), getDashHome);
 
 
 //ambil halama add pks
-router.get ("/dasboardAdmin/addPKS",authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),getDashAddPKS );
+router.get ("/dasboardAdmin/addPKS",authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),getDashAddPKS );
 
 // preview pks
-router.post ("/dashboardAdmin/preview-pks",authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),preview_PDF_PKS );
+router.post ("/dashboardAdmin/preview-pks",authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),preview_PDF_PKS );
 
 // download pks
-router.post("/dashboardAdmin/download-pks", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), savedandownload_PKS);
+router.post("/dashboardAdmin/download-pks", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), savedandownload_PKS);
 
 //ambil halaman upload
-router.get('/dashboard/upload-pks/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),getUploadPKSPage);
+router.get('/dashboard/upload-pks/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),getUploadPKSPage);
 
 // buat tombol upload di halaman upload
-router.post("/dashboardAdmin/upload-pks-tandatangan", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), uploadPKS);
+router.post("/dashboardAdmin/upload-pks-tandatangan", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), uploadPKS);
 
 // ambil halaman pengecekan pks di tombol berikutnya yang ada di halaman upload
-router.get('/dashboard/pengecekan-pks/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), getPengecekanPKSPage);
+router.get('/dashboard/pengecekan-pks/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), getPengecekanPKSPage);
 
 // pembuatan akun vendor
-router.post('/dashboardAdmin/pembuatan-akun-vendor', authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), simpanAkunVendor);
+router.post('/dashboardAdmin/pembuatan-akun-vendor', authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), simpanAkunVendor);
 
 // halaman konfirmasi pks selesai
-router.get('/dashboardAdmin/pks-selesai/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), getPKSSelesai);
+router.get('/dashboardAdmin/pks-selesai/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), getPKSSelesai);
 
 // penambahan akaun
-router.get("/dashboardAdmin/penambahan-akun", authenticateRoleDashAdmin(["admin", "project lead"]), getHalamanTambahAkunInternal)
+router.get("/dashboardAdmin/penambahan-akun", authenticateRoleDashAdmin(["admin", "direktur"]), getHalamanTambahAkunInternal)
 router.post("/dashboarAdmin/tambah-akun", pembuatanakunUserInternal);
 router.post("/cek-email",cekEmailInternal);
-router.get("/dashboardAdmin/tim-internal",authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), HalamanUserInternal);
+router.get("/dashboardAdmin/tim-internal",authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), HalamanUserInternal);
 
 // ambil halaman view tabel data PKS
-router.get ("/dashboardAdmin/PKS", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]), getDashAdminPKS);
-router.delete('/dashboardAdmin/delete-pks/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),deletePKS);
-router.get("/dashboardAdmin/upload-pks/:pks_id", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),  uploadPKSdariView);
-router.put('/dashboardAdmin/approve-pks/:pks_id', authenticateRoleDashAdmin(['admin', 'project lead']), PKSdiSetujui);
-router.get("/dashboardAdmin/pembuatan-akun-vendor/:pks_id", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),  getPembuatanAkunVendor);
-router.put('/dashboardAdmin/tolak-pks/:pksId', authenticateRoleDashAdmin(["admin", "project lead"]),tolakPKS);
+router.get ("/dashboardAdmin/PKS", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), getDashAdminPKS);
+router.delete('/dashboardAdmin/delete-pks/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),deletePKS);
+router.get("/dashboardAdmin/upload-pks/:pks_id", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),  uploadPKSdariView);
+router.put('/dashboardAdmin/approve-pks/:pks_id', authenticateRoleDashAdmin(['admin', 'direktur']), PKSdiSetujui);
+router.get("/dashboardAdmin/pembuatan-akun-vendor/:pks_id", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),  getPembuatanAkunVendor);
+router.put('/dashboardAdmin/tolak-pks/:pksId', authenticateRoleDashAdmin(["admin", "direktur"]),tolakPKS);
 
 // laporan analitik
-router.get("/dashboardAdmin/aporan-analitik-user", authenticateRoleDashAdmin(["admin", "partnership", "project lead"]),  LaporanAnalitikUSer);
+router.get("/dashboardAdmin/aporan-analitik-user", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),  LaporanAnalitikUSer);
 
 // pengaturan akun
-router.get("/dashboardAdmin/pengaturan-akun", authenticateRoleDashAdmin(["admin", "project lead"]), getHalamanPengaturan);
-router.post("/internal/update-password",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance","klien"]),updatePassword);
-router.post("/internal/update-profil",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance", "klien"]),updateProfil);
-router.post("/internal/update-foto",authenticateRoleDashAdmin(["admin", "partnership", "project lead","finance", "klien"]),updateFoto);
+router.get("/dashboardAdmin/pengaturan-akun", authenticateRoleDashAdmin(["admin", "direktur"]), getHalamanPengaturan);
+router.post("/internal/update-password",authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance","klien"]),updatePassword);
+router.post("/internal/update-profil",authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance", "klien"]),updateProfil);
+router.post("/internal/update-foto",authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance", "klien"]),updateFoto);
 
 // CRUD tim internal
 
-router.delete("/internal/delete-user/:id",authenticateRoleDashAdmin(["admin", "project lead"]),deleteTimInternal);
-router.post("/internal/update-status/:id",authenticateRoleDashAdmin(["admin", "project lead"]),UpdateTimInternal);
+router.delete("/internal/delete-user/:id",authenticateRoleDashAdmin(["admin", "direktur"]),deleteTimInternal);
+router.post("/internal/update-status/:id",authenticateRoleDashAdmin(["admin", "direktur"]),UpdateTimInternal);
 // halaman untuk vertifikasi dan set password untuk vendor dan internal
 router.get("/verifikasi", vertifikasi);
 router.post("/setpasswordinternal",updatePasswordInternal);
@@ -89,7 +89,7 @@ router.get("/reset-password", vertifikasi);
 
 
 // halaman cek-pembayaran
-router.get("/dashboardAdmin/cek-pembayaran",authenticateRoleDashAdmin(["admin", "partnership", "project lead", "Finance"]), getHalamanPengecekanPembayaran);
+router.get("/dashboardAdmin/cek-pembayaran",authenticateRoleDashAdmin(["admin", "partnership", "direktur", "Finance"]), getHalamanPengecekanPembayaran);
 router.post("/pembayaran/:id_pembayaran/setujui", authenticateRoleDashAdmin(["admin", "Finance"]), setujuiPembayaran);
 router.post("/pembayaran/:id_pembayaran/kurang", authenticateRoleDashAdmin(["admin", "Finance"]), handlePembayaranKurang);
 export default router;

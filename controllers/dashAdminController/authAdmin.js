@@ -109,7 +109,7 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign({ id: user.id, role, full_name: user.full_name }, process.env.JWT_SECRET, { expiresIn: "3h" });
     res.cookie("token", token, { httpOnly: true });
 
-    const rolesAllowed = ["admin", "partnership", "project lead"];
+    const rolesAllowed = ["admin", "partnership", "direktur"];
     if (rolesAllowed.includes(role)) {
       res.redirect("dashboardAdmin");
     } else {
@@ -127,7 +127,7 @@ export const getDashHome = async (req, res) => {
     const Data_tim_internal = await pool.query(`
       SELECT full_name, role, email, nomor_tlp AS nomor_tlp, alamat, photo_user
       FROM users
-      WHERE role IN ('admin', 'partnership', 'project lead', 'finance')
+      WHERE role IN ('admin', 'partnership', 'direktur', 'finance')
       ORDER BY full_name
     `);
 
@@ -677,6 +677,7 @@ export const getDashAdminPKS = async (req, res) => {
       partial: 'view_PKS',
       error: null,
       data: dataPKS,
+      role: req.user.role,
     });
 
   } catch (err) {
@@ -738,7 +739,7 @@ export const PKSdiSetujui = async (req, res) => {
   const role = req.user.role;
   const full_name = req.user.full_name;
 
-  if (role !== 'admin' && role !== 'project lead') {
+  if (role !== 'admin' && role !== 'direktur') {
     return res.status(403).json({ message: 'Akses ditolak: Anda tidak memiliki izin.' });
   }
 

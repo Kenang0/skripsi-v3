@@ -14,10 +14,12 @@
     </div>
     <ul class="navbar-menu" id="navbarMenu">
         <li><a href="/admin/dashboardAdmin"><span class="las la-home"></span> Home</a></li>
-        <li><a href="/admin/dashboardAdmin/aporan-analitik-user"><span class="las la-chart-pie"></span> Analytics</a>
-        </li>
 
+        <% if (role.toLowerCase() === 'finance') { %> 
+        <li><a href="/admin/dashboardAdmin/aporan-analitik-user"><span class="las la-chart-pie"></span> Analytics</a></li>
+        <% } %>
 
+         <% if (role.toLowerCase() === 'admin' || role.toLowerCase() === 'finance' ) { %>         
         <li class="dropdown">
             <a href="#" class="dropdown-toggle">
                 <span class="las la-balance-scale"></span> Pembayaran <span class="dropdown-arrow"></span>
@@ -27,7 +29,9 @@
                 <li><a href="#">Semua Data Pembayaran</a></li>
             </ul>
         </li>
-  
+          <% } %>
+
+        <% if (role.toLowerCase() === 'admin' || role.toLowerCase() === 'direktur' || role.toLowerCase() === 'partnership' ) { %>     
         <li class="dropdown">
             <a href="#" class="dropdown-toggle">
                 <span class="lab la-dropbox"></span> Vendor <span class="dropdown-arrow"></span>
@@ -37,6 +41,9 @@
                 <li><a href="/admin/dasboardAdmin/addPKS">Tambah PKS</a></li>
             </ul>
         </li>
+          <% } %>
+
+          <% if (role.toLowerCase() === 'direktur') { %>     
         <li class="dropdown">
             <a href="#" class="dropdown-toggle">
                 <span class="lab la-dropbox"></span> Internal <span class="dropdown-arrow"></span>
@@ -47,7 +54,7 @@
 
             </ul>
         </li>
-
+        <% } %>
 
         <li><a href="/admin/dashboardAdmin/pengaturan-akun"><span class="las la-user"></span>Akun Saya</a></li>
 
