@@ -652,12 +652,15 @@ ${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
                     throw new Error(data.message || "Terjadi kesalahan.");
                   }
 
-                  alert(data.message || "Status diperbarui.");
                   if (callback) callback();
                 })
                 .catch((err) => {
-                  alert(err.message || "Gagal mengubah status.");
-                  console.error(err);
+                   Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: err.message || "Gagal mengubah status."
+                    });
+                console.error(err);             
                 });
             }
 
@@ -685,20 +688,36 @@ ${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
   });
 }
 
+function handleRevisi(id) {
+  Swal.fire({
+    title: 'Masukkan alasan penyesuaian',
+    input: 'text',
+    inputPlaceholder: 'Tulis alasan di sini...',
+    showCancelButton: true,
+    confirmButtonText: 'Kirim Penyesuaian',
+    cancelButtonText: 'Batal',
+    inputValidator: (value) => {
+      if (!value.trim()) {
+        return '';
+      }
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const alasan = result.value.trim();
+      updateStatus(id, "Menunggu Penyesuaian", alasan, () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Penyesuaian berhasil dikirim.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        setTimeout(() => location.reload(), 2500);
+      });
+    } 
+  });
+}
 
-
-            function handleRevisi(id) {
-              const alasan = prompt("Masukkan alasan revisi untuk pemesanan ini:");
-              if (alasan && alasan.trim() !== "") {
-                updateStatus(id, "Menunggu Penyesuaian", alasan, () => {
-                  // Aksi setelah revisi berhasil
-                  alert("Revisi berhasil dikirim.");
-                  location.reload();
-                });
-              } else if (alasan !== null) {
-                alert("Revisi dibatalkan. Alasan harus diisi.");
-              }
-            }
 
         function handleTolak(id) {
   Swal.fire({
@@ -874,7 +893,7 @@ ${data.status.toLowerCase() === 'menunggu bukti tayang' ? `
         }
       }
 
-      // Kalau ada error
+    
       if (errorMsg) {
         e.preventDefault();
         Swal.fire({

@@ -123,7 +123,7 @@ export const postTambahProduk = async (req, res) => {
       if (kategori_id === "1") {
         const { jam_mulai, jam_selesai, hari_tayang, slot_penayangan } = req.body;
 
-        // Gabungkan semua hari menjadi satu string dipisah koma
+        // Gabung semua hari menjadi satu string dipisah koma
         const hariGabung = Array.isArray(hari_tayang) ? hari_tayang.join(",") : hari_tayang;
 
 
@@ -139,7 +139,7 @@ export const postTambahProduk = async (req, res) => {
       if (kategori_id === "2") {
         const { provider, jenis_target } = req.body;
 
-        // Gabungkan semua hari menjadi satu string dipisah koma
+        // Gabung hari menjadi satu string dipisah koma
         const providerGabung = Array.isArray(provider) ? provider.join(",") : provider;
 
 
@@ -222,15 +222,15 @@ export const deleteProdukRadio = async (req, res) => {
   try {
     await pool.query("BEGIN");
 
-    // Ambil nama file fotonya dulu
+    
     const result = await pool.query("SELECT photo_produk FROM produk_iklan WHERE id_produk_iklan = $1", [id]);
     const photoFile = result.rows[0]?.photo_produk;
 
-    // Hapus jadwal + produk
+    
     await pool.query("DELETE FROM jadwal_produk_radio WHERE produk_id = $1", [id]);
     await pool.query("DELETE FROM produk_iklan WHERE id_produk_iklan = $1", [id]);
 
-    // Hapus file jika ada
+    
     if (photoFile) {
       const filePath = path.join("public", "uploads", "produk_img", photoFile);
       if (fs.existsSync(filePath)) {
@@ -252,7 +252,7 @@ export const deleteProdukSMS = async (req, res) => {
   const id = req.params.id;
 
   try {
-    // ⛔️ Cek apakah produk ini sudah pernah dipesan
+ 
     const cek = await pool.query("SELECT 1 FROM pemesanan WHERE produk_id = $1 LIMIT 1", [id]);
     if (cek.rows.length > 0) {
       return res.status(400).json({
@@ -263,15 +263,15 @@ export const deleteProdukSMS = async (req, res) => {
 
     await pool.query("BEGIN");
 
-    // 🔍 Ambil nama file foto produk
+   
     const result = await pool.query("SELECT photo_produk FROM produk_iklan WHERE id_produk_iklan = $1", [id]);
     const photoFile = result.rows[0]?.photo_produk;
 
-    // 🗑 Hapus detail produk SMS dan produk utama
+    
     await pool.query("DELETE FROM detail_produk_sms WHERE produk_id = $1", [id]);
     await pool.query("DELETE FROM produk_iklan WHERE id_produk_iklan = $1", [id]);
 
-    // 🧹 Hapus file foto jika ada
+    
     if (photoFile) {
       const filePath = path.join("public", "uploads", "produk_img", photoFile);
       if (fs.existsSync(filePath)) {
@@ -314,7 +314,6 @@ export const updateProduk = async (req, res) => {
     try {
       await pool.query("BEGIN");
 
-      // 🖼️ kalau ada gambar baru, update; kalau tidak, tetap pakai yang lama
       let queryProduk = `
         UPDATE produk_iklan SET 
           nama_produk = $1, 
@@ -491,7 +490,6 @@ export const updateStatusPemesanan = async (req, res) => {
       );
 
     } else if (status === "Menunggu Pembayaran") {
-      // 1. Ambil data user, kategori, produk
       const result = await pool.query(`
         SELECT u.email, u.full_name, u.id as user_id,
                pi.nama_produk, k.tipe_kategori
@@ -547,14 +545,14 @@ export const updateStatusPemesanan = async (req, res) => {
         jadwalText = jadwalList.length > 0 ? jadwalList.join("<br>") : "-";
       }
 
-      // 2. Update status dan tanggal_disetujui
+      // Update status dan tanggal_disetujui
       await pool.query(`
         UPDATE pemesanan 
         SET status_pemesanan = $1, tanggal_disetujui = NOW()
         WHERE id_pemesanan = $2
       `, [status, id]);
 
-      // 3. Buat token untuk akses link pembayaran
+      // Buat token untuk akses link pembayaran
       const token = jwt.sign(
         { user_id: user.user_id, id_pemesanan: id, role: "klien" },
         process.env.JWT_SECRET,

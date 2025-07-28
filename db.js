@@ -11,11 +11,10 @@ const { Pool } = pkg;
 //     password: process.env.DB_PASSWORD,
 //     database: process.env.DB_NAME,
 //     port: process.env.DB_PORT,
-//     // ssl: true,
 //   });
 
 
-// host config
+// host 
 const pool = new Pool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
