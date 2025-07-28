@@ -114,10 +114,11 @@
                                         <%= item.status %>
                                     </td>
                                     <td>
-                                        <% if (item.status==='Menunggu Pembuatan Akun Vendor' ) { %>
+                                        <% if (item.status === 'Menunggu Pembuatan Akun Vendor' &&
+                                        (role.toLowerCase() === 'admin' || role.toLowerCase() === 'direktur')) { %>
                                             <a href="/admin/dashboardAdmin/pembuatan-akun-vendor/<%= item.pks_id %>"
                                                 class="btn btn-sm btn-warning me-1">+ Akun Vendor</a>
-                                            <% } else { %>
+                                            <% } else if  (item.status === 'Menunggu Tanda Tangan') {%>
                                                 <a href="/admin/dashboardAdmin/upload-pks/<%= item.pks_id %>"
                                                     class="btn btn-sm btn-warning me-1">Upload</a>
                                                 <% } %>
@@ -310,8 +311,8 @@
         const isTableKananKosong = tableKananRows.length === 1 && tableKananRows[0].querySelectorAll('td[colspan]').length > 0;
         const tableKiriRows = document.querySelectorAll('#tableKiri tbody tr');
         const isTableKiriKosong = tableKiriRows.length === 1 && tableKiriRows[0].querySelectorAll('td[colspan]').length > 0;
-
         const tabelpksselesaiAtautolakRows = document.querySelectorAll('#tabelpksselesaiAtautolak tbody tr');
+        const isTableSelesaiKosong = tabelpksselesaiAtautolakRows.length === 1 && tabelpksselesaiAtautolakRows[0].querySelectorAll('td[colspan]').length > 0;
 
         if (!isTableKiriKosong) {
             tableKiri = $('#tableKiri').DataTable({
@@ -322,6 +323,13 @@
 
         if (!isTableKananKosong) {
             tableKanan = $('#tableKanan').DataTable({
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50]
+            });
+        }
+
+        if (!isTableSelesaiKosong) {
+            window.tableSelesai = $('#tabelpksselesaiAtautolak').DataTable({
                 pageLength: 5,
                 lengthMenu: [5, 10, 25, 50]
             });
@@ -425,7 +433,13 @@
                                     color: '#ffffff',
                                    
                                 });
-                            } else {
+                            } else if (response.status === 403) {// ❌ Akses ditolak
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Akses Ditolak',
+                                    text:  'Anda tidak memiliki izin untuk menyetujui PKS.'
+                                });
+                            }else {
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Gagal memperbarui status',
@@ -446,54 +460,77 @@
         });
 
         // Fungsi Tolak PKS
-        function confirmTolak(pksId) {
-            Swal.fire({
-                title: 'Tolak PKS?',
-                input: 'textarea',
-                inputLabel: 'Alasan Penolakan',
-                inputPlaceholder: 'Tuliskan alasan kenapa PKS ini ditolak...',
-                inputAttributes: {
-                    'aria-label': 'Alasan penolakan'
-                },
-                showCancelButton: true,
-                cancelButtonText: 'Batal Penolakan',
-                confirmButtonText: 'Kirim Penolakan',
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                reverseButtons: true,
-                preConfirm: (alasan) => {
-                    if (!alasan.trim()) {
-                        Swal.showValidationMessage('Alasan harus diisi!');
-                    }
-                    return alasan;
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const alasan = result.value;
-                    fetch(`/admin/dashboardAdmin/tolak-pks/${pksId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ keterangan: alasan }),
-                        credentials: "include"
-                    })
-                        .then(res => {
-                            if (res.ok) {
-                                Swal.fire('Berhasil', 'PKS telah ditolak.', 'success').then(() => location.reload());
-                            } else {
-                                Swal.fire('Gagal', 'Terjadi kesalahan saat menolak PKS.', 'error');
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            Swal.fire('Error', 'Gagal mengirim permintaan.', 'error');
-                        });
-                }
-            });
+ function confirmTolak(pksId) {
+  Swal.fire({
+    title: 'Tolak PKS?',
+    input: 'textarea',
+    inputLabel: 'Alasan Penolakan',
+    inputPlaceholder: 'Tuliskan alasan kenapa PKS ini ditolak...',
+    inputAttributes: {
+      'aria-label': 'Alasan penolakan'
+    },
+    showCancelButton: true,
+    cancelButtonText: 'Batal',
+    confirmButtonText: 'Kirim Penolakan',
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    reverseButtons: true,
+    preConfirm: (alasan) => {
+      if (!alasan.trim()) {
+        Swal.showValidationMessage('Alasan harus diisi!');
+      }
+      return alasan;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const alasan = result.value;
+
+      fetch(`/admin/dashboardAdmin/tolak-pks/${pksId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ keterangan: alasan }),
+        credentials: 'include'
+      })
+      .then(async res => {
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (err) {
+          console.warn('Gagal parse response:', err);
         }
 
-        // Optional: Expose function if you use it via onclick
+        if (res.ok) {
+          Swal.fire({
+            toast: true,
+            icon: 'success',
+            title: 'PKS telah ditolak',
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true,
+            background: '#1e293b',
+            color: '#ffffff',
+          }).then(() => location.reload());
+        } else if (res.status === 403) {
+          Swal.fire('Akses Ditolak', data.message || 'Anda tidak memiliki izin.', 'error');
+        } else if (res.status === 400) {
+          Swal.fire('Gagal', data.error || 'Alasan penolakan tidak valid.', 'error');
+        } else if (res.status === 404) {
+          Swal.fire('Tidak Ditemukan', data.error || 'Data PKS tidak ditemukan.', 'error');
+        } else {
+          Swal.fire('Gagal', data.error || 'Terjadi kesalahan saat menolak PKS.', 'error');
+        }
+      })
+      .catch(err => {
+        console.error('❌ Fetch error:', err);
+        Swal.fire('Error', 'Gagal mengirim permintaan.', 'error');
+      });
+    }
+  });
+}
+
+        
         window.confirmTolak = confirmTolak;
     });
 </script>

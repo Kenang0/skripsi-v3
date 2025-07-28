@@ -178,7 +178,8 @@ export const forgotPasswordUser = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    const resetURL = `http://localhost:3000/reset-password?token=${token}`; // ganti saat hosting
+    // const resetURL = `http://localhost:3000/reset-password?token=${token}`;
+    const resetURL = `skripsi-v3-coba.up.railway.app/reset-password?token=${token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_FROM,

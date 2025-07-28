@@ -1,7 +1,8 @@
 import express from "express";
 import { authenticateVendor } from "../../middleware/authMiddleware.js";
 import { getLoginPageVendor,loginUserVendor,getDashVendorHome,getTambahProduk,postTambahProduk,getProdukVendor,deleteProdukRadio,deleteProdukSMS,updateProduk,
-  getOnProgressVendor,updateStatusPemesanan,generateBuktiPDF,vertifikasi_vendor,forgotPasswordVendor,handleUploadBuktiTayang
+  getOnProgressVendor,updateStatusPemesanan,generateBuktiPDF,vertifikasi_vendor,forgotPasswordVendor,handleUploadBuktiTayang,getHalamanPengaturanVendor,
+  updateProfilVendor,updateFotoVendor,updatePasswordVendor
  } from "../../controllers/dashVendorController/authVendor.js";
 
 
@@ -44,4 +45,9 @@ router.get("/reset-password", vertifikasi_vendor );
 // bukti tayang upload
 router.post("/upload-bukti-tayang/:id_pemesanan", authenticateVendor, handleUploadBuktiTayang);
 
+// pengaturan akun 
+router.get("/pengaturan-akun", authenticateVendor, getHalamanPengaturanVendor);
+router.post("/update-profil",authenticateVendor,updateProfilVendor);
+router.post("/update-foto",authenticateVendor,updateFotoVendor);
+router.post("/update-password",authenticateVendor,updatePasswordVendor);
 export default router;

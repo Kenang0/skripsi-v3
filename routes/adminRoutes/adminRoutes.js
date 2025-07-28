@@ -8,7 +8,9 @@ import {  loginUser,getLoginPage, getDashHome,
           pembuatanakunUserInternal,simpanAkunVendor, getPKSSelesai,tolakPKS,cekEmailInternal,vertifikasi, 
           getHalamanTambahAkunInternal,vertifikasiVendor,updatePasswordVendor,updatePasswordInternal,getHalamanPengaturan,
           updateProfil,updatePassword,updateFoto,LaporanAnalitikUSer,HalamanUserInternal,
-          forgotPasswordInternal,getHalamanPengecekanPembayaran,deleteTimInternal,UpdateTimInternal,setujuiPembayaran,handlePembayaranKurang} from "../../controllers/dashAdminController/authAdmin.js";
+          forgotPasswordInternal,getHalamanPengecekanPembayaran,deleteTimInternal,UpdateTimInternal,setujuiPembayaran,handlePembayaranKurang,
+          getDaftarVendor,updateVendor} from "../../controllers/dashAdminController/authAdmin.js";
+import {forgotPasswordVendor} from "../../controllers/dashVendorController/authVendor.js";
 
 
 const router = express.Router();
@@ -52,25 +54,27 @@ router.post('/dashboardAdmin/pembuatan-akun-vendor', authenticateRoleDashAdmin([
 // halaman konfirmasi pks selesai
 router.get('/dashboardAdmin/pks-selesai/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), getPKSSelesai);
 
-// penambahan akaun
+// penambahan akun
 router.get("/dashboardAdmin/penambahan-akun", authenticateRoleDashAdmin(["admin", "direktur"]), getHalamanTambahAkunInternal)
 router.post("/dashboarAdmin/tambah-akun", pembuatanakunUserInternal);
 router.post("/cek-email",cekEmailInternal);
 router.get("/dashboardAdmin/tim-internal",authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), HalamanUserInternal);
 
-// ambil halaman view tabel data PKS
+// ambil halaman view tabel data PKS dan data akun vendor
 router.get ("/dashboardAdmin/PKS", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), getDashAdminPKS);
 router.delete('/dashboardAdmin/delete-pks/:pks_id', authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),deletePKS);
 router.get("/dashboardAdmin/upload-pks/:pks_id", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),  uploadPKSdariView);
 router.put('/dashboardAdmin/approve-pks/:pks_id', authenticateRoleDashAdmin(['admin', 'direktur']), PKSdiSetujui);
 router.get("/dashboardAdmin/pembuatan-akun-vendor/:pks_id", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),  getPembuatanAkunVendor);
 router.put('/dashboardAdmin/tolak-pks/:pksId', authenticateRoleDashAdmin(["admin", "direktur"]),tolakPKS);
+router.get("/dashboardAdmin/daftar-vendor", authenticateRoleDashAdmin(["admin", "direktur"]),  getDaftarVendor);
+router.post('/dashboardAdmin/update-vendor', authenticateRoleDashAdmin(["admin", "direktur"]), updateVendor);
 
 // laporan analitik
 router.get("/dashboardAdmin/aporan-analitik-user", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),  LaporanAnalitikUSer);
 
 // pengaturan akun
-router.get("/dashboardAdmin/pengaturan-akun", authenticateRoleDashAdmin(["admin", "direktur"]), getHalamanPengaturan);
+router.get("/dashboardAdmin/pengaturan-akun", authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance","klien"]), getHalamanPengaturan);
 router.post("/internal/update-password",authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance","klien"]),updatePassword);
 router.post("/internal/update-profil",authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance", "klien"]),updateProfil);
 router.post("/internal/update-foto",authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance", "klien"]),updateFoto);
@@ -86,6 +90,7 @@ router.get("/verifikasivendor", vertifikasiVendor);
 router.post("/setpasswordvendor",updatePasswordVendor);
 router.post("/forgot-password",forgotPasswordInternal);
 router.get("/reset-password", vertifikasi);
+router.post("/dashboardAdmin/forgot-password-vendor", forgotPasswordVendor);
 
 
 // halaman cek-pembayaran

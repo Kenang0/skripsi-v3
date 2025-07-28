@@ -26,7 +26,7 @@
             </a>
             <ul class="dropdown-menu">
                 <li><a href="/admin/dashboardAdmin/cek-pembayaran">Pengecekan</a></li>
-                <li><a href="#">Semua Data Pembayaran</a></li>
+                <li><a href="/admin/dashboardAdmin/daftar-pembayaran">Semua Data Pembayaran</a></li>
             </ul>
         </li>
           <% } %>
@@ -39,11 +39,14 @@
             <ul class="dropdown-menu">
                 <li><a href="/admin/dashboardAdmin/PKS">PKS</a></li>
                 <li><a href="/admin/dasboardAdmin/addPKS">Tambah PKS</a></li>
+                <% if (role.toLowerCase() === 'admin' || role.toLowerCase() === 'direktur' ) { %>   
+                <li><a href="/admin/dashboardAdmin/daftar-vendor">Data Akun Vendor</a></li>
+                  <% } %>
             </ul>
         </li>
           <% } %>
 
-          <% if (role.toLowerCase() === 'direktur') { %>     
+          <% if (role.toLowerCase() === 'direktur' || role.toLowerCase() === 'admin') { %>     
         <li class="dropdown">
             <a href="#" class="dropdown-toggle">
                 <span class="lab la-dropbox"></span> Internal <span class="dropdown-arrow"></span>

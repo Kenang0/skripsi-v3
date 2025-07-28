@@ -481,10 +481,13 @@ export const kirimEmailVerifikasiVendor = async (user) => {
     html: `
       <p>Yth. Bapak/Ibu<br><strong>${user.nama_pt_mitra}</strong></p>
       <p>Dengan hormat,</p>
-      <p>Kami dari <strong>PT Pandawa Sakti Digital</strong> menginformasikan bahwa akun Anda dengan nama toko <strong>${user.nama_toko_vendor}</strong> telah berhasil dibuat.</p>
-      <p>Silakan klik tautan berikut untuk mengatur kata sandi Anda dan mengaktifkan akun:</p>
+      <p>Kami dari <strong>PT Pandawa Sakti Digital</strong> menginformasikan bahwa akun Anda  telah berhasil dibuat.</p>
+      <p>berikut informasi yang diperlukan saat login</p>
+      <p> email : ${user.email_vendor}</p>
+      <p> password : ${user.password_raw}</p>
+      <p>jika anda ingin menggubah password sesuai dengan kamanuan anda silakan klik tautan berikut untuk mengatur kata sandi anda </p>
       <p><a href="${verifikasiURL}">${verifikasiURL}</a></p><br>
-      <p><small>Link ini berlaku selama 7 hari.</small></p>
+      <p><small>Link ini berlaku selama 1 hari.</small></p>
       <p>Terima kasih atas kerja sama yang telah terjalin.</p>
       <br>
       <p>Hormat kami,<br><strong>PT Pandawa Sakti Digital</strong></p>
@@ -519,7 +522,7 @@ export const simpanAkunVendor = async (req, res) => {
     const result_vendor = await pool.query(
       `INSERT INTO users_vendor
         (pks_id, nama_toko_vendor, email_vendor, password_vendor, no_telepon_vendor, photo_vendor, vertifikasi_vendor)
-       VALUES ($1, $2, $3, $4, $5, $6, 'belom terbertifikasi') RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5, $6, 'belom tervertifikasi') RETURNING *`,
       [pks_id, nama_toko_vendor, email, hashedPassword, no_telepon, "userPlaceholder.png"]
     );
 
@@ -536,7 +539,8 @@ export const simpanAkunVendor = async (req, res) => {
       id: vendorBaru.id_vendor,
       email_vendor: vendorBaru.email_vendor,
       nama_toko_vendor: vendorBaru.nama_toko_vendor,
-      nama_pt_mitra: nama_pt_mitra
+      nama_pt_mitra: nama_pt_mitra,
+      password_raw: password
     });
 
     await pool.query(
@@ -637,41 +641,65 @@ export const getPKSSelesai = async (req, res) => {
 // mengambil halaman PKS untuk melihat data PKS vendor
 export const getDashAdminPKS = async (req, res) => {
   try {
-    // Ambil semua data PKS dan join dengan nama user
-    const query = `
+
+    let query;
+    let values = [];
+
+    if (req.user.role === 'partnership') {
+      // Hanya ambil PKS yang dibuat oleh user partnership tersebut
+      query = `
+        SELECT pks.*, users.full_name
+        FROM pks
+        JOIN users ON users.id = pks.user_id
+        WHERE pks.user_id = $1
+        ORDER BY pks.pembuatan_pks DESC
+      `;
+      values = [req.user.id];
+    } else {
+      // Role lain bisa melihat semua PKS
+      query = `
+        SELECT pks.*, users.full_name
+        FROM pks
+        JOIN users ON users.id = pks.user_id
+        ORDER BY pks.pembuatan_pks DESC
+      `;
+    }
+    // Ambil semua data PKS
+    const queryALL = `
       SELECT pks.*, users.full_name
       FROM pks
       JOIN users ON users.id = pks.user_id
       ORDER BY pks.pembuatan_pks DESC
     `;
-    const allPKS = await pool.query(query);
+    const filterPKS = await pool.query(query,values);
+ 
 
     // Kelompokkan berdasarkan status
     const dataPKS = {
-      pks_dalam_progress: allPKS.rows.filter(progress =>
+      pks_dalam_progress: filterPKS.rows.filter(progress =>
         ['Menunggu Tanda Tangan', 'Menunggu Pembuatan Akun Vendor'].includes(progress.status)
       ),
-      pks_butuh_cek: allPKS.rows.filter(cek =>
+      pks_butuh_cek: filterPKS.rows.filter(cek =>
         cek.status === 'Menunggu Pengecekan'
       ),
 
-      pks_selesai: allPKS.rows.filter(selesai =>
+      pks_selesai: filterPKS.rows.filter(selesai =>
         ['PKS Diterima', 'PKS Selesai', 'PKS Ditolak'].includes(selesai.status)
       ),
     };
 
 
-    console.log("==== Semua PKS ====");
-    console.log(allPKS.rows);
+    // console.log("==== Semua PKS ====");
+    // console.log(allPKS.rows);
 
-    console.log("==== PKS Dalam Progress ====");
-    console.log(dataPKS.pks_dalam_progress);
+    // console.log("==== PKS Dalam Progress ====");
+    // console.log(dataPKS.pks_dalam_progress);
 
-    console.log("==== PKS Butuh Cek ====");
-    console.log(dataPKS.pks_butuh_cek);
+    // console.log("==== PKS Butuh Cek ====");
+    // console.log(dataPKS.pks_butuh_cek);
 
-    console.log("==== PKS Selesai ====");
-    console.log(dataPKS.pks_selesai);
+    // console.log("==== PKS Selesai ====");
+    // console.log(dataPKS.pks_selesai);
 
     res.render('dashAdmin/dashboardAdmin', {
       partial: 'view_PKS',
@@ -765,14 +793,15 @@ export const PKSdiSetujui = async (req, res) => {
 export const tolakPKS = async (req, res) => {
   const { pksId } = req.params;
   const { keterangan } = req.body;
+  const { role, full_name } = req.user;
 
-  
-  const { role, full_name } = req.user; 
-  console.log("🔐 req.user:", req.user); 
   if (!keterangan || keterangan.trim() === '') {
     return res.status(400).json({ error: 'Keterangan tidak boleh kosong.' });
   }
 
+  if (role !== 'admin' && role !== 'direktur') {
+    return res.status(403).json({ message: 'Akses ditolak: Anda tidak memiliki izin.' });
+  }
 
   const keteranganLengkap = `Ditolak oleh ${role} - ${full_name}: ${keterangan}`;
 
@@ -795,6 +824,7 @@ export const tolakPKS = async (req, res) => {
     res.status(500).json({ error: 'Terjadi kesalahan saat memperbarui PKS.' });
   }
 };
+
 
 // tombol  + Akun Vendor
 export const getPembuatanAkunVendor = async (req, res) => {
@@ -832,6 +862,72 @@ export const getPembuatanAkunVendor = async (req, res) => {
   }
 };
 // halaman View PKS data end
+
+// data akun vendor start
+export const getDaftarVendor = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT uv.id_vendor,
+             uv.nama_toko_vendor,
+             uv.email_vendor,
+             uv.no_telepon_vendor,
+             uv.photo_vendor,
+             uv.status,
+             uv.vendor_dibuat_tanggal,
+             p.pt_mitra
+      FROM users_vendor uv
+      LEFT JOIN pks p ON p.pks_id = uv.pks_id
+      ORDER BY uv.vendor_dibuat_tanggal DESC
+    `);
+
+    res.render("dashAdmin/dashboardAdmin", {
+      partial: 'view_akun_vendor',
+      data: result.rows,
+      role: req.user.role
+    });
+  } catch (err) {
+    console.error('❌ Gagal ambil data vendor:', err);
+    res.status(500).send('Gagal mengambil data vendor');
+  }
+};
+
+
+export const updateVendor = async (req, res) => {
+  const {
+    id_vendor,
+    nama_toko_vendor,
+    email_vendor,
+    no_telepon_vendor,
+    status,
+  } = req.body;
+
+  try {
+    const updateQuery = `
+      UPDATE users_vendor
+      SET 
+        nama_toko_vendor = $1,
+        email_vendor = $2,
+        no_telepon_vendor = $3,
+        status = $4
+      WHERE id_vendor = $5
+    `;
+
+    await pool.query(updateQuery, [
+      nama_toko_vendor,
+      email_vendor,
+      no_telepon_vendor,
+      status,
+      id_vendor,
+    ]);
+
+    console.log(`✅ Data vendor ${id_vendor} berhasil diperbarui.`);
+    res.redirect('/admin/dashboardAdmin/daftar-vendor');
+  } catch (err) {
+    console.error('❌ Gagal update vendor:', err);
+    res.status(500).send('Terjadi kesalahan saat update data vendor');
+  }
+};
+// data akun vendor end
 
 //penambahan akun internal start
 // get halaman penamban akun internal
@@ -1111,7 +1207,9 @@ export const forgotPasswordInternal = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    const resetURL = `http://localhost:3000/admin/reset-password?token=${token}`; // ganti saat hosting
+    // const resetURL = `http://localhost:3000/admin/reset-password?token=${token}`; 
+    const resetURL = `skripsi-v3-coba.up.railway.app/admin/reset-password?token=${token}`; 
+
 
     const mailOptions = {
       from: process.env.EMAIL_FROM,

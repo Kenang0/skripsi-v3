@@ -844,3 +844,134 @@ export const handleUploadBuktiTayang = (req, res) => {
 };
 
 
+// pengaturan akun vendor
+export const getHalamanPengaturanVendor = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query("SELECT * FROM users_vendor WHERE id_vendor = $1", [userId]);
+    const user = result.rows[0];
+    console.log("📝 Data vendor:", result.rows[0]);
+
+    res.render("dashVendor/dashboardVendor", {
+      partial: 'pengaturan_akun_vendor',
+      error: "",
+      data: "",
+      user
+    });
+  } catch (err) {
+    console.error("❌ Gagal ambil data user:", err);
+    res.status(500).send("Terjadi kesalahan.");
+  }
+};
+
+export const updatePasswordVendor = async (req, res) => {
+  const userId = req.user.id;
+  const { old_password, new_password } = req.body;
+
+  try {
+    const user = await pool.query(`SELECT password_vendor FROM users_vendor WHERE id_vendor = $1`, [userId]);
+    if (user.rowCount === 0) return res.json({ success: false, message: "User tidak ditemukan" });
+
+    const isMatch = await bcrypt.compare(old_password, user.rows[0].password_vendor);
+    if (!isMatch) return res.json({ success: false, message: "Password lama salah" });
+
+    const hashed = await bcrypt.hash(new_password, 10);
+    await pool.query(`UPDATE users_vendor SET password_vendor = $1 WHERE id_vendor = $2`, [hashed, userId]);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ Gagal update password:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export const updateProfilVendor = async (req, res) => {
+  const userId = req.user.id;
+  const { full_name, nomor_tlp } = req.body;
+
+  try {
+    await pool.query(
+      `UPDATE users_vendor SET nama_toko_vendor = $1, no_telepon_vendor = $2  WHERE id_vendor = $3`,
+      [full_name, nomor_tlp, userId]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ Gagal update profil:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+// untuk foto profile
+const storagePhotoVendor = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/uploads/profile_pic");
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const filename = `user_${Date.now()}${ext}`;
+    cb(null, filename);
+  },
+});
+
+// Hanya izinkan file gambar
+const fileFilterVendor = (req, file, cb) => {
+  const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Hanya file gambar (jpg, jpeg, png) yang diperbolehkan"), false);
+  }
+};
+
+// Export middleware
+const uploadPhotoVendor = multer({ storage: storagePhotoVendor, fileFilter: fileFilterVendor }).single("foto_user");
+
+
+export const updateFotoVendor = async (req, res) => {
+  uploadPhotoVendor(req, res, async function (err) {
+    if (err) {
+      console.error("❌ Multer error:", err);
+      return res.status(500).json({ success: false, message: "Upload gagal" });
+    }
+
+    const file = req.file;
+    const userId = req.user.id;
+
+    if (!file) {
+      return res.status(400).json({ success: false, message: "Tidak ada file dikirim" });
+    }
+
+    try {
+      const { rows } = await pool.query(`SELECT photo_vendor FROM users_vendor WHERE id_vendor = $1`, [userId]);
+      const fotoLama = rows[0]?.photo_vendor;
+      const fotoBaru = file.filename;
+      const folder = path.join("public", "uploads", "profile_pic");
+
+      const isDefault = ["img_placeholder.jpg", "userPlaceholder.png"].includes(fotoLama);
+
+      const pathLama = path.join(folder, fotoLama);
+      const pathBaru = path.join(folder, fotoBaru);
+
+      // Kalau nama sama, timpa langsung
+      if (fotoLama === fotoBaru) {
+        fs.writeFileSync(pathLama, fs.readFileSync(pathBaru));
+      } else {
+        // Kalau nama beda dan bukan default, hapus lama
+        if (fotoLama && !isDefault && fs.existsSync(pathLama)) {
+          fs.unlinkSync(pathLama);
+        }
+
+        // Simpan ke DB dengan nama baru
+        await pool.query(`UPDATE users_vendor SET photo_vendor = $1 WHERE id_vendor = $2`, [fotoBaru, userId]);
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("❌ Gagal update foto:", error);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  });
+};
+
+
