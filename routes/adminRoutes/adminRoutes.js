@@ -9,7 +9,7 @@ import {  loginUser,getLoginPage, getDashHome,
           getHalamanTambahAkunInternal,vertifikasiVendor,updatePasswordVendor,updatePasswordInternal,getHalamanPengaturan,
           updateProfil,updatePassword,updateFoto,LaporanAnalitikUSer,HalamanUserInternal,
           forgotPasswordInternal,getHalamanPengecekanPembayaran,deleteTimInternal,UpdateTimInternal,setujuiPembayaran,handlePembayaranKurang,
-          getDaftarVendor,updateVendor} from "../../controllers/dashAdminController/authAdmin.js";
+          getDaftarVendor,updateVendor,getSemuaDataPembayaran} from "../../controllers/dashAdminController/authAdmin.js";
 import {forgotPasswordVendor} from "../../controllers/dashVendorController/authVendor.js";
 
 
@@ -97,4 +97,5 @@ router.post("/dashboardAdmin/forgot-password-vendor", forgotPasswordVendor);
 router.get("/dashboardAdmin/cek-pembayaran",authenticateRoleDashAdmin(["admin", "partnership", "direktur", "Finance"]), getHalamanPengecekanPembayaran);
 router.post("/pembayaran/:id_pembayaran/setujui", authenticateRoleDashAdmin(["admin", "Finance"]), setujuiPembayaran);
 router.post("/pembayaran/:id_pembayaran/kurang", authenticateRoleDashAdmin(["admin", "Finance"]), handlePembayaranKurang);
+router.get("/dashboardAdmin/daftar-pembayaran", authenticateRoleDashAdmin(["admin", "partnership", "direktur", "Finance"]), getSemuaDataPembayaran);
 export default router;

@@ -26,7 +26,7 @@
 <div class="tabel-pengecekan">
   <div class="kotak-tabel">
     <div class="kotak-header">
-      <h5>Pengecekan Pembayaran</h5>
+      <h5>Data Pembayaran</h5>
     </div>
     <div class="p-3">
       <table id="tabel-pengecekan" class="table table-bordered table-striped">
@@ -39,7 +39,6 @@
             <th>Harga Produk</th>
             <th>Jumlah Pemesanan</th>
             <th>Total Harga Produk</th> 
-            <th>Total Ekspetasi Penerimaan</th> 
             <th>Sisa Tagihan</th>
             <th>Di pesan Oleh</th>
             <th>Bukti Transfer</th>
@@ -58,12 +57,11 @@
                 <td>Rp <%= item.harga.toLocaleString('id-ID') %></td>
                 <td><%= item.jumlah_pemesanan %></td>
                 <td>Rp <%= item.total_harga_produk.toLocaleString('id-ID') %></td>
-                <td>Rp <%= item.total_ekspektasi_pembayaran.toLocaleString('id-ID') %></td>
                 <td>
                   <% if (item.sisa_tagihan_terhitung && item.sisa_tagihan_terhitung > 0) { %>
                     Rp <%= item.sisa_tagihan_terhitung.toLocaleString('id-ID') %>
                     <% } else { %>
-                      -<% 
+                      Rp <%= item.total_harga_produk.toLocaleString('id-ID') %><% 
                     } %>
                 </td>
 

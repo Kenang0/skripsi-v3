@@ -1579,3 +1579,51 @@ const kirimEmailKekurangan = async (id_pemesanan, sisa_tagihan) => {
     console.error("❌ Gagal mengirim email pelunasan:", err);
   }
 };
+
+export const getSemuaDataPembayaran = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        p.id_pemesanan,
+        u.nama_toko_vendor AS pemilik_produk,
+        k.tipe_kategori,
+        pi.nama_produk,
+        p.jumlah_pemesanan,
+        (pi.harga * p.jumlah_pemesanan) AS total_harga,
+        SUM(pb.jumlah_bayar) AS total_terbayar,
+        MAX(pb.sisa_tagihan) AS sisa_tagihan,
+        pb.status_pembayaran,
+        pb.waktu_dibayar,
+        pb.bukti_pembayaran,
+        us.full_name,
+        pi.harga
+      FROM pemesanan p
+      JOIN produk_iklan pi ON p.produk_id = pi.id_produk_iklan
+      JOIN users_vendor u ON pi.vendor_id = u.id_vendor
+      JOIN kategori k ON p.kategori_id = k.kategori_id
+      JOIN users us ON p.user_id = us.id
+      LEFT JOIN pembayaran pb ON pb.id_pemesanan = p.id_pemesanan
+      WHERE pb.status_pembayaran != 'menunggu pengecekan'
+      GROUP BY 
+        p.id_pemesanan, u.nama_toko_vendor, k.tipe_kategori, pi.nama_produk,
+        p.jumlah_pemesanan, pi.harga, pb.status_pembayaran, 
+        pb.waktu_dibayar, pb.bukti_pembayaran, full_name
+      ORDER BY p.id_pemesanan DESC
+    `);
+      console.log("📄 Data Pembayaran:", result.rows);
+
+    res.render("dashAdmin/dashboardAdmin", {
+      data: result.rows,
+      partial: "view_data_pembayaran",
+      role: req.user.role
+    });
+  } catch (error) {
+    console.error("❌ Gagal mengambil data pembayaran:", error);
+    res.render("dashAdmin/dashboardAdmin", {
+      data: [],
+      partial: "view_data_pembayaran",
+      role: req.user.role,
+      error: "Gagal mengambil data pembayaran"
+    });
+  }
+};
