@@ -472,7 +472,9 @@ export const kirimEmailVerifikasiVendor = async (user) => {
     { expiresIn: "1d" }
   );
 
-  const verifikasiURL = `http://localhost:3000/admin/verifikasivendor?token=${token}`; // ubah ke domain saat hosting
+  // const verifikasiURL = `http://localhost:3000/admin/verifikasivendor?token=${token}`; 
+  const verifikasiURL = `skripsi-v3-coba.up.railway.app/admin/verifikasivendor?token=${token}`; 
+  
 
   const mailOptions = {
     from: process.env.EMAIL_FROM,
@@ -1009,8 +1011,8 @@ export const kirimEmailVerifikasi = async (user) => {
     { expiresIn: "1d" }
   );
 
-  const verifikasiURL = `http://localhost:3000/admin/verifikasi?token=${token}`; // ganti nanti pas udah di hosting
-
+  // const verifikasiURL = `http://localhost:3000/admin/verifikasi?token=${token}`;
+  const verifikasiURL = `skripsi-v3-coba.up.railway.app/admin/verifikasi?token=${token}`;
   const mailOptions = {
     from: process.env.EMAIL_FROM,
     to: user.email,
@@ -1526,7 +1528,7 @@ export const handlePembayaranKurang = async (req, res) => {
 
 const kirimEmailKekurangan = async (id_pemesanan, sisa_tagihan) => {
   try {
-    // 1. Ambil info user & produk
+  
     const { rows } = await pool.query(`
       SELECT u.email, u.full_name, u.id AS user_id, pi.nama_produk
       FROM pemesanan p
@@ -1542,18 +1544,18 @@ const kirimEmailKekurangan = async (id_pemesanan, sisa_tagihan) => {
 
     const { email, full_name, user_id, nama_produk } = rows[0];
 
-    // 2. Buat JWT token
+    
     const token = jwt.sign(
       { user_id, id_pemesanan, role: "klien" },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
 
-    // 3. Buat link pembayaran
+   
     const baseUrl = process.env.BASE_URL || "http://localhost:3000";
     const paymentLink = `${baseUrl}/pembayaran/${id_pemesanan}/email?token=${token}`;
 
-    // 4. Kirim email
+    
     const mailOptions = {
       from: `"Ngiklan Murah" <${process.env.EMAIL_USER}>`, // black magic
       to: email,

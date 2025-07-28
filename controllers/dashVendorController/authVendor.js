@@ -712,8 +712,8 @@ export const forgotPasswordVendor = async (req, res) => {
       { expiresIn: '1d' }
     )
 
-    const resetURL = `http://localhost:3000/vendor/reset-password?token=${token}`; // ganti saat hosting
-
+    // const resetURL = `http://localhost:3000/vendor/reset-password?token=${token}`;
+    const resetURL = `skripsi-v3-coba.up.railway.app/vendor/reset-password?token=${token}`;
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to: user.email_vendor,
