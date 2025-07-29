@@ -2,15 +2,12 @@ import cron from "node-cron";
 import pool from "../../db.js";
 
 
-// buat merubah pembayaran
-// Cron seting 1 menit
-// cron.schedule("*/1 * * * *", async () => {
-// Cron akan berjalan setiap jam
+
 cron.schedule("0 * * * *", async () => {
   console.log("🔄 Cek status pemesanan yang kadaluwarsa pembayaran...");
 
-    const batasWaktu = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 jam ke belakang
-    // const batasWaktu = new Date(Date.now() - 1 * 60 * 1000); // 1 menut
+    const batasWaktu = new Date(Date.now() - 24 * 60 * 60 * 1000);
+   
   try {
     const result = await pool.query(`
       UPDATE pemesanan

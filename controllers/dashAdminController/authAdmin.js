@@ -109,7 +109,7 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign({ id: user.id, role, full_name: user.full_name }, process.env.JWT_SECRET, { expiresIn: "3h" });
     res.cookie("token", token, { httpOnly: true });
 
-    const rolesAllowed = ["admin", "partnership", "direktur"];
+    const rolesAllowed = ["admin", "partnership", "direktur","finance"];
     if (rolesAllowed.includes(role)) {
       res.redirect("dashboardAdmin");
     } else {

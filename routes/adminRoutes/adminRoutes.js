@@ -27,7 +27,7 @@ router.get("/logout", (req, res) => {
   });
 
 // ambil halaaman home
-router.get("/dashboardAdmin", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]), getDashHome);
+router.get("/dashboardAdmin", authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance"]), getDashHome);
 
 
 //ambil halama add pks
@@ -71,7 +71,7 @@ router.get("/dashboardAdmin/daftar-vendor", authenticateRoleDashAdmin(["admin", 
 router.post('/dashboardAdmin/update-vendor', authenticateRoleDashAdmin(["admin", "direktur"]), updateVendor);
 
 // laporan analitik
-router.get("/dashboardAdmin/aporan-analitik-user", authenticateRoleDashAdmin(["admin", "partnership", "direktur"]),  LaporanAnalitikUSer);
+router.get("/dashboardAdmin/aporan-analitik-user", authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance"]),  LaporanAnalitikUSer);
 
 // pengaturan akun
 router.get("/dashboardAdmin/pengaturan-akun", authenticateRoleDashAdmin(["admin", "partnership", "direktur","finance","klien"]), getHalamanPengaturan);
@@ -94,8 +94,8 @@ router.post("/dashboardAdmin/forgot-password-vendor", forgotPasswordVendor);
 
 
 // halaman cek-pembayaran
-router.get("/dashboardAdmin/cek-pembayaran",authenticateRoleDashAdmin(["admin", "partnership", "direktur", "Finance"]), getHalamanPengecekanPembayaran);
-router.post("/pembayaran/:id_pembayaran/setujui", authenticateRoleDashAdmin(["admin", "Finance"]), setujuiPembayaran);
-router.post("/pembayaran/:id_pembayaran/kurang", authenticateRoleDashAdmin(["admin", "Finance"]), handlePembayaranKurang);
-router.get("/dashboardAdmin/daftar-pembayaran", authenticateRoleDashAdmin(["admin", "partnership", "direktur", "Finance"]), getSemuaDataPembayaran);
+router.get("/dashboardAdmin/cek-pembayaran",authenticateRoleDashAdmin(["admin", "partnership", "direktur", "finance"]), getHalamanPengecekanPembayaran);
+router.post("/pembayaran/:id_pembayaran/setujui", authenticateRoleDashAdmin(["admin", "finance"]), setujuiPembayaran);
+router.post("/pembayaran/:id_pembayaran/kurang", authenticateRoleDashAdmin(["admin", "finance"]), handlePembayaranKurang);
+router.get("/dashboardAdmin/daftar-pembayaran", authenticateRoleDashAdmin(["admin", "partnership", "direktur", "finance"]), getSemuaDataPembayaran);
 export default router;
